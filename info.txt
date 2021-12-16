@@ -1,0 +1,124 @@
+const mysql = require('mysql2');
+const connection = mysql.createPool({
+        host: 'localhost',
+        user: 'root',
+        database: 'ozaibot',
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
+    });
+
+
+const mysql = require('mysql2')
+const serversdb = mysql.createPool({
+      host: 'localhost',
+      user: 'root',
+      database: 'ozaibotservers',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+});
+
+ ozai-508847949413875712 cherry-753454519937007696 gary-855480412319383592 leon-816968930564243457
+2147483648 max settimeout time 🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿 ✅☑️❎✖️❌
+ ids are 17 or 18 long
+** **
+let muteRole = message.guild.roles.cache.find(role => role.name.toLowerCase() === "go away");
+message.guild.channels.cache.forEach(async (channel, id) => {
+await channel.updateOverwrite(muteRole, {
+VIEW_CHANNEL: false })})
+
+ADMINISTRATOR
+CREATE_INSTANT_INVITE
+KICK_MEMBERS
+BAN_MEMBERS
+MANAGE_CHANNELS
+MANAGE_GUILD
+ADD_REACTIONS
+VIEW_AUDIT_LOG
+VIEW_CHANNEL
+READ_MESSAGES
+SEND_MESSAGES
+SEND_TTS_MESSAGES
+MANAGE_MESSAGES
+EMBED_LINKS
+ATTACH_FILES
+READ_MESSAGE_HISTORY
+MENTION_EVERYONE
+USE_EXTERNAL_EMOJIS
+EXTERNAL_EMOJIS
+CONNECT // Voice Channel
+SPEAK
+MUTE_MEMBERS
+DEAFEN_MEMBERS
+MOVE_MEMBERS
+USE_VAD // Voice Auto Detection
+CHANGE_NICKNAME
+MANAGE_NICKNAMES
+MANAGE_ROLES
+MANAGE_ROLES_OR_PERMISSIONS
+MANAGE_WEBHOOKS
+MANAGE_EMOJIS
+
+ { name: "Permissions", value: "uvbiurgb", inline: true},
+           let author2 = message.author
+          if (!user) return message.reply('You must ping a user.')
+         let filter = m => m.author.id === message.author.id
+         message.channel.send(`are you sure you want to blacklist ${user.username}? \`YES\` / \`NO\``).then(() => {
+              message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(message => {
+                  message = message.first();
+                   if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
+                         <code>
+               } else if (message.content.toUpperCase() == 'NO' || message.content.toUpperCase() == 'N') {
+                    >code>
+              } else {
+                     message.channel.send(`Cancelled: Invalid Response`);
+                  }
+             }).catch(collected => {
+                    message.channel.send('Timed out');
+					              });
+         })
+
+
+let query = "SELECT * FROM poo WHERE userid = ?";
+let query = "INSERT INTO poo (username, userid) VALUES (?, ?)";
+let query = "DELETE FROM poo WHERE userid = ?";
+let query = "UPDATE poo SET username = ? WHERE userid = ?";
+if (error) return console.log(error)
+
+for (row of results) {
+var username1 = row["username"];
+}
+
+
+DELETING FROM STRING START AND END
+.slice(0, -1)
+           ^ amount to remove from end (make sure to include the -
+.slice (1)
+        ^ amount to remove from start
+for (i = 0; i <= 100; i = i + 1) { // loop 100 times
+}
+
+
+CONVERTING MESSAGE ID INTO A TIMESTAMP 
+const DISCORD_EPOCH = 1420070400000
+const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
+      //converts
+	return console.log( new Date(snowflake / 4194304 + epoch))
+}
+const validateSnowflake = (snowflake, DISCORD_EPOCH) => {
+      //checks if it is a valid id
+	if (!Number.isInteger(+snowflake)) {
+		console.log("That doesn't look like a snowflake. Snowflakes contain only numbers.")
+            
+	}
+	if (snowflake < 4194304) {
+		console.log("That doesn't look like a snowflake. Snowflakes are much larger numbers.")
+	}
+	const timestamp = convertSnowflakeToDate(snowflake, DISCORD_EPOCH)
+      if (!timestamp) return console.log('timestamp couldnt be created?')
+	if (isNaN(timestamp.getTime())) {
+		console.log("That doesn't look like a snowflake. Snowflakes have fewer digits.")
+	}
+	return console.log(timestamp)
+}
