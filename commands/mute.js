@@ -88,40 +88,6 @@ module.exports = {
                                     timeunban = mutetimeseconds + currenttime
                                     unitoftime = 'min';
                               }
-                              
-                              /*
-                              validtimes.forEach((potentialtime2) => {
-                                    const potentialtime = potentialtime2.slice(0, -4)
-                                    if (timechosenpostfixfound === false) {
-                                          if (potentialtime === timechosen.slice(timechosen.length - 1)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 1)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 3)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 3)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 4)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 4)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 5)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 5)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 6)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 6)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 7)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 7)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-
-                                          }
-                                    }
-                              })
-                              */
                               if (unitoftime === 'min') {
                                     mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60;
                                     timeunban = mutetimeseconds + currenttime;
