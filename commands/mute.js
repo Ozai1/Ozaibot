@@ -71,7 +71,7 @@ module.exports = {
                                         "d", "days", "day"
                                     ],
                                 }
-                                let string = "min";
+                                let string = "poo";
                                 
                                 function getAlias(string){
                                     for (const key in aliases) if(aliases[key].includes(string)) return key
