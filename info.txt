@@ -122,3 +122,4 @@ const validateSnowflake = (snowflake, DISCORD_EPOCH) => {
 	}
 	return console.log(timestamp)
 }
+

@@ -15,9 +15,7 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
             if (userstatus == 1) {
-                  let member = message.guild.members.cache.get(args[0].slice(3, -1))
-                  let user = client.users.cache.get(args[0])
-                  message.channel.send()
+                  
                   /*
                   if (!args[0]) return message.channel.send('U must add an arg')
                   let content = args.slice(0).join(" ");

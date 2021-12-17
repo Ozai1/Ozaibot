@@ -16,6 +16,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
+let numberfound = false;
 const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
 module.exports = {
       name: 'mute',
@@ -55,72 +56,143 @@ module.exports = {
                               message.channel.send('Failed.')
                         })
                         let timeunban = 9999999999;
-                        let reason = args.slice(1).join(" ")
+                        let reason = args.slice(2).join(" ")
+                        let display = '';
+                        let mutetimeseconds = null;
                         if (args[1]) {
-                              const aliases = {
-                                    "d": [
-                                        "d", "days", "day"
-                                    ],
-                                    "m": [
-                                        "m", "minutes", "minute", "min", "mins"
-                                    ],
-                                    "w": [
-                                        "w", "days", "day"
-                                    ],
-                                    "h": [
-                                        "d", "days", "day"
-                                    ],
-                                }
-                                let string = "day";
-                                
-                                function getAlias(string){
-                                    for (const key in aliases) if(aliases[key].includes(string)) return key
-                                }
-                              const validtimes = ['m-min', 'min-min', 'mins-min', 'minute-min', 'minutes-min', 'h-hou', 'hour-hou', 'hours-hou', 'd-day', 'day-day', 'days-day', 'w-wee', 'week-wee', 'weeks-wee', 'mon-mon', 'month-mon', 'months-mon']
+                              const validtimes = ['m-min', 'min-min', 'mins-min', 'minute-min', 'minutes-min', 'h-hou', 'hour-hou', 'hours-hou', 'd-day', 'day-day', 'days-day', 'w-wee', 'week-wee', 'weeks-wee', 'mon-mon', 'months-mon']
                               let unitoftime = null;
                               let unitchosenraw = null;
                               const timechosen = args[1];
                               let timechosenpostfixfound = false;
-                              let mutetimeseconds = null;
-                              if (!isNaN(args[0])) {
-                                    mutetimeseconds = args[1] * 60;
-                                    TIMECHOSENPOSTFIX = 'm';
-                                    timeunban = mutetimeseconds + currenttime
-                                    unitoftime = 'min';
+                              validtimes.forEach((potentialtime2) => {
+                                    const potentialtime = potentialtime2.slice(0, -4)
+                                    if (timechosenpostfixfound === false) {
+                                          if (potentialtime === timechosen.slice(timechosen.length - 1)) {
+                                                unitchosenraw = timechosen.slice(timechosen.length - 1)
+                                                timechosenpostfixfound = true
+                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
+                                          } else if (potentialtime === timechosen.slice(timechosen.length - 3)) {
+                                                unitchosenraw = timechosen.slice(timechosen.length - 3)
+                                                timechosenpostfixfound = true
+                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
+                                          } else if (potentialtime === timechosen.slice(timechosen.length - 4)) {
+                                                unitchosenraw = timechosen.slice(timechosen.length - 4)
+                                                timechosenpostfixfound = true
+                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
+                                          } else if (potentialtime === timechosen.slice(timechosen.length - 5)) {
+                                                unitchosenraw = timechosen.slice(timechosen.length - 5)
+                                                timechosenpostfixfound = true
+                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
+                                          } else if (potentialtime === timechosen.slice(timechosen.length - 6)) {
+                                                unitchosenraw = timechosen.slice(timechosen.length - 6)
+                                                timechosenpostfixfound = true
+                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
+                                          } else if (potentialtime === timechosen.slice(timechosen.length - 7)) {
+                                                unitchosenraw = timechosen.slice(timechosen.length - 7)
+                                                timechosenpostfixfound = true
+                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
+
+                                          }
+                                    }
+                              })
+                              if (timechosenpostfixfound === true) {
+                                    if (unitoftime === 'min') {
+                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60;
+                                          timeunban = mutetimeseconds + currenttime;
+                                    } else if (unitoftime === 'hou') {
+                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 3600;
+                                          timeunban = mutetimeseconds + currenttime;
+                                    } else if (unitoftime === 'day') {
+                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 86400;
+                                          timeunban = mutetimeseconds + currenttime;
+                                    } else if (unitoftime === 'wee') {
+                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 604800;
+                                          timeunban = mutetimeseconds + currenttime;
+                                    } else if (unitoftime === 'mon') {
+                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 2592000;
+                                          timeunban = mutetimeseconds + currenttime;
+                                    }
+                                    let postfix = 's';
+                                    if (mutetimeseconds < 60) {
+                                          if (mutetimeseconds == 0) { postfix = '' }
+                                          display = ` for ${mutetimeseconds} second${postfix}`
+                                    } if (mutetimeseconds >= 60) {
+                                          if (mutetimeseconds == 60) { postfix = '' }
+                                          display = ` for ${mutetimeseconds / 60} minute${postfix}`
+                                    } if (mutetimeseconds >= 3600) {
+                                          if (mutetimeseconds == 3600) { postfix = '' }
+                                          display = ` for ${mutetimeseconds / 3600} hour${postfix}`
+                                    } if (mutetimeseconds >= 86400) {
+                                          if (mutetimeseconds == 86400) { postfix = '' }
+                                          display = ` for ${mutetimeseconds / 86400} day${postfix}`
+                                    } if (mutetimeseconds >= 604800) {
+                                          if (mutetimeseconds == 604800) { postfix = '' }
+                                          display = ` for ${mutetimeseconds / 604800} week${postfix}`
+                                    } if (mutetimeseconds >= 2592000) {
+                                          if (mutetimeseconds == 2592000) { postfix = '' }
+                                          display = ` for ${mutetimeseconds / 2592000} month${postfix}`
+                                    }
+                              } else {
+                                    reason = args.slice(1).join(" ")
+                                    display = '';
                               }
-                              if (unitoftime === 'min') {
-                                    mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60;
-                                    timeunban = mutetimeseconds + currenttime;
-                              } else if (unitoftime === 'hou') {
-                                    mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60 * 60;
-                                    timeunban = mutetimeseconds + currenttime;
-                              } else if (unitoftime === 'day') {
-                                    mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60 * 60 * 24;
-                                    timeunban = mutetimeseconds + currenttime;
-                              } else if (unitoftime === 'wee') {
-                                    mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60 * 60 * 24 * 7;
-                                    timeunban = mutetimeseconds + currenttime;
-                              } else if (unitoftime === 'mon') {
-                                    mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60 * 60 * 24 * 30;
-                                    timeunban = mutetimeseconds + currenttime;
-                              }
-                              let postfix = 's'
-                              if (timechosen.slice(0, -unitchosenraw.length) == 0) {
-                                    postfix = ''
-                              }
-                              message.channel.send(`timeunban: ${timeunban}, <t:${timeunban}>, <t:${timeunban}:R>\nunitoftime: ${unitoftime}\nunitchosenraw: ${unitchosenraw}\ntimechosenpostfixfound: ${timechosenpostfixfound}\nmutetimeinseconds: ${mutetimeseconds}\ncurrent time: <t:${currenttime}>, ${currenttime}`)
                         } else {
                               reason = args.slice(1).join(" ")
+                              display = '';
                         }
-                        query = "INSERT INTO activebans (userid, serverid, timeunban, type, punishidforserver) VALUES (?, ?, ?, ?, ?)";
-                        data = [member.id, message.guild.id, timeunban, 'mute', punishid]
-                        serversdb.query(query, data, function (error, results, fields) {
-                              if (error) return console.log(error)
-                              message.channel.send(`${member} has been muted.`);
+                        message.channel.send(`${member} has been muted${display}.`)
+                        query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
+                        data = [member.id, message.guild.id, timeunban, 'mute']
+                        connection.query(query, data, function (error, results, fields) {
+                              if (error) {
+                                    message.channel.send('There was a backend error :/')
+                                    return console.log(error)
+                              }
+                              return
                         })
+                        if (mutetimeseconds === null) return
+                        console.log('setthetimeout')
+                        setTimeout(() => {
+                              let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
+                              let data = ['muterole']
+                              serversdb.query(query, data, function (error, results, fields) {
+                                    if (error) return console.log(error)
+                                    if (results == ``) {
+                                          return console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
+                                    }
+                                    for (row of results) {
+                                          let muteroleid = row["details"];
+                                          const muterole = message.guild.roles.cache.get(muteroleid)
+                                          if (!muterole) return console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
+                                          if (message.guild.me.roles.highest.position <= muterole.position) return console.log('I do not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
+                                          if (!message.guild.me.hasPermission('MANAGE_ROLES')) return console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
+                                          member.roles.remove(muterole).catch(err => { console.log(err) })
+                                          console.log('Unmuted for previous mute on same life')
+                                          query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
+                                          data = [member.id, message.guild.id, 'mute']
+                                          connection.query(query, data, function (error, results, fields) {
+                                                if (error) {
+                                                      console.log('backend error for checking active bans')
+                                                      return console.log(error)
+                                                }
+                                                for (row of results) {
+                                                      query = "DELETE FROM activebans WHERE id = ?";
+                                                      data = [row["id"]]
+                                                      connection.query(query, data, function (error, results, fields) {
+                                                            if (error) return console.log(error)
+                                                      })
+                                                }
+                                          })
+                                    }
+                              })
+                        }, mutetimeseconds * 1000);
                   }
             })
       }
+}
+const stopthething = () => {
+      numberfound = true;
 }
 async function mute_role(message, cmd, args, userstatus, Discord) {
       if (!userstatus == 1) {
@@ -183,10 +255,6 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
 
 
       } else if (args[0].toLowerCase() === 'create') {
-            if (!message.member.hasPermission('MANAGE_ROLES') || !message.member.hasPermission('MANAGE_CHANNELS'))
-                  return message.channel.send('You must have manage roles and manage channels permissions to create a mute role.');
-            if (!message.guild.me.hasPermission('MANAGE_CHANNELS') || !message.guild.me.hasPermission('MANAGE_ROLES'))
-                  return message.channel.send('I must have manage roles and manage channels permissions in order to create a muted role.');
             let muterole = await message.guild.roles.create({
                   data: {
                         name: "Muted",

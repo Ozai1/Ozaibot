@@ -7,6 +7,14 @@ const serversdb = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
+const connection = mysql.createPool({
+      host: 'localhost',
+      user: 'root',
+      database: 'ozaibot',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+});
 module.exports = {
       name: 'unmute',
       description: 'unmutes a user in a guild',
@@ -30,12 +38,27 @@ module.exports = {
                               }
                         }
                         if (!member) return message.channel.send("You have to mention a valid member");
-                        if (!muterole) return message.channel.send('The mute role for this server could not be found.') 
+                        if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         member.roles.remove(muterole).catch(err => {
                               console.log(err)
                               message.channel.send('Failed.')
                         }).then(() => {
                               message.channel.send(`${member} has been unmuted`);
+                        })
+                        query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
+                        data = [member.id, message.guild.id, 'mute']
+                        connection.query(query, data, function (error, results, fields) {
+                              if (error) {
+                                    console.log('backend error for checking active bans')
+                                    return console.log(error)
+                              }
+                              for (row of results) {
+                                    query = "DELETE FROM activebans WHERE id = ?";
+                                    data = [row["id"]]
+                                    connection.query(query, data, function (error, results, fields) {
+                                          if (error) return console.log(error)
+                                    })
+                              }
                         })
                   }
             })
