@@ -19,14 +19,14 @@ module.exports = {
                               if (!channelselected) return message.reply('Invalid channel or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                         } else return message.reply('Invalid channel id or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                   }
-                  let pinguser = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]);
-                  if (!pinguser) return message.reply('Invalid user.');
-                  await channelselected.updateOverwrite(pinguser, { VIEW_CHANNEL: true, SEND_MESSAGES: true, READ_MESSAGE_HISTORY: true }).catch(err => {
+                  let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+                  if (!member) return message.reply('Invalid user.');
+                  await channelselected.updateOverwrite(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true, READ_MESSAGE_HISTORY: true }).catch(err => {
                         console.log(err)
                         message.channel.send('Failed to add to channel')
                         return
                   })
-                  message.channel.send(`${pinguser} has been added to this channel.`);
+                  message.channel.send(`${member} has been added to this channel.`);
             }
       }
 }
