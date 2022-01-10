@@ -17,7 +17,7 @@ module.exports = {
                         randomgenerator.push(arg)
                   })
                   let random = randomgenerator[Math.floor(Math.random() * randomgenerator.length)];
-                  message.channel.send(`Your random word is: "${random}"`)
+                  message.channel.send(`Your random word is: \`${random}\``)
             }
       }
 }

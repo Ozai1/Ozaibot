@@ -17,7 +17,7 @@ const connection = mysql.createPool({
 });
 module.exports = {
       name: 'unmute',
-      aliases: ['muterole'],
+      aliases: ['muterole', 'un-mute'],
       description: 'unmutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')

@@ -33,7 +33,6 @@ const times = {
 module.exports.getAlias = (string) => {
     for (const key in times) if (times[key].aliases.includes(string)) return key;
 }
-
 module.exports.getTime = (key) => {
     if (times[key] && times[key].time) {
         return times[key].time;

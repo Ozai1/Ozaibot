@@ -30,7 +30,7 @@ module.exports = {
                               if (!amount) return conformationmessage.edit(`${message.author}, Usage is \`sm_purge <amount>\``).catch(err => { console.log(err) });
                               if (isNaN(amount)) return conformationmessage.edit(`${message.author}, Usage is \`sm_purge <amount>\``).catch(err => { console.log(err) });
                               if (amount <= 0) return conformationmessage.edit(`${message.author}, You cannot delete 0 or less messages`).catch(err => { console.log(err) });
-                              if (amount > 100) return conformationmessage.edit(`${message.author}, You cannot delete more than 100 messages.`).catch(err => { console.log(err) });
+                              if (amount > 100) return conformationmessage.edit(`${message.author}, You cannot delete more than 1000 messages.`).catch(err => { console.log(err) });
                               await message.channel.messages.fetch(options).then(messages => {
                                     let messagesincache = [] // MESSAGES TO BE DELETED WILL GO IN HERE
                                     let amountgreaterthan14days = 0; // HOW MANY MESSAGES ARE OLDER THAN 14 DAYS!?!?
@@ -109,7 +109,7 @@ module.exports = {
                               if (!amount) return conformationmessage.edit(`${message.author}, Usage is \`sm_purge <amount>\``).catch(err => { console.log(err) });
                               if (isNaN(amount)) return conformationmessage.edit(`${message.author}, Usage is \`sm_purge <amount>\``).catch(err => { console.log(err) });
                               if (amount <= 0) return conformationmessage.edit(`${message.author}, You cannot delete 0 or less messages`).catch(err => { console.log(err) });
-                              if (amount > 1000) return conformationmessage.edit(`${message.author}, You cannot delete more than 98 messages.`).catch(err => { console.log(err) });
+                              if (amount > 1000) return conformationmessage.edit(`${message.author}, You cannot delete more than 1000 messages.`).catch(err => { console.log(err) });
                               if (amount >= 200) {
                                     let filter = m => m.author.id === message.author.id;
                                     conformationmessage.edit(`Are you sure you want to delete ${amount} messages? \`Y\` / \`N\``).then(() => {

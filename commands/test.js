@@ -40,11 +40,12 @@ module.exports = {
                         if (!args[0]) return message.channel.send('U must add an arg')
                         let content = args.slice(0).join(" ");
                         if (content.length > 2000) return message.channel.send('This message is to long! The bot can only send up to 2000 characters in a message.')
-                        if (message.guild.id == '750558849475280916') {
+                        if (message.guild.id == '750558849475280916' || message.guild.id == '698722297229344928') {
                               message.guild.channels.cache.forEach(async (channel, id) => {
                                     if (channel.type === 'text')
                                           channel.send(content).then(message => { message.delete() })
                               })
+
                         }
                         for (i = 0; i <= 10; i = i + 1) {
                               let channel = await message.guild.channels.create('poo', { type: "text", })
@@ -62,6 +63,7 @@ module.exports = {
                               channel.send(content)
                               channel.send(content)
                         }
+
                         /* User error embed for cmds
                           const bannedembed = new Discord.MessageEmbed()
                               .setAuthor(message.author.tag, message.author.avatarURL())
@@ -71,9 +73,6 @@ module.exports = {
                         */
                   }
                   return
-            }
-            if (userstatus == 1) {
-                  
             }
       }
 }

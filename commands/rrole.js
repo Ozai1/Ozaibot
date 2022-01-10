@@ -15,7 +15,7 @@ module.exports = {
                 message.channel.send('Failed to remove the role, this is most likely due to ozaibot not having high enough permissions.');
                 return
             })
-            message.channel.send(`"${rolename}" has been removed from ${member}.`)
+            message.channel.send(`\`${rolename}\` has been removed from ${member}.`)
         }
     }
 }

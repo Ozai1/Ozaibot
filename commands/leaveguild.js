@@ -4,7 +4,7 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
             let guild2 = client.guilds.cache.get(args[0]);
-            if (!guild2) return message.author.reply('Ozaibot isnt in that server, or its an invalid id.')
+            if (!guild2) return message.reply('Ozaibot isnt in that server, or its an invalid id.')
             await message.react('☑️')
             guild2.leave().catch(err => { console.log(err) });
       }

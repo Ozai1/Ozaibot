@@ -4,7 +4,7 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]);
+            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (message.deletable) message.delete().catch(err => { console.log(err) })
             if (!args[0]) return
             let content = args.slice(1).join(" ");

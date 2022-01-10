@@ -18,6 +18,7 @@ const serversdb = mysql.createPool({
     queueLimit: 0
 });
 module.exports = (Discord, client) => {
+    return
     const reminderschannel = client.channels.cache.get('921744952537534504')
     console.log('shits online')
     let rating = Math.floor(Math.random() * 2) + 1;
@@ -44,7 +45,7 @@ module.exports = (Discord, client) => {
     console.log('Created tables for new servers')
     console.log(`Signed into ${client.user.tag}`)
     setInterval(() => {
-        reminderschannel.send('read through leons dms u dumb fuck @ozai https://discord.com/channels/@me/879939122586861619/921743972441931776').catch(err => { console.log(err) })
+        reminderschannel.send('read through leons dms u dumb fuck <@508847949413875712> https://discord.com/channels/@me/879939122586861619/921743972441931776').catch(err => { console.log(err) })
     }, 43200 * 1000);
 
         setInterval(() => {

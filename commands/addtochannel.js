@@ -11,11 +11,7 @@ module.exports = {
                               channelselected = message.guild.channels.cache.get(args[1]);
                               if (!channelselected) return message.reply('Invalid channel id or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                         } else if (args[1].startsWith('<#')) {
-                              args[1].replace(args[1].substr('<'));
-                              args[1].replace(args[1].substr('>'));
-                              args[1].replace(args[1].substr('#'));
-                              console.log(args[1]);
-                              channelselected = message.guild.channels.cache.get(args[1]);
+                              channelselected = message.guild.channels.cache.get(args[1].slice(2, -1));
                               if (!channelselected) return message.reply('Invalid channel or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                         } else return message.reply('Invalid channel id or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                   }

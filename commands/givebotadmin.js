@@ -15,7 +15,7 @@ module.exports = {
             if (message.author.id == '753454519937007696') {
                 if (!userstatus == 1) return message.channel.send('sorry but you must have botadmin to do this <3, still you and i are the only ones with access tho')
             }
-            let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0]); // get member
+            let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
             if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
             if (!member) return message.channel.send('Invalid member') // still no member
             let query = "SELECT * FROM userstatus WHERE userid = ?";

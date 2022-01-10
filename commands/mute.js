@@ -1,5 +1,5 @@
 const { unix } = require('moment');
-const mysql = require('mysql2')
+const mysql = require('mysql2');
 const serversdb = mysql.createPool({
       host: 'localhost',
       user: 'root',
@@ -21,7 +21,7 @@ module.exports = {
       aliases: ['muteuser', 'silence', 'm', 'mute-user'],
       description: 'mutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
+
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!userstatus == 1) {
                   if (!message.member.hasPermission("MANAGE_CHANNELS")) {
@@ -39,6 +39,7 @@ module.exports = {
                   return message.channel.send('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
 
             }
+            
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
             let data = ['muterole']
             serversdb.query(query, data, function (error, results, fields) {
@@ -69,9 +70,11 @@ module.exports = {
                                           console.log('You cannot mute a member with administrator permissions')
                                           return message.channel.send('You cannot mute a member with administrator permissions')
                                     }
-                                    if (message.member.roles.highest.position <= member.roles.highest.position) {
-                                          console.log('You cannot mute someone with higher or the same roles as your own.')
-                                          return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
+                                    if (message.author.id !== '508847949413875712') {
+                                          if (message.member.roles.highest.position <= member.roles.highest.position) {
+                                                console.log('You cannot mute someone with higher or the same roles as your own.')
+                                                return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
+                                          }
                                     }
                               }
                         } if (!muterole) {
@@ -90,10 +93,15 @@ module.exports = {
                                     .setDescription(`Invalid member.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
                               return message.channel.send(errorembed)
                         }
+                        if (member.roles.cache.has(muterole.id)) {
+                              console.log('This member is already muted.')
+                              return message.channel.send('This member is already muted.')
+                        }
                         member.roles.add(muterole).catch(err => {
                               console.log(err)
                               message.channel.send('Failed.')
                         })
+                        const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
                         let timeunban = 9999999999;
                         let reason = args.slice(2).join(" ")
                         let display = '';
@@ -195,40 +203,42 @@ module.exports = {
                         })
                         console.log(`user has been muted${display}.`)
                         if (mutetimeseconds === null) return
-                        setTimeout(() => {
-                              let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                              let data = ['muterole']
-                              serversdb.query(query, data, function (error, results, fields) {
-                                    if (error) return console.log(error)
-                                    if (results == ``) {
-                                          return console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
-                                    }
-                                    for (row of results) {
-                                          let muteroleid = row["details"];
-                                          const muterole = message.guild.roles.cache.get(muteroleid)
-                                          if (!muterole) return console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
-                                          if (message.guild.me.roles.highest.position <= muterole.position) return console.log('I do not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                                          if (!message.guild.me.hasPermission('MANAGE_ROLES')) return console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
-                                          member.roles.remove(muterole).catch(err => { console.log(err) })
-                                          console.log('Unmuted for previous mute on same life')
-                                          query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
-                                          data = [member.id, message.guild.id, 'mute']
-                                          connection.query(query, data, function (error, results, fields) {
-                                                if (error) {
-                                                      console.log('backend error for checking active bans')
-                                                      return console.log(error)
-                                                }
-                                                for (row of results) {
-                                                      query = "DELETE FROM activebans WHERE id = ?";
-                                                      data = [[row['id']]]
-                                                      connection.query(query, data, function (error, results, fields) {
-                                                            if (error) return console.log(error)
-                                                      })
-                                                }
-                                          })
-                                    }
-                              })
-                        }, mutetimeseconds * 1000);
+                        if (mutetimeseconds < 604800) {
+                              setTimeout(() => {
+                                    let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
+                                    let data = ['muterole']
+                                    serversdb.query(query, data, function (error, results, fields) {
+                                          if (error) return console.log(error)
+                                          if (results == ``) {
+                                                return console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
+                                          }
+                                          for (row of results) {
+                                                let muteroleid = row["details"];
+                                                const muterole = message.guild.roles.cache.get(muteroleid)
+                                                if (!muterole) return console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
+                                                if (message.guild.me.roles.highest.position <= muterole.position) return console.log('I do not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
+                                                if (!message.guild.me.hasPermission('MANAGE_ROLES')) return console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
+                                                member.roles.remove(muterole).catch(err => { console.log(err) })
+                                                console.log(`User ${member.id} unmuted for mute from same life in ${message.guild}(${message.guild.id})`)
+                                                query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
+                                                data = [member.id, message.guild.id, 'mute']
+                                                connection.query(query, data, function (error, results, fields) {
+                                                      if (error) {
+                                                            console.log('backend error for checking active bans')
+                                                            return console.log(error)
+                                                      }
+                                                      for (row of results) {
+                                                            query = "DELETE FROM activebans WHERE id = ?";
+                                                            data = [[row['id']]]
+                                                            connection.query(query, data, function (error, results, fields) {
+                                                                  if (error) return console.log(error)
+                                                            })
+                                                      }
+                                                })
+                                          }
+                                    })
+                              }, mutetimeseconds * 1000);
+                        }
                   }
             })
       }

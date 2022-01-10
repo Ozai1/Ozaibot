@@ -13,9 +13,11 @@ module.exports = {
             await member.roles.add(chosenrole).catch(err => {
                 console.log(err)
                 message.channel.send('Failed to add the role, this is most likely due to ozaibot not having high enough permissions.');
+                console.log('Failed to add the role, this is most likely due to ozaibot not having high enough permissions.')
                 return
             })
             message.channel.send(`\`${rolename}\` has been added to ${member}.`)
+            console.log(`\`${rolename}\` has been added to ${member.user.tag}.`)
         }
     }
 }

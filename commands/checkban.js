@@ -2,10 +2,11 @@ const { unix } = require('moment');
 const moment = require('moment');
 module.exports = {
       name: 'checkban',
-      aliases: ['checkbans', 'isbanned', 'user', 'userinfo', 'who', 'whois', 'ui'],
+      aliases: ['checkbans', 'isbanned', 'user', 'userinfo', 'who', 'whois', 'ui', 'totalbans', 'bancount'],
       description: 'checks if a user is banned from a guild and what theyre ban reason is',
-      async execute(message, client, cmd, args, Discord, userstatus,) {
+      async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'user' || cmd === 'userinfo' || cmd === 'who' || cmd === 'whois' || cmd === 'ui') return user_command(message, args, Discord, client)
+            if (cmd === 'totalbans' || cmd === 'bancount') return total_bans(message, client, userstatus)
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
             if (!userstatus == 1) {
@@ -18,7 +19,7 @@ module.exports = {
                   if (member == null) {
                         return message.reply('Cannot find an active ban for the given user.')
                   } else {
-                        message.channel.send(`Active ban found on <@${args[0]}> for the reason of: \`${member.reason}\``)
+                        return message.channel.send(`Active ban found on <@${args[0]}> for the reason of: \`${member.reason}\``)
                   }
             })
       }
@@ -65,5 +66,18 @@ async function user_command(message, args, Discord, client) {
                   .setTimestamp()
                   .setColor(240116);
             message.channel.send(uiembed)
+      }
+}
+async function total_bans(message, client, userstatus) {
+      if (userstatus == 1) {
+            if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')
+            await message.guild.fetchBans().then(bans => {
+                  let bancount = 0;
+                  bans.forEach(ban => {
+                        bancount = bancount + 1;
+                  })
+                  message.channel.send(`This server has a total of ${bancount} bans.`)
+            })
+
       }
 }

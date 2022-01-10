@@ -5,7 +5,7 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!message.guild.me.hasPermission('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
-            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]);
+            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (userstatus == 1) {
                   if (!message.member.hasPermission('KICK_MEMBERS')) {
                         if (!member) return

@@ -9,7 +9,7 @@ const connection = mysql.createPool({
 });
 module.exports = {
     name: 'help',
-    aliases: ['ahelp', 'zhelp'],
+    aliases: ['ahelp', 'zhelp', 'invite'],
     description: 'sends a help message',
     async execute(message, client, cmd, args, Discord, userstatus) {
         let prefix = 'sm_';
@@ -218,14 +218,22 @@ module.exports = {
                 }
                 return
             } // ozaibot from here
+            if (cmd === 'invite') {
+                const helpembed = new Discord.MessageEmbed()
+                    .setTitle('Click here to add Ozaibot to a new server.')
+                    .setURL('https://discord.com/oauth2/authorize?client_id=862247858740789269&scope=bot&permissions=4260490367')
+                    .setColor('BLUE')
+                message.channel.send(helpembed);
+                return
+            }
             if (!args[0]) {
                 message.channel.send({
                     embed: {
                         color: 3447003,
                         title: ('Standard Commands.'),
                         fields: [
-                            { name: `'**${prefix}help <commandname>**'`, value: "Ping\nHelp\nKick\nBan\nPurge\nRename\nAdd\nPoll", inline: true },
-                            { name: "** **                    ", value: `Unmute\nPM\nLockdown\nMute\nTakeaway\nRandom\nSay\nMusic`, inline: true },
+                            { name: `'**${prefix}help <commandname>**'`, value: "Ping\nHelp\nKick\nBan\nPurge\nRename\nAdd\nPoll\nThis is so outdated", inline: true },
+                            { name: "** **                    ", value: `Unmute\nPM\nLockdown\nMute\nTakeaway\nRandom\nSay\nMusic\nThere is far more now`, inline: true },
                         ]
                     }
                 });
@@ -254,14 +262,14 @@ module.exports = {
                     return
                 } else if (command_chosen === 'ban') {
                     const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_ban <@user> <reason>`, `Bans a user from the server. \nIt will send a message to the banned user stating who and why they were banned. \nThe reason will be the ban reason in server settings. \nPermissions: Ban Members.`)
+                        .addField(`sm_ban <@user> <time(optional)> <reason>`, `Bans a user from the server. \nIt will send a message to the banned user stating who and why they were banned. \nThe reason will be the ban reason in server settings. \nPermissions: Ban Members.`)
                         .setTimestamp()
                         .setColor('BLUE')
                     message.channel.send(helpembed);
                     return
                 } else if (command_chosen === 'purge') {
                     const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_purge <number_of_messages_to_be_deleted>`, `Deletes the amount of messages given. \nIf only 1 or less messages are given then it will just delete your command message. \nMax messages to delete is 100\nPermissions: Manage Channels.`)
+                        .addField(`sm_purge <number_of_messages_to_be_deleted>`, `Deletes the amount of messages given. \nMax messages to delete is 1000.\nPermissions: Manage Messages.`)
                         .setTimestamp()
                         .setColor('BLUE')
                     message.channel.send(helpembed);
@@ -273,23 +281,9 @@ module.exports = {
                         .setColor('BLUE')
                     message.channel.send(helpembed);
                     return
-                } else if (command_chosen === 'add') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_add <Number1> <Number2> <Number3(Optional)> <Number4(Optional)> <Number5(Optional)> <Number6(Optional)> <Number7(Optional)> <Number8(Optional)> <Number9(Optional)> <Number10(Optional)>`, `Adds the numbers together and tells you the answer.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send(helpembed);
-                    return
                 } else if (command_chosen === 'mute') {
                     const helpembed = new Discord.MessageEmbed()
                         .addField(`sm_mute <@user>`, `Adds a muted role to the user so they cannot speak in any channels. \nIf no muted role is found it will create one. \nPermissions: Manage Channels`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send(helpembed);
-                    return
-                } else if (command_chosen === 'takeaway') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_takeaway <Number1> <Number2> <Number3(Optional)>`, `Subtracts the numbers and tells you the answer.`)
                         .setTimestamp()
                         .setColor('BLUE')
                     message.channel.send(helpembed);
@@ -336,13 +330,6 @@ module.exports = {
                         .setColor('BLUE')
                     message.channel.send(helpembed);
                     return
-                } else if (command_chosen === 'nickname') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_nickname <nickname>`, `Sets the bots nickname.\nPermissions: Manage Server`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send(helpembed);
-                    return
                 } else if (command_chosen === 'prefix') {
                     const helpembed = new Discord.MessageEmbed()
                         .addField(`sm_prefix <prefix>`, `Sets the bots prefix.\nIf you manage to lose the prefix message me <@508847949413875712> (508847949413875712) and I will reset it for you. Permissions: Manage Server`)
@@ -372,11 +359,11 @@ module.exports = {
                     }
                 } else if (command_chosen === 'music') {
                     const helpembed = new Discord.MessageEmbed()
-                    .addField(`This is more of a category than one command.`, `**sm_play <song name | song url>**(youtube links only for urls)\n\nThis command has the bot join the channel that you are in and play music!\nIf there is already a song playing it will add the song you have chosen to a queue and play it when the rest of the queue has finished.\n\n**sm_skip**\n\nThis skips the current song\n\n**sm_stop**\nAliases: leave, fuckoff, dc, disconnect.\nClears the queue and has the bot leave the channel.\n\n**sm_pause**\n\nPauses the music, its literally that simple.\n\n**sm_resume**\nAliases: unpause.\nStarts the music again after being paused.\n\n**sm_debug**\n\nResets the bot in your server so that it can be recovered from errors, if the bot stops working for whatever reason use this command and it *should* be fixed\n\nIf you have any issues or suggestions chuck us an sm_report <issue>`)
-                    .setTimestamp()
-                    .setColor('BLUE')
-                message.channel.send(helpembed);
-                return
+                        .addField(`This is more of a category than one command.`, `**sm_play <song name | song url>**(youtube links only for urls)\n\nThis command has the bot join the channel that you are in and play music!\nIf there is already a song playing it will add the song you have chosen to a queue and play it when the rest of the queue has finished.\n\n**sm_skip**\n\nThis skips the current song\n\n**sm_stop**\nAliases: leave, fuckoff, dc, disconnect.\nClears the queue and has the bot leave the channel.\n\n**sm_pause**\n\nPauses the music, its literally that simple.\n\n**sm_resume**\nAliases: unpause.\nStarts the music again after being paused.\n\n**sm_debug**\n\nResets the bot in your server so that it can be recovered from errors, if the bot stops working for whatever reason use this command and it *should* be fixed\n\nIf you have any issues or suggestions chuck us an sm_report <issue>`)
+                        .setTimestamp()
+                        .setColor('BLUE')
+                    message.channel.send(helpembed);
+                    return
                 } else {
                     message.reply(`That is either not a command, is spelt incorrectly or has not been added to sm_help yet.`)
                 }

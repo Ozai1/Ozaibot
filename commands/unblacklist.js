@@ -12,7 +12,7 @@ module.exports = {
       description: 'allows a user to use the bot again',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (userstatus == 1 || message.author.id == '508847949413875712') {
-                  let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0]); // get member
+                  let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                   if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
                   if (!member) return message.channel.send('Invalid member') // still no member
                   let query = "SELECT * FROM userstatus WHERE userid = ?";

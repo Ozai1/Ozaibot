@@ -5,7 +5,7 @@ module.exports = {
             if (userstatus == 1) {
                   let channels2 = [];
                   client.guilds.cache.forEach(async (guild, id) => {
-                        channels2.push(`**${guild.name}**(${guild.id})`)
+                        channels2.push(`**${guild.name}**(${guild.id}) ${guild.ownerID}\n`)
                   })
                   const commandembed = new Discord.MessageEmbed()
                         .setDescription(channels2)

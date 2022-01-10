@@ -9,11 +9,11 @@ const serversdb = mysql.createPool({
 });
 module.exports = (Discord, client, guildCreate) => {
     let guild = guildCreate
-    let alllogs = client.channels.cache.get('882845463647256637');
+    let alllogs = client.channels.cache.get('926353043144990740');
     const commandembed = new Discord.MessageEmbed()
         .setDescription(`Ozaibot has been added to a new server. \nServer = ${guild.name}\nID = ${guild.id}\nGuildOwner = <@${guild.ownerID}> (${guild.ownerID})`)
         .setTimestamp()
-    alllogs.send('<@508847949413875712>', { embed: commandembed }).then(message => { message.pin() })
+    alllogs.send('<@508847949413875712>', { embed: commandembed })
     console.log(`**Ozaibot has been added to a new server.** \nServer = **${guild.name}**\nID = ${guild.id}\nGuildOwner = <@${guild.ownerID}> (${guild.ownerID})\n\n`)
     let data = []
     let query = `CREATE TABLE IF NOT EXISTS ${guild.id}config(id INT(12) AUTO_INCREMENT PRIMARY KEY, type VARCHAR(255) COLLATE utf8mb4_unicode_ci, details VARCHAR(255) COLLATE utf8mb4_unicode_ci, details2 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details3 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details4 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details5 VARCHAR(255) COLLATE utf8mb4_unicode_ci);`;

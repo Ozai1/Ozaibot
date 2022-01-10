@@ -16,7 +16,7 @@ module.exports = {
         if (userstatus == 1 || message.member.hasPermission('MANAGE_GUILD')) {
             let newprefix = args.slice(0).join(" ")
             if (!args[0]) return message.channel.send('You must add a prefix for the bot to use')
-            if (newprefix.length > 100) return message.reply('I dont know why you need a prefix this long, but I will not allow it as a prefix longer may hinder the bot. Please make the prefix less than 100 characters long.')
+            if (newprefix.length > 10) return message.reply('Please make the prefix less than 10 characters long.')
             if (message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here') || message.content.toLowerCase().includes('<@&')) return message.channel.send('Nah')
             
             let query = "SELECT * FROM prefixes WHERE serverid = ?";
@@ -42,7 +42,7 @@ module.exports = {
                     });
                 }
             });
-            message.channel.send(`Prefix has been set to "\`${newprefix}\`".`)
+            message.channel.send(`Prefix has been set to \`${newprefix}\`.`)
         } else {
             message.channel.send('You do not have the permissions to do this.')
         }

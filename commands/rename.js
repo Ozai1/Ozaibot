@@ -15,7 +15,7 @@ module.exports = {
                   if (!isNaN(args[0]) || args[0].startsWith('<@')) {
                         name = args.slice(1).join(" ");
                         if (name.length > 32) return message.reply(`Nicknames must be less than 32 characters long, this name is ${name.length} characters long.`)
-                        member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]);
+                        member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
                         if (!member) {
                               if (args[0].length == 18 || args[0].length == 17) {
                                     if (!isNaN(args[0])) {

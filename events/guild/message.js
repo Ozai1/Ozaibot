@@ -1,25 +1,27 @@
 require('dotenv').config();
 const mysql = require('mysql2');
 const connection = mysql.createPool({
-        host: 'localhost',
-        user: 'root',
-        database: 'ozaibot',
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0
-    });
+    host: 'localhost',
+    user: 'root',
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 module.exports = (Discord, client, message) => {
     /*
     let prefixes = [`003750558849475280916sm_`,];
     let prefixeschecked = false;
     let currentprefix = [];
     */
-    if (message.author.bot) return
-    if ((message.content.toLowerCase().includes('<@!753454519937007696>') && message.content.toLowerCase().includes('chink')) || (message.content.toLowerCase().includes('<@!753454519937007696>') && message.content.toLowerCase().includes('nigga')) || (message.content.toLowerCase().includes('cherry') && message.content.toLowerCase().includes('nigga')) || (message.content.toLowerCase().includes('cherry') && message.content.toLowerCase().includes('chink'))) {
-        console.log(`${message.author.tag} flagged for the message: "${message.content}" in ${message.guild} (${message.guild.id}), ${message.channel.name}`)
-        let alllogs = client.channels.cache.get('882845463647256637')
-        alllogs.send(`<@!508847949413875712>, ${message.author.tag} flagged for the message: "${message.content}" in ${message.guild}, ${message.channel.name}`)
+   if (message.channel.id == '928962860103630848') {
+        if (message.author.id !== '508847949413875712' && message.author.id !== '742612722465636393') {
+            if (message.attachments.size > 0 || message.content.includes('https:')) return
+            message.delete().catch(err => { console.log(err) })
+            message.author.send('Your message must contain an image, video or gif in this channel.').catch(err => { })
+        }
     }
+    if (message.author.bot) return
     if (message.channel.type === 'dm') {
         if (message.author.id === '862247858740789269') return
         let dmlogs = client.channels.cache.get('900507984264847361');
@@ -57,7 +59,7 @@ module.exports = (Discord, client, message) => {
             prefix = row["prefix"];
         }
         if (message.content.toLowerCase().startsWith(prefix) || message.content.toLowerCase().startsWith(`${prefix}`)) {
-            console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content}`)
+            console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(prefix.length)}`)
 
             query = "SELECT * FROM totalcmds WHERE userid = ?";
             data = [message.author.id]

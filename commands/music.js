@@ -15,7 +15,7 @@ module.exports = {
       aliases: ['skip', 'stop', 'ogplay', 'fuckoff', 'leave', 'dc', 'disconnect', 'play', 'musicban', 'pause', 'resume', 'unpause', 'seek', 'debug', 'queue'],
       description: 'has the bot play music',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            // Copyright of Sakura Kamukura 2021
+            // Copyright of Jan Kamukura 2021
             if (cmd === 'music') {
                   const helpembed = new Discord.MessageEmbed()
                         .addField(`This is more of a category than one command.`, `**sm_play <song name | song url>**(youtube links only for urls)\n\nThis command has the bot join the channel that you are in and play music!\nIf there is already a song playing it will add the song you have chosen to a queue and play it when the rest of the queue has finished.\n\n**sm_skip**\n\nThis skips the current song\n\n**sm_stop**\nAliases: leave, fuckoff, dc, disconnect.\nClears the queue and has the bot leave the channel.\n\n**sm_pause**\n\nPauses the music, its literally that simple.\n\n**sm_resume**\nAliases: unpause.\nStarts the music again after being paused.\n\n**sm_debug**\n\nResets the bot in your server so that it can be recovered from errors, if the bot stops working for whatever reason use this command and it *should* be fixed\n\nIf you have any issues or suggestions chuck us an sm_report <issue>`)
@@ -96,7 +96,7 @@ module.exports = {
             else if (cmd === 'debug') debug_song(message, server_queue)
             else if (cmd === 'queue') song_queue(message, server_queue)
             else if (cmd === 'musicban') {
-                  let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0]); // get member
+                  let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                   if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
                   if (!member) return message.channel.send('Invalid member') // still no member
                   let query = "SELECT * FROM userstatus WHERE userid = ?";
@@ -134,7 +134,7 @@ const video_player = async (guild, song) => {
             return
       }
       const stream = ytdl(song.url, { filter: 'audioonly' });
-      let dispatcher = song_queue.connection.play(stream, { seek: 0, volume: 0.5 })
+      let dispatcher = song_queue.connection.play(stream, { seek: 0, volume: 0.3 })
             .on('finish', () => {
                   song_queue.songs.shift();
                   video_player(guild, song_queue.songs[0]);
