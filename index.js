@@ -22,7 +22,7 @@ const guildinvites = new Map();
 const Discord = require('discord.js');
 require('dotenv').config();
 
-const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone' });
+const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',  });
 
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
@@ -132,9 +132,9 @@ client.on('guildMemberAdd', async member => {
             let allowedusers = ['508847949413875712', '862247858740789269', '349920059549941761', '855480412319383592', '918143536879267872', '889139211771449354', '302050872383242240', '235088799074484224', '408785106942164992', '816968930564243457', '292953664492929025',]
             if (!allowedusers.includes(member.id)) {
                   member.ban({ reason: `Unauthed join, autoban`, }).catch(err => { console.log(err) })
-                  console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned \*\*\*\*\* AUTOBAN`)
-                  let ozavcordgen = client.channels.cache.get('888781109754736701')
-                  ozavcordgen.send(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned \*\*\*\*\* AUTOBAN`).catch(err => { console.log(err) })
+                  console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`)
+                  const ozacordgen = client.channels.cache.get('888781109754736701')
+                  ozacordgen.send(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`).catch(err => { console.log(err) })
             }
       }
       const cachedinvites = guildinvites.get(member.guild.id);
@@ -209,6 +209,37 @@ client.on('guildMemberAdd', async member => {
                               console.log(`${member.user.tag} was banned from ${guild} for using blacklisted link: ${usedinvite.code}.`)
                         }
                   }
+            })
+            query = `SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?`;
+            data = [member.id, member.guild.id, 'mute']
+            connection.query(query, data, function (error, results, fields) {
+                  if (error) {
+                        return console.log(error)
+                  }
+                  if (results == `` || results === undefined) return
+                  let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
+                  let data = ['muterole']
+                  serversdb.query(query, data, function (error, results, fields) {
+                        if (error) return console.log(error)
+                        if (results == `` || results === undefined) {
+                              return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was removed in db`)
+                        }
+                        for (row of results) {
+                              let muteroleid = row["details"];
+                              const muterole = guild.roles.cache.get(muteroleid)
+                              if (!muterole) {
+                                    return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was not found`)
+                              }
+                              if (guild.me.roles.highest.position <= muterole.position) {
+                                    console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but i have lower perms than muterole now`)
+                              }
+                              member.roles.add(muterole, { reason: `AUTOMUTE: user has left and rejoined while muted, mute role auto added. if this user is not meant to be muted please unmute them through ozaibot so they do not get automuted for mute evading again.` }).catch(err => {
+                                    console.log(err)
+                              })
+                              console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, remuted`)
+                              member.send(`You have been auto muted from ${member.guild} due to a previous mute not expiring but you rejoining, you will still be unmuted when the mute expires or if you are manually unmuted.`)
+                        }
+                  })
             })
       } catch (err) {
             console.log(err)

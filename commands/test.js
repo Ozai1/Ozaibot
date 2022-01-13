@@ -28,7 +28,7 @@ const serversdb = mysql.createPool({
 });
 module.exports = {
       name: 'test',
-      aliases: ['nextbump', 'currenttime', 'a', 'clearvent', 'massping'],
+      aliases: ['nextbump', 'currenttime', 'a', 'clearvent', 'massping', 'massmessage'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)

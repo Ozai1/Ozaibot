@@ -193,7 +193,14 @@ module.exports = {
                                 for (row of results){
                                     let action = row["action"]
                                     let timeremove = row["timeremove"]
-                                    return message.channel.send(`There is already a blacklist on this link that ${action}s, it is to last until <t:${timeremove}> (<t:${timeremove}:R>). You can remove the blacklist by using \`sm_unblacklistinvite ${args[0]}\`, then you can add a new blacklist if needed.`)
+                                    let adminid = row["adminid"]
+                                    let admin = client.users.cache.get(adminid)
+                                    if (admin) {
+                                        admin = admin.tag
+                                    } else {
+                                        admin = 'Unknownuser'
+                                    }
+                                    return message.channel.send(`There is already a blacklist on this link that actions ${action}ing, it is to last until <t:${timeremove}> (<t:${timeremove}:R>). It was instated by ${admin}(${adminid}). \nYou can remove the blacklist by using \`sm_unblacklistinvite ${args[0]}\`, then you can add a new blacklist if needed.`)
                                 }
                                 
                             } 
