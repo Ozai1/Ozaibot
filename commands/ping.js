@@ -1,6 +1,6 @@
 module.exports = {
     name: 'ping',
-    aliases: ['whoishot'],
+    aliases: [],
     description: 'ok',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.author.id == '753454519937007696') {

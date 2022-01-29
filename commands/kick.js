@@ -8,8 +8,8 @@ module.exports = {
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (userstatus == 1) {
                   if (!message.member.hasPermission('KICK_MEMBERS')) {
-                        if (!member) return
-                        if (!member.kickable) return
+                        if (!member) return message.author.send('I do not have high enough permissions for this or theyre not on the server or smth')
+                        if (!member.kickable) return message.author.send('I do not have high enough permissions for this or theyre not on the server or smth')
                         let reason = args.slice(1).join(" ");
                         if (!reason) reason = 'No reason given';
                         message.channel.send(`Kicked ${member}.`)

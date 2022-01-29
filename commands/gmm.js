@@ -1,6 +1,6 @@
 module.exports = {
       name: 'gmm',
-      aliases: ['ghostmymessage'],
+      aliases: [],
       description: 'deletes your message',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
@@ -14,7 +14,7 @@ module.exports = {
                   }
                   setTimeout(function () {
                         if (message.deletable) message.delete().catch(err => { console.log(err) })
-                  }, args[0]);
+                  }, args[0] * 1000);
                   return
             }
       }

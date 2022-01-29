@@ -30,7 +30,8 @@ module.exports = {
                         message.channel.send(`${member} has been given botadmin status.`)
                         console.log(`${member.tag}(${member.id}) has been given botadmin by ${message.author.tag}.`)
                         let alllogs = client.channels.cache.get('882845463647256637')
-                        alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin as per the above message, they were blacklisted by ${message.author.tag}`)
+                        if (message.author.id !== '508847949413875712'){
+                        alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin as per the above message, they were blacklisted by ${message.author.tag}`)}
                         return
                     })
                 } else {
@@ -47,7 +48,8 @@ module.exports = {
                                 message.channel.send(`${member} has been given botadmin & had theyre blacklist removed.`)
                                 console.log(`${member.tag}(${member.id}) has been guven botadmin by ${message.author.tag}, they also had theyre blacklist removed removed.`)
                                 let alllogs = client.channels.cache.get('882845463647256637')
-                                alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin & had theyre blacklist removed as per the above message, they were blacklisted by ${message.author.tag}`)
+                                if (message.author.id !== '508847949413875712'){
+                                alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin & had theyre blacklist removed as per the above message, they were blacklisted by ${message.author.tag}`)}
                                 return
                             })
 

@@ -55,7 +55,8 @@ module.exports = {
                                                 message.channel.send(`${member} has had theyre botadmin removed`)
                                                 console.log(`${member.tag}(${member.id}) has had theyre botadmin removed by ${message.author.tag}`)
                                                 let alllogs = client.channels.cache.get('882845463647256637')
-                                                alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had theyre botadmin removed as per the above message, this was done by by ${message.author.tag}`)
+                                                if (message.author.id !== '508847949413875712'){
+                                                alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had theyre botadmin removed as per the above message, this was done by by ${message.author.tag}`)}
                                                 return
                                           })
 

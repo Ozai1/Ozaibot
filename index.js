@@ -1,18 +1,22 @@
-console.log('Starting....')
+console.log('Stwarting Ozwaibot!!!')
 const { unix } = require('moment');
 const moment = require('moment');
 const mysql = require('mysql2');
 const connection = mysql.createPool({
-      host: 'localhost',
+      host: 'vps01.tsict.com.au',
+      port: '3306',
       user: 'root',
+      password: 'P0V6g5',
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
 });
 const serversdb = mysql.createPool({
-      host: 'localhost',
+      host: 'vps01.tsict.com.au',
+      port: '3306',
       user: 'root',
+      password: 'P0V6g5',
       database: 'ozaibotservers',
       waitForConnections: true,
       connectionLimit: 10,
@@ -20,9 +24,10 @@ const serversdb = mysql.createPool({
 });
 const guildinvites = new Map();
 const Discord = require('discord.js');
+const message = require('./events/guild/message');
 require('dotenv').config();
 
-const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',  });
+const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone', });
 
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
@@ -35,8 +40,7 @@ client.on('ready', async () => {
       let rating = Math.floor(Math.random() * 2) + 1;
       if (rating == 1) {
             client.user.setPresence({ status: 'dnd' });
-            console.log('Set status to DND')
-      } else console.log('Set status to Online')
+      }
       let query = "SET GLOBAL max_connections = 512";
       let data = []
       connection.query(query, data, function (error, results, fields) {
@@ -52,9 +56,10 @@ client.on('ready', async () => {
             serversdb.query(query, data, function (error, results, fields) {
                   if (error) return console.log(error)
             })
-            guild.fetchInvites().then(invites => guildinvites.set(guild.id, invites)).catch(err => { console.log(err) })
+            if (guild.me.hasPermission('MANAGE_GUILD')) {
+                  guild.fetchInvites().then(invites => guildinvites.set(guild.id, invites)).catch(err => { console.log(err) })
+            }
       })
-      console.log(`Signed into ${client.user.tag}`)
       setInterval(() => { // 2 second interval, being used for mute checking
             let query = `SELECT * FROM activebans WHERE timeunban < ?`;
             let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
@@ -123,20 +128,44 @@ client.on('ready', async () => {
                   }
             })
       }, 60000);
-      console.log('shits online')
+      console.log(`Signed into ${client.user.tag}`)
 })
 client.on('guildMemberAdd', async member => {
       const guild = member.guild
-      console.log(`${member.user.tag} joined ${member.guild}`)
-      if (member.guild.id == '911829929962901514' || member.guild.id == '750558849475280916') {
-            let allowedusers = ['508847949413875712', '862247858740789269', '349920059549941761', '855480412319383592', '918143536879267872', '889139211771449354', '302050872383242240', '235088799074484224', '408785106942164992', '816968930564243457', '292953664492929025',]
-            if (!allowedusers.includes(member.id)) {
-                  member.ban({ reason: `Unauthed join, autoban`, }).catch(err => { console.log(err) })
-                  console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`)
-                  const ozacordgen = client.channels.cache.get('888781109754736701')
-                  ozacordgen.send(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`).catch(err => { console.log(err) })
+      console.log(`${member.user.tag} joined ${guild}`)
+      if (!guild.me.hasPermission('MANAGE_GUILD')) return
+      let query = `SELECT * FROM ${member.guild.id}config WHERE type = ?`;
+      let data = ['whitelist']
+      serversdb.query(query, data, async function (error, results, fields) {
+            if (error) {
+                  console.log('backend error for checking active bans')
+                  return console.log(error)
             }
-      }
+            if (results == '' || results === undefined) {
+            } else {
+                  let query = "SELECT * FROM whitelist WHERE userid = ? && serverid = ?";
+                  let data = [member.id, member.guild.id]
+                  connection.query(query, data, async function (error, results, fields) {
+                        if (error) {
+                              console.log('backend error for checking active bans')
+                              return console.log(error)
+                        }
+                        if (results == '' || results === undefined) {
+                              try {
+                                    if (member.guild.me.hasPermission('BAN_MEMBERS') && member.guild.me.roles.highest > member.roles.highest) {
+                                          member.ban({ reason: `Unauthed join, autoban (was not added to whitelist)`, days: 1 }).catch(err => { console.log(err) })
+                                          console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`)
+                                          const ozacordgen = client.channels.cache.get('926782590826987563')
+                                          ozacordgen.send(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`).catch(err => { console.log(err) })
+                                    } else console.log(`Ozaibot either doesnt have ban perms or doesnt have high enough perms to ban new members in guild ${member.guild.id} for its whitelist`)
+                              } catch (err) {
+                                    console.log(err)
+                              }
+                        }
+                  })
+            }
+      })
+
       const cachedinvites = guildinvites.get(member.guild.id);
       const newinvites = await member.guild.fetchInvites();
       guildinvites.set(member.guild.id, newinvites)
@@ -249,5 +278,30 @@ client.on('inviteCreate', async invite => {
       const newinvites = await invite.guild.fetchInvites();
       guildinvites.set(invite.guild.id, newinvites)
 })
-
+client.on('guildMemberUpdate', async (oldmember, newmember) => {
+      if (newmember.guild.id == '806532573042966528') {
+            if (!newmember.roles.cache.has('922514880102277161') && oldmember.roles.cache.has('922514880102277161')) {
+                  let katcordgen = client.channels.cache.get('806532573042966530');
+                  if (!katcordgen) return console.log('kat cord general not found');
+                  let welcomemessages = [`welcome to rainy day kat-fe ${newmember}! <@&933185109094465547>`];
+                  let rating = Math.floor(Math.random() * welcomemessages.length);
+                  katcordgen.send(welcomemessages[rating]).catch(err => { console.log(err) });
+                  console.log('welcome message sent')
+            }
+      }
+})
+client.on('messageUpdate', (oldMessage, newMessage) => { // Old message may be undefined
+      return
+      if (!oldMessage.author) return;
+      const MessageLog = client.channels.cache.find(channel => channel.id === '802262886624919572');
+      var embed = new Discord.MessageEmbed()
+            .setAuthor(newMessage.author.username)
+            .setTimestamp()
+            .setColor('#392B47')
+            .addFields(
+                  { name: 'original:', value: oldMessage },
+                  { name: 'edit:', value: newMessage });
+      MessageLog.send(embed);
+})
 client.login(process.env.DISCORD_TOKEN)
+

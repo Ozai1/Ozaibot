@@ -12,7 +12,7 @@ const ytSearch = require('yt-search')
 const queue = new Map()
 module.exports = {
       name: 'music',
-      aliases: ['skip', 'stop', 'ogplay', 'fuckoff', 'leave', 'dc', 'disconnect', 'play', 'musicban', 'pause', 'resume', 'unpause', 'seek', 'debug', 'queue'],
+      aliases: ['skip', 'stop', 'fuckoff', 'leave', 'dc', 'disconnect', 'play', 'musicban', 'pause', 'resume', 'unpause', 'seek', 'debug', 'queue'],
       description: 'has the bot play music',
       async execute(message, client, cmd, args, Discord, userstatus) {
             // Copyright of Jan Kamukura 2021
@@ -22,7 +22,7 @@ module.exports = {
                         .setTimestamp()
                         .setColor('BLUE')
                   message.channel.send(helpembed);
-                  return
+                  return;
             }
             FFMPEG_OPTIONS = {
                   'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
@@ -124,7 +124,6 @@ module.exports = {
             }
       }
 }
-
 const video_player = async (guild, song) => {
       const song_queue = queue.get(guild.id);
       if (!song) {

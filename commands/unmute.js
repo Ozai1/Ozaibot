@@ -39,7 +39,7 @@ module.exports = {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }
                         }
-                        if (!member) return message.channel.send("You have to mention a valid member");
+                        if (!member || !args[0]) return message.channel.send("You have to mention a valid member");
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         member.roles.remove(muterole).catch(err => {
                               console.log(err)

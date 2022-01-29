@@ -21,9 +21,9 @@ module.exports = {
                     member = await client.users.fetch(args[0]).catch(err => { })
                     offserver = true;
                     if (!member) {
-                        message.channel.send('Invalid id.')
-                        console.log('Invalid id')
-                        return
+                        message.channel.send('Invalid id.');
+                        console.log('Invalid id');
+                        return;
                     }
                 }
                 if (offserver === false) {
@@ -84,7 +84,7 @@ module.exports = {
                 }
             }
         }
-        if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('You do not have permissions to do this.');
+        if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
         if (!member) {
             if (isNaN(args[0])) return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"');
             member = await client.users.fetch(args[0]).catch(err => { })

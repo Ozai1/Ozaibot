@@ -1,15 +1,17 @@
 const mysql = require('mysql2')
 const connection = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    database: 'ozaibot',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+      host: 'vps01.tsict.com.au',
+      port: '3306',
+      user: 'root',
+      password: 'P0V6g5',
+      database: 'ozaibot',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
 });
 module.exports = {
     name: 'help',
-    aliases: ['ahelp', 'zhelp', 'invite'],
+    aliases: ['zhelp', 'invite'],
     description: 'sends a help message',
     async execute(message, client, cmd, args, Discord, userstatus) {
         let prefix = 'sm_';
@@ -23,19 +25,6 @@ module.exports = {
             if (error) return console.log(error)
             for (row of results) {
                 prefix = row["prefix"];
-            }
-            if (cmd === 'ahelp') {
-                message.channel.send({
-                    embed: {
-                        color: 3447003,
-                        title: ('All commands'),
-                        fields: [
-                            { name: `**MAKE SURE TO USE THE PREFIX** "${prefix}"`, value: "**ping**\n **kick** <@user> <reason>\n **ban** <@user> <reason>\n **say** <message>\n **slowsaydel** <message>\n **gmm** <time in milliseconds> <message>\n **help** <command_name(optional)>\n **masssay** <message>\n **purge** <message count>\n **rename** <@user> <name>\n **channelname** <name>\n **servername** <name>\n **fakemsgdel** <@user> <message>\n **takeaway** <up to 3 numbers>\n **vc** <kick|mute|unmute|deafen|undeafen> <@user>\n **pm** <stealth/raw(optional)> <@user> <message>\n **hug** <@user>\n **crole** <#color(optional)> <name>\n **infisay** <message>\n **cock** <manual(optional)> <@user(optional)> <size>\n **kiss** <@user>\n **unblacklist**\n **prefix** <new_prefix>\n **channelban** <@user>\n **drole** <role_name>\n **pchannel** <channel name>\n **dchannel** <channel name>\n **cvc** <voice call name>", inline: true },
-                            { name: "** **                    ", value: "**giveadmin** <@user> <time in milliseconds>\n **embedsay** <message>\n **blacklist** <user>\n **add** <up to ten numbers>\n **mute** <@user> & unmute <@user> \n **plsay** <1 message sent per word>\n **shutdown**\n  **status** <idle/dnd/online>or<play/watch/listen/compete>or<none> <text>\n **addtoautoban** <@user>\n **masssaydel** <message>\n **secretcommand** <password>\n **arole** <@user> <role_name>\n **lockdown** <start|stop|end|>\n **pin** <message>\n **rrole** <@user> <role_name>\n **leaveguild**\n **listguilds**\n **hidechannel**\n **addtochannel** <@user>\n **removebotadmin** <@user>\n **cherry**\n **getguildchannels** <guild_id>\n **removeadmin** <@user>\n **getinvite** <channel_id>\n **unban** <user_id>\n **cchannel** <channel name>\n **pvc** <voice call name>", inline: true },
-                        ]
-                    }
-                });
-                return
             }
             if (cmd === 'zhelp') {
                 // HELP EMBED
@@ -344,19 +333,6 @@ module.exports = {
                         .setColor('BLUE')
                     message.channel.send(helpembed);
                     return
-                } else if (command_chosen === 'botadmin') {
-                    if (userstatus == 1) {
-                        message.channel.send({
-                            embed: {
-                                color: 3447003,
-                                title: ('All commands'),
-                                fields: [
-                                    { name: `**MAKE SURE TO USE THE PREFIX** "${prefix}"`, value: "**ping**\n **kick** <@user> <reason>\n **ban** <@user> <reason>\n **say** <message>\n **slowsaydel** <message>\n **gmm** <time in milliseconds> <message>\n **help** <command_name(optional)>\n **masssay** <message>\n **purge** <message count>\n **rename** <@user> <name>\n **channelname** <name>\n **servername** <name>\n **fakemsgdel** <@user> <message>\n **takeaway** <up to 3 numbers>\n **vc** <kick|mute|unmute|deafen|undeafen> <@user>\n **pm** <stealth/raw(optional)> <@user> <message>\n **hug** <@user>\n **crole** <#color(optional)> <name>\n **infisay** <message>\n **cock** <manual(optional)> <@user(optional)> <size>\n **kiss** <@user>\n **unblacklist**\n **prefix** <new_prefix>\n **channelban** <@user>\n **drole** <role_name>\n **pchannel** <channel name>\n **dchannel** <channel name>\n **cvc** <voice call name>", inline: true },
-                                    { name: "** **                    ", value: "**giveadmin** <@user> <time in milliseconds>\n **embedsay** <message>\n **blacklist** <user>\n **add** <up to ten numbers>\n **mute** <@user> & unmute <@user> \n **plsay** <1 message sent per word>\n **shutdown**\n  **status** <idle/dnd/online>or<play/watch/listen/compete>or<none> <text>\n **addtoautoban** <@user>\n **masssaydel** <message>\n **secretcommand** <password>\n **arole** <@user> <role_name>\n **lockdown** <start|stop|end|>\n **pin** <message>\n **rrole** <@user> <role_name>\n **leaveguild**\n **listguilds**\n **hidechannel**\n **addtochannel** <@user>\n **removebotadmin** <@user>\n **cherry**\n **getguildchannels** <guild_id>\n **removeadmin** <@user>\n **getinvite** <channel_id>\n **unban** <user_id>\n **cchannel** <channel name>\n **pvc** <voice call name>", inline: true },
-                                ]
-                            }
-                        });
-                    }
                 } else if (command_chosen === 'music') {
                     const helpembed = new Discord.MessageEmbed()
                         .addField(`This is more of a category than one command.`, `**sm_play <song name | song url>**(youtube links only for urls)\n\nThis command has the bot join the channel that you are in and play music!\nIf there is already a song playing it will add the song you have chosen to a queue and play it when the rest of the queue has finished.\n\n**sm_skip**\n\nThis skips the current song\n\n**sm_stop**\nAliases: leave, fuckoff, dc, disconnect.\nClears the queue and has the bot leave the channel.\n\n**sm_pause**\n\nPauses the music, its literally that simple.\n\n**sm_resume**\nAliases: unpause.\nStarts the music again after being paused.\n\n**sm_debug**\n\nResets the bot in your server so that it can be recovered from errors, if the bot stops working for whatever reason use this command and it *should* be fixed\n\nIf you have any issues or suggestions chuck us an sm_report <issue>`)
@@ -364,7 +340,30 @@ module.exports = {
                         .setColor('BLUE')
                     message.channel.send(helpembed);
                     return
-                } else {
+                } else if (command_chosen === 'all') {
+                    let printarr = []
+                    client.commands.forEach(entry => {
+                        if (entry.aliases) {
+                            entry.aliases.forEach(alias => {
+                                printarr.push(alias)
+                            })
+                        }
+                        printarr.push(entry.name)
+                    });
+                    let descriptionlength = 0
+                    printarr.forEach(entry => {
+                        descriptionlength = descriptionlength + entry.length
+                    })
+                    if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
+                    const helpembed = new Discord.MessageEmbed()
+                        .setTitle('Literally every command')
+                        .setDescription(printarr)
+                        .setTimestamp()
+                        .setColor('BLUE')
+                    message.channel.send(helpembed);
+                    return
+                }
+                else {
                     message.reply(`That is either not a command, is spelt incorrectly or has not been added to sm_help yet.`)
                 }
             }
