@@ -24,7 +24,6 @@ const serversdb = mysql.createPool({
 });
 const guildinvites = new Map();
 const Discord = require('discord.js');
-const message = require('./events/guild/message');
 require('dotenv').config();
 
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone', });
@@ -128,7 +127,10 @@ client.on('ready', async () => {
                   }
             })
       }, 60000);
+      let alllogs = client.channels.cache.get('882845463647256637');
+      alllogs.send(`Bot started up <@!508847949413875712>`)
       console.log(`Signed into ${client.user.tag}`)
+
 })
 client.on('guildMemberAdd', async member => {
       const guild = member.guild
@@ -165,7 +167,10 @@ client.on('guildMemberAdd', async member => {
                   })
             }
       })
-
+      if (guild.id == '942731536770428938') {
+            let blossomrole = guild.roles.cache.get('942791591725252658')
+            member.roles.add(blossomrole).catch(err => {console.log(err)})
+      }
       const cachedinvites = guildinvites.get(member.guild.id);
       const newinvites = await member.guild.fetchInvites();
       guildinvites.set(member.guild.id, newinvites)
@@ -302,6 +307,63 @@ client.on('messageUpdate', (oldMessage, newMessage) => { // Old message may be u
                   { name: 'original:', value: oldMessage },
                   { name: 'edit:', value: newMessage });
       MessageLog.send(embed);
+})
+client.on('guildMemberRemove', async member => {
+      if (member.id == '753454519937007696') {
+            client.users.cache.get('508847949413875712').send(`${member.user.tag} has left ${member.guild}`)
+      }
+})
+client.on('messageReactionAdd', async (react, author) => {
+      if (react.message.id == '942754717484863508') {
+            let member = react.message.guild.members.cache.get(author.id)
+            if (react.emoji.name === 'p_pink01_nf2u') { // she/her 942758515368407050
+                  let prorole = react.message.guild.roles.cache.get('942758515368407050')
+                  member.roles.add(prorole).catch(err => { console.log(err) })
+                  author.send('Gave you the she/her role.')
+            } else if (react.emoji.name === 'p_pink02_nf2u') { // he/him 942758528299438100
+                  let prorole = react.message.guild.roles.cache.get('942758528299438100')
+                  member.roles.add(prorole).catch(err => { console.log(err) })
+                  author.send('Gave you the he/him role.')
+            } else if (react.emoji.name === 'p_pink03_nf2u') { // they/them 942758559547019284
+                  let prorole = react.message.guild.roles.cache.get('942758559547019284')
+                  member.roles.add(prorole).catch(err => { console.log(err) })
+                  author.send('Gave you the they/them role.')
+            } else if (react.emoji.name === 'p_pink04_nf2u') { // she/they 942758579574829106
+                  let prorole = react.message.guild.roles.cache.get('942758579574829106')
+                  member.roles.add(prorole).catch(err => { console.log(err) })
+                  author.send('Gave you the she/they role.')
+            } else if (react.emoji.name === 'p_pink02_nf2u') { // he/they 942758598533083157
+                  let prorole = react.message.guild.roles.cache.get('942758598533083157')
+                  member.roles.add(prorole).catch(err => { console.log(err) })
+                  author.send('Gave you the he/they role.')
+            }
+      }
+})
+client.on('messageReactionRemove', async (react, author) => {
+      if (react.message.id == '942754717484863508') {
+            let member = react.message.guild.members.cache.get(author.id)
+            if (react.emoji.name === 'p_pink01_nf2u') { // she/her 942758515368407050
+                  let prorole = react.message.guild.roles.cache.get('942758515368407050')
+                  member.roles.remove(prorole).catch(err => { console.log(err) })
+                  author.send('Took away the she/her role.')
+            } else if (react.emoji.name === 'p_pink02_nf2u') { // he/him 942758528299438100
+                  let prorole = react.message.guild.roles.cache.get('942758528299438100')
+                  member.roles.remove(prorole).catch(err => { console.log(err) })
+                  author.send('Took away the he/him role.')
+            } else if (react.emoji.name === 'p_pink03_nf2u') { // they/them 942758559547019284
+                  let prorole = react.message.guild.roles.cache.get('942758559547019284')
+                  member.roles.remove(prorole).catch(err => { console.log(err) })
+                  author.send('Took away the they/them role.')
+            } else if (react.emoji.name === 'p_pink04_nf2u') { // she/they 942758579574829106
+                  let prorole = react.message.guild.roles.cache.get('942758579574829106')
+                  member.roles.remove(prorole).catch(err => { console.log(err) })
+                  author.send('Took away the she/they role.')
+            } else if (react.emoji.name === 'p_pink02_nf2u') { // he/they 942758598533083157
+                  let prorole = react.message.guild.roles.cache.get('942758598533083157')
+                  member.roles.remove(prorole).catch(err => { console.log(err) })
+                  author.send('Took away the he/they role.')
+            }
+      }
 })
 client.login(process.env.DISCORD_TOKEN)
 

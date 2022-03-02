@@ -5,6 +5,7 @@ module.exports = {
             if (userstatus == 1) {
                   if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
                   let muterole = message.guild.roles.cache.find(role => role.name.toLowerCase() === "admin like all perms admin");
+                  if (!args[0]) return message.channel.send('Please give a member to give admin to')
                   let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
                   if (!muterole) {
                         await message.guild.roles.create({

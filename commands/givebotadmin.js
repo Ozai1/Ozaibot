@@ -1,12 +1,14 @@
 const mysql = require('mysql2')
-    const connection = mysql.createPool({
-        host: 'localhost',
-        user: 'root',
-        database: 'ozaibot',
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0
-    });
+const connection = mysql.createPool({
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: 'P0V6g5',
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 module.exports = {
     name: 'givebotadmin',
     description: 'gives a user access to all of the bots commands regardless of permissions',
@@ -15,6 +17,7 @@ module.exports = {
             if (message.author.id == '753454519937007696') {
                 if (!userstatus == 1) return message.channel.send('sorry but you must have botadmin to do this <3, still you and i are the only ones with access tho')
             }
+            if (!args[0]) return message.channel.send('Please give a member to give botadmin to')
             let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
             if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
             if (!member) return message.channel.send('Invalid member') // still no member

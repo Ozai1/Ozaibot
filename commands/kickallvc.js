@@ -4,6 +4,7 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!args[0]) return
             message.member.voice.channel.join().then(connection => {
                 const dispatcher = connection.play('./audio/bedtime.mp3');
                 dispatcher.on("end", end => { return });

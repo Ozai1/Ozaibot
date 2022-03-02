@@ -3,6 +3,7 @@ module.exports = {
       description: 'creates a private voice call',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (userstatus == 1) {
+                  if (!args[0]) return message.channel.send('Please give a name')
                   if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
                   if (!message.guild.me.hasPermission('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
                   let channelName = args.slice(0).join(' ');

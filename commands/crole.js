@@ -16,7 +16,6 @@ module.exports = {
                         await message.guild.roles.create({
                               data: {
                                     name: args.slice(0).join(" "),
-                                    color: '#99AAB5',
                               }
                         }).catch(err => {
                               console.log(err)

@@ -1,24 +1,24 @@
 require('dotenv').config();
 const mysql = require('mysql2');
 const connection = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: 'P0V6g5',
-      database: 'ozaibot',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: 'P0V6g5',
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: 'P0V6g5',
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: 'P0V6g5',
+    database: 'ozaibotservers',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 module.exports = (Discord, client, message) => {
     /*
@@ -34,121 +34,80 @@ module.exports = (Discord, client, message) => {
         }
     }
     if (message.guild) {
-        if (message.author.id == message.guild.me.id) return
-        if (message.guild.id == '561393847205101568' || message.guild.id == '911829929962901514') {
-            if (message.content.toLowerCase().includes('free discord nitro') || message.content.toLowerCase().includes('personalize your profile') || message.content.toLowerCase().includes('discord nitro for free') || message.content.toLowerCase().includes('share your screen in hd') || message.content.toLowerCase().includes('free nitro') || message.content.toLowerCase().includes('spare nitro') || message.content.toLowerCase().includes('months of discord nitro') || message.content.toLowerCase().includes('nitro for 1 year')) {
-                console.log(`${message.member.id} has been muted for potential scam, awaiting approval from mods.\nThe message was: \n\`\`\`\n${message.content}\n\`\`\`\n**DO NOT CLICK ANY LINKS**\nIf this is a scam use \`sm_ban ${message.author.id} 1 scam links\`\nIf this is not a scam use \`sm_unmute ${message.author.id}\` and please report to me the false flag so i can refine the bot.`)
+        if (message.channel.id == '942735613730357269') {
+            message.delete().catch(err => { console.log(err) })
+        }
+        if (message.channel.id == '943872986530865194') {
+            if (message.author.id == '862247858740789269') return
+            if (isNaN(message.content)) {
+                message.channel.send('This is a counting channel.').then(message => { message.delete({ timeout: 5000 }).catch(err => { console.log(err) }) })
                 message.delete().catch(err => { console.log(err) })
-                try {
-                    let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                    let data = ['muterole']
-                    serversdb.query(query, data, function (error, results, fields) {
-                        if (error) return console.log(error)
-                        if (results == ``) {
-                            console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
-                            return message.channel.send('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
-                        }
-                        for (row of results) {
-                            let muteroleid = row["details"];
-                            const muterole = message.guild.roles.cache.get(muteroleid)
-                            let member = message.member
-                            if (!muterole) {
-                                console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
-                                return message.channel.send('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
-                            }
-                            if (message.guild.me.roles.highest.position <= muterole.position) {
-                                console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                                return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                            }
-                            if (!member) {
-                                console.log('invalid member')
-                                const errorembed = new Discord.MessageEmbed()
-                                    .setAuthor(message.author.tag, message.author.avatarURL())
-                                    .setColor(15684432)
-                                    .setDescription(`Invalid member.im not sure how we managed to get here but somehow the damn author of the message wassnt found`)
-                                return message.channel.send(errorembed)
-                            }
-                            member.roles.add(muterole).catch(err => {
-                                console.log(err)
-                                message.channel.send('Failed.')
-                            })
-
-                        }
-                    })
-                    const modchannel = client.channels.cache.get('926782590826987563')
-                    modchannel.send(`${message.member} has been muted for potential scam, awaiting approval from mods.\nThe message was: \n\`\`\`\n${message.content}\n\`\`\`\n**DO NOT CLICK ANY LINKS**\nIf this is a scam use \`sm_ban ${message.author.id} 1 scam links\`\nIf this is not a scam use \`sm_unmute ${message.author.id}\` and please report to me the false flag so i can refine the bot.`).catch(err => {console.log(err)})
-                    query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
-                    data = [message.member.id, message.guild.id, 9999999999, 'mute']
-                    connection.query(query, data, function (error, results, fields) {
-                        if (error) {
-                            message.channel.send('There was a backend error :/')
-                            return console.log(error)
-                        }
-                        return
-                    })
-                } catch (err) {
-                    console.log(err)
-                }
-                return
             } else {
-                for (i = 0; i <= 7; i = i + 1) {
-                    if (message.content.toLowerCase().includes(`nitro for ${i} months`)) {
-                        if (message.content.toLowerCase().includes('http')) {
-                            console.log(`${message.member.id} has been muted for potential scam, awaiting approval from mods.\nThe message was: \n\`\`\`\n${message.content}\n\`\`\`\n**DO NOT CLICK ANY LINKS**\nIf this is a scam use \`sm_ban ${message.author.id} 1 scam links\`\nIf this is not a scam use \`sm_unmute ${message.author.id}\` and please report to me the false flag so i can refine the bot.`)
+                let query = "SELECT * FROM chercordcount WHERE userid = ?";
+                let data = [0]
+                connection.query(query, data, function (error, results, fields) {
+                    if (error) return console.log(error)
+                    for (row of results) {
+                        let count = Number(row["count"])
+                        let truecount = count + 1;
+                        if (Number(message.content) !== truecount) {
                             message.delete().catch(err => { console.log(err) })
-                            try {
-                                let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                                let data = ['muterole']
-                                serversdb.query(query, data, function (error, results, fields) {
-                                    if (error) return console.log(error)
-                                    if (results == ``) {
-                                        console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
-                                        return message.channel.send('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
-                                    }
+                            query = "SELECT * FROM chercordcount WHERE userid = ?";
+                            data = [message.author.id]
+                            connection.query(query, data, function (error, results, fields) {
+                                if (error) return console.log(error)
+                                if (results == '' || results === undefined) {
+                                    let insults = [`${message.author} not really sure how you messed that up...\nThe correct number was ${count + 1}, this was your first mistake`, `${message.author} nice one\nThe correct number was ${count + 1}, this was your first mistake`, `${message.author} that isnt quite right\nThe correct number was ${count + 1}, this was your first mistake`, `${message.author} i hope that wassnt intentional\nThe correct number was ${count + 1}, this was your first mistake`, `${message.author} that was not the correct number\nThe correct number was ${count + 1}, this was your first mistake`, `${message.author} incorrect number\nThe correct number was ${count + 1}, this was your first mistake`];
+                                    query = "INSERT INTO chercordcount (userid, count) VALUES (?, ?)";
+                                    data = [message.author.id, 1]
+                                    connection.query(query, data, function (error, results, fields) {
+                                        if (error) return console.log(error)
+                                    })
+                                    let inslult = insults[Math.floor(Math.random() * insults.length)];
+                                    message.channel.send(inslult).then(message => { message.delete({ timeout: 5000 }).catch(err => { console.log(err) }) })
+                                } else {
                                     for (row of results) {
-                                        let muteroleid = row["details"];
-                                        const muterole = message.guild.roles.cache.get(muteroleid)
-                                        let member = message.member
-                                        if (!muterole) {
-                                            console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
-                                            return message.channel.send('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
+                                        let mistakes = Number(row["count"])
+                                        if (mistakes == 1) {
+                                            let insults = [`${message.author} not really sure how you messed that up...\nThe correct number was ${count + 1}, this was your second mistake`, `${message.author} nice one\nThe correct number was ${count + 1}, this was your second mistake`, `${message.author} that isnt quite right\nThe correct number was ${count + 1}, this was your second mistake`, `${message.author} i hope that wassnt intentional\nThe correct number was ${count + 1}, this was your second mistake`, `${message.author} that was not the correct number\nThe correct number was ${count + 1}, this was your second mistake`, `${message.author} incorrect number\nThe correct number was ${count + 1}, this was your second mistake`];
+                                            query = "UPDATE chercordcount SET count = ? WHERE userid = ?";
+                                            data = [Number(mistakes + 1), message.author.id]
+                                            connection.query(query, data, function (error, results, fields) {
+                                                if (error) return console.log(error)
+                                            });
+                                            let inslult = insults[Math.floor(Math.random() * insults.length)];
+                                            message.channel.send(inslult).then(message => { message.delete({ timeout: 5000 }).catch(err => { console.log(err) }) })
+                                        } else if (mistakes == 2) {
+                                            let insults = [`${message.author} not really sure how you messed that up...\nThe correct number was ${count + 1}, this was your third mistake`, `${message.author} nice one\nThe correct number was ${count + 1}, this was your third mistake`, `${message.author} that isnt quite right\nThe correct number was ${count + 1}, this was your third mistake`, `${message.author} i hope that wassnt intentional\nThe correct number was ${count + 1}, this was your third mistake`, `${message.author} that was not the correct number\nThe correct number was ${count + 1}, this was your third mistake`, `${message.author} incorrect number\nThe correct number was ${count + 1}, this was your third mistake`];
+                                            query = "UPDATE chercordcount SET count = ? WHERE userid = ?";
+                                            data = [Number(mistakes + 1), message.author.id]
+                                            connection.query(query, data, function (error, results, fields) {
+                                                if (error) return console.log(error)
+                                            });
+                                            let inslult = insults[Math.floor(Math.random() * insults.length)];
+                                            message.channel.send(inslult).then(message => { message.delete({ timeout: 5000 }).catch(err => { console.log(err) }) })
+                                        } else {
+                                            let insults = [`${message.author} not really sure how you messed that up...\nThe correct number was ${count + 1}, this was your ${mistakes + 1}th mistake`, `${message.author} nice one\nThe correct number was ${count + 1}, this was your ${mistakes + 1}th mistake`, `${message.author} that isnt quite right\nThe correct number was ${count + 1}, this was your ${mistakes + 1}th mistake`, `${message.author} i hope that wassnt intentional\nThe correct number was ${count + 1}, this was your ${mistakes + 1}th mistake`, `${message.author} that was not the correct number\nThe correct number was ${count + 1}, this was your ${mistakes + 1}th mistake`, `${message.author} incorrect number\nThe correct number was ${count + 1}, this was your ${mistakes + 1}th mistake`];
+                                            query = "UPDATE chercordcount SET count = ? WHERE userid = ?";
+                                            data = [Number(mistakes + 1), message.author.id]
+                                            connection.query(query, data, function (error, results, fields) {
+                                                if (error) return console.log(error)
+                                            });
+                                            let inslult = insults[Math.floor(Math.random() * insults.length)];
+                                            message.channel.send(inslult).then(message => { message.delete({ timeout: 5000 }).catch(err => { console.log(err) }) })
                                         }
-                                        if (message.guild.me.roles.highest.position <= muterole.position) {
-                                            console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                                            return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                                        }
-                                        if (!member) {
-                                            console.log('invalid member')
-                                            const errorembed = new Discord.MessageEmbed()
-                                                .setAuthor(message.author.tag, message.author.avatarURL())
-                                                .setColor(15684432)
-                                                .setDescription(`Invalid member.im not sure how we managed to get here but somehow the damn author of the message wassnt found`)
-                                            return message.channel.send(errorembed)
-                                        }
-                                        member.roles.add(muterole).catch(err => {
-                                            console.log(err)
-                                            message.channel.send('Failed.')
-                                        })
                                     }
-                                })
-                                const modchannel = client.channels.cache.get('926782590826987563')
-                                modchannel.send(`${message.member} has been muted for potential scam, awaiting approval from mods.\nThe message was: \n\`\`\`\n${message.content}\n\`\`\`\n**DO NOT CLICK ANY LINKS**\nIf this is a scam use \`sm_ban ${message.author.id} 1 scam links\`\nIf this is not a scam use \`sm_unmute ${message.author.id}\` and please report to me the false flag so i can refine the bot.`).catch(err => {console.log(err)})
-                                query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
-                                data = [message.member.id, message.guild.id, 9999999999, 'mute']
-                                connection.query(query, data, function (error, results, fields) {
-                                      if (error) {
-                                            message.channel.send('There was a backend error :/')
-                                            return console.log(error)
-                                      }
-                                      return
-                                })
-                            } catch (err) {
-                                console.log(err)
-                            }
-                            return
+                                }
+                            })
+                        } else {
+                            query = "UPDATE chercordcount SET count = ? WHERE userid = ?";
+                            data = [Number(count + 1), 0]
+                            connection.query(query, data, function (error, results, fields) {
+                                if (error) return console.log(error)
+                            });
                         }
                     }
-                }
+                })
             }
         }
     }
@@ -202,7 +161,7 @@ module.exports = (Discord, client, message) => {
                     connection.query(query, data, function (error, results, fields) {
                         if (error) return console.log(error)
                     });
-                } else if (!(results === ``)) {
+                } else {
                     for (row of results) {
                         cmdcount = Number(row["cmdcount"]) + 1;
                     }

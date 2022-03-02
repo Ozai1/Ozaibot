@@ -12,16 +12,20 @@ const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
 }
 const mysql = require('mysql2');
 const connection = mysql.createPool({
-      host: 'localhost',
+      host: 'vps01.tsict.com.au',
+      port: '3306',
       user: 'root',
+      password: 'P0V6g5',
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
 });
 const serversdb = mysql.createPool({
-      host: 'localhost',
+      host: 'vps01.tsict.com.au',
+      port: '3306',
       user: 'root',
+      password: 'P0V6g5',
       database: 'ozaibotservers',
       waitForConnections: true,
       connectionLimit: 10,
@@ -29,7 +33,7 @@ const serversdb = mysql.createPool({
 });
 module.exports = {
       name: 'test',
-      aliases: ['nextbump', 'currenttime', 'a', 'clearvent', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall'],
+      aliases: ['nextbump', 'currenttime', 'a', 'clearvent', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -44,6 +48,115 @@ module.exports = {
             if (cmd === 'ghostjoin') return ghost_join(message, userstatus, client)
             if (cmd === 'deletemessage') return delete_message(message, args, client, userstatus)
             if (cmd === 'oldpurgeall') return chat_crawler(message, userstatus, client)
+            if (cmd === 'role') return chercord_role(message, args)
+            message.channel.send('HA! dummy, thought you could test something????')
+      }
+}
+async function chercord_role(message, args) {
+      if (message.guild.id !== '942731536770428938') return message.channel.send('This command is intended for a private server only.')
+      if (!args[0]) {
+            let query = `SELECT * FROM chercordrole WHERE userid = ?`;
+            let data = [message.author.id]
+            connection.query(query, data, async function (error, results, fields) {
+                  if (error) {
+                        console.log('backend error for checking active bans')
+                        return console.log(error)
+                  }
+                  if (results == '' || results === undefined) {
+                        let blossomrole = message.guild.roles.cache.get('942791591725252658')
+                        let newrole = await message.guild.roles.create({
+                              data: {
+                                    name: message.author.tag,
+                                    position: blossomrole.position + 1,
+                              },
+                        }).catch(err => { console.log(err) })
+                        message.guild.members.cache.get(message.author.id).roles.add(newrole)
+                        query = `INSERT INTO chercordrole (userid, roleid) VALUES (?, ?)`;
+                        data = [message.author.id, newrole.id]
+                        connection.query(query, data, function (error, results, fields) {
+                              if (error) {
+                                    console.log('backend error for checking active bans')
+                                    return console.log(error)
+                              }
+                              message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
+                        })
+                  } else {
+                        for (row of results) {
+                              message.channel.send('You already have a role of your own!')
+                        }
+                  }
+            })
+      } else if (args[0].toLowerCase() === 'color') {
+            if (!args[1]) return message.channel.send('might wanna add a color.')
+            let query = `SELECT * FROM chercordrole WHERE userid = ?`;
+            let data = [message.author.id]
+            connection.query(query, data, function (error, results, fields) {
+                  if (error) {
+                        console.log('backend error for checking active bans')
+                        return console.log(error)
+                  }
+                  if (results == '' || results === undefined) {
+                        message.channel.send('You do not currently have a role. Please make one using `sm_role`!!')
+                  } else {
+                        for (row of results) {
+                              let roleid = row["roleid"]
+                              let usersrole = message.guild.roles.cache.get(roleid)
+                              if (!usersrole) return message.channel.send('It seems like you have a role but it was deleted. ping ozai plz')
+                              if (args[1].startsWith('#')) {
+                                    usersrole.edit({ color: args[1] }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              } else if (args[1].toLowerCase() === 'green') {
+                                    usersrole.edit({ color: '#00FF00' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              } else if (args[1].toLowerCase() === 'red') {
+                                    usersrole.edit({ color: '#FF0000' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'blue') {
+                                    usersrole.edit({ color: '#0000FF' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'brown') {
+                                    usersrole.edit({ color: '#964B00' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'pink') {
+                                    usersrole.edit({ color: '#FFC0CB' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'lightblue') {
+                                    usersrole.edit({ color: '#ADD8E6' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'lightgreen') {
+                                    usersrole.edit({ color: '#90ee90' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'orange') {
+                                    usersrole.edit({ color: '#FFA500' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }else if (args[1].toLowerCase() === 'purple') {
+                                    usersrole.edit({ color: '#A020F0' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              }
+                        }
+                  }
+            })
+      } else if (args[0].toLowerCase() === 'name') {
+            if (!args[1]) return message.channel.send('might wanna add a name.')
+            let query = `SELECT * FROM chercordrole WHERE userid = ?`;
+            let data = [message.author.id]
+            connection.query(query, data, function (error, results, fields) {
+                  if (error) {
+                        console.log('backend error for checking active bans')
+                        return console.log(error)
+                  }
+                  if (results == '' || results === undefined) {
+                        message.channel.send('You do not currently have a role. Please make one using `sm_role`!!')
+                  } else {
+                        for (row of results) {
+                              let roleid = row["roleid"]
+                              let usersrole = message.guild.roles.cache.get(roleid)
+                              if (!usersrole) return message.channel.send('It seems like you have a role but it was deleted. ping ozai plz')
+                              usersrole.edit({ name: args.slice(1).join(" ") }).catch(err => { console.log(err) })
+                              message.channel.send('Role name edited.')
+                        }
+                  }
+            })
       }
 }
 async function chat_crawler(message, userstatus, client) {

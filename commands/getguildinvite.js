@@ -3,6 +3,7 @@ module.exports = {
       description: 'grabs an invite for the server id given',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (userstatus == 1) {
+                  if (!args[0]) return
                   let selectedguild = client.guilds.cache.get(args[0])
                   if (!selectedguild) return message.channel.send('Invalid server id')
                   if (!selectedguild.me.hasPermission('CREATE_INSTANT_INVITE')) return message.channel.send('cannot create invite for this server due to low perms');

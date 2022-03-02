@@ -3,6 +3,7 @@ module.exports = {
     description: 'spits the channels of a server to chat',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
+            if (!args[0]) return
             selectedguild = client.guilds.cache.get(args[0])
             let channels2 = [];
             if (!selectedguild) return message.reply("Invalid guild id!")
