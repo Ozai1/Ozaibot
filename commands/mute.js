@@ -25,7 +25,6 @@ module.exports = {
       aliases: ['muteuser', 'silence', 'm', 'mute-user'],
       description: 'mutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
-
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!userstatus == 1) {
                   if (!message.member.hasPermission("MANAGE_CHANNELS")) {

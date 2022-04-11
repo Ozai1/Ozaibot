@@ -22,7 +22,6 @@ module.exports = {
                   if (member.id == '753454519937007696') {
                         if (message.author.id !== '508847949413875712') return message.channel.send(`${member} has been blacklisted from bot use & had their botadmin removed.`);
                   }
-                  
                   let query = "SELECT * FROM userstatus WHERE userid = ?";
                   let data = [member.id]
                   connection.query(query, data, function (error, results, fields) {//check what theyre current status is

@@ -123,3 +123,77 @@ const validateSnowflake = (snowflake, DISCORD_EPOCH) => {
 	return console.log(timestamp)
 }
 
+ME SUBSTRING SEARCH SHIT SO FAR 
+
+            let possiblechannels = [];
+                  message.guild.channels.cache.forEach(channel => {
+                        if (channel.type === 'voice') {
+                              if (channel.name.toLowerCase().includes(args[0].toLowerCase())) {
+                                    possiblechannels.push(`#${possiblechannels.length} ${channel.name}`)
+                              }
+                        }
+                  })
+                  if (!possiblechannels[1]) {
+                        let channel2 = message.guild.channels.cache.find(channel => channel.name === possiblechannels[0].slice(3));
+                        if (!channel2 || channel2.type === 'text' || channel2.type === 'category' || channel2.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
+                        if (!args[1]) {
+                              message.member.voice.setChannel(channel2).catch(err => { console.log(err) });
+                        } else if (args[1].toLowerCase() === 'vc') {
+                              message.member.voice.channel.members.forEach(member => {
+                                    if (member.voice.channel) {
+                                          member.voice.setChannel(channel2).catch(err => { console.log(err) })
+                                    }
+                              })
+                              return
+                        } else {
+                              args.forEach(singlearg => {
+                                    let member = message.guild.members.cache.get(singlearg.slice(3, -1)) || message.guild.members.cache.get(singlearg) || message.guild.members.cache.get(singlearg.slice(2, -1));
+                                    if (member) {
+                                          member.voice.setChannel(channel2).catch(err => { console.log(err) });
+                                    }
+                              })
+                        }
+                        return
+                  } else if (!possiblechannels[0]) {
+                        return message.author.send('Could not find a channel with that name or a channel that has that in its name.')
+                  }
+                  if (possiblechannels.length > 9) message.channel.send('To many possible channels from that name, use a more definitive string.')
+                  const helpembed = new Discord.MessageEmbed()
+                        .setTitle('Which of these channels did you mean? Please type out the corrosponding number.')
+                        .setDescription(possiblechannels)
+                        .setFooter('Hi Jan')
+                        .setColor('BLUE')
+                  let filter = m => m.author.id === message.author.id;
+                  await message.channel.send(helpembed).then(confmessage => {
+                        message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+                              message2 = message2.first();
+                              message2.delete().catch(err => { })
+                              confmessage.delete().catch(err => { })
+                              if (isNaN(message2.content)) return message2.channel.send('Failed, you are supposed to pick one of the channels #-numbers.')
+                              if (message2.content >= possiblechannels.length) return message2.channel.send('Failed, that number isnt on the list.')
+                              let channel2 = message2.guild.channels.cache.find(channel => channel.name === possiblechannels[message2.content].slice(3));
+                              if (!channel2 || channel2.type === 'text' || channel2.type === 'category' || channel2.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
+                              if (!args[1]) {
+                                    message2.member.voice.setChannel(channel2).catch(err => { console.log(err) });
+                              } else if (args[1].toLowerCase() === 'vc') {
+                                    message2.member.voice.channel.members.forEach(member => {
+                                          if (member.voice.channel) {
+                                                member.voice.setChannel(channel2).catch(err => { console.log(err) })
+                                          }
+                                    })
+                                    return
+                              } else {
+                                    args.forEach(singlearg => {
+                                          let member = message2.guild.members.cache.get(singlearg.slice(3, -1)) || message.guild.members.cache.get(singlearg) || message.guild.members.cache.get(singlearg.slice(2, -1));
+                                          if (member) {
+                                                member.voice.setChannel(channel2).catch(err => { console.log(err) });
+                                          }
+                                    })
+                              }
+                              return
+                        }).catch(collected => {
+                              console.log(collected)
+                              return message.channel.send('Timed out').catch(err => { console.log(err) })
+                        });
+                  });
+            

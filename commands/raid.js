@@ -29,7 +29,9 @@ module.exports = {
         'whoinvited',//who inv a user
         'blacklistinvite',//blacklist
         'unblacklistinvite',//unblacklist
-        'raidapp'//getting access
+        'raidapp',//getting access
+        'allowraidcmds',
+        'removeraidcmds'
     ],
     description: 'anti raid functionality for ozaibot',
     async execute(message, client, cmd, args, Discord, userstatus) {
@@ -93,8 +95,9 @@ module.exports = {
             })
         } else if (cmd === 'whoinvited') {
             if (userstatus == 1 || userstatus == 3) {
+                if (!args[0]) return message.channel.send('Please give a user.')
                 let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
-                if (!member) return message.channel.send('Please give a valid member.')
+                if (!member) return message.channel.send('Please give a valid user.')
                 let query = `SELECT * FROM invites WHERE serverid = ? && userid = ?`;
                 let data = [message.guild.id, member.id]
                 connection.query(query, data, function (error, results, fields) {
@@ -107,18 +110,21 @@ module.exports = {
                         for (row of results) {
                             let inviterid = row["inviterid"]
                             let time = row["time"]
+                            let invitecode = row["invitecode"]
                             let inviter = client.users.cache.get(inviterid)
                             if (!inviter) {
                                 inviter = 'unknownuser'
                             } else {
                                 inviter = inviter.tag
                             }
-                            printstring.push(`<t:${time}:R>: ${inviter}`)
+                            printstring.push(`<t:${time}:R>: ${inviter} (${invitecode})`)
                         }
-                        if (!printstring[0]) return message.channel.send('Ozaibot could not find who invited this user, Ozaibot may have not been in the server at the time or maybe it was offline.')
+                        if (!printstring[0]) return message.channel.send('Could not find who invited this user, Ozaibot may have not been in the server at the time or maybe it was offline.')
                         let printmessage = printstring.filter((a) => a).toString()
                         printmessage = printmessage.replace(/,/g, '\n')
                         message.channel.send('Invites were used at and created by:\n' + printmessage)
+                    } else {
+                        if (!printstring[0]) return message.channel.send('Could not find who invited this user, Ozaibot may have not been in the server at the time or maybe it was offline.')
                     }
                 })
             } else return message.channel.send('You do not have access to anti raid commands. Use `sm_raid` for more info.')
@@ -240,7 +246,8 @@ module.exports = {
             } else return message.channel.send('You do not have access to anti raid commands. Use `sm_raid` for more info.')
         } else if (cmd === 'raid') {
             const helpembed = new Discord.MessageEmbed()
-                .addField(`Anti Raid`, `This is a command set for ozaibot that is built to help with raids.\nIt has a variety of commands including commands that:\n\nShow you who joined off a link\nExample: what link did this person join off?\n\nShow you all the users who have joined off a link.\n\nLock down links so that if they are used to join your server it will automatically apply an action to them.\n\nApply an action to all users who have joined off a link.\nExample: kick everyone who joined off link ABC123 in the last 10 mins. would allow up to a day if needed.\n\nAnd more coming.\n\n\nThis is under development but most of it already works, only needs to be refined to a user friendly level.\n\nEdit: I am now happy for people to start using these features if they wish, you may apply using \`sm_raidapp\`.\nAll of these commands do indeed currently work but i am still adding features and little error catches and the likes.`)
+            .setTitle('Anti Raid')
+                .setDescription(`This is a command set for ozaibot that is built to help with raids.\nIt has a variety of commands including commands that:\n\n\`sm_whoinvited <@user>\`\nShow you who joined off a link\nExample: what link did this person join off?\n\n\`sm_whojoined <link_code>\`\nShow you all the users who have joined off a link.\n\n\`sm_blacklistinvite <invite_code> <mute/kick/ban> <time>\`\nLock down links so that if they are used to join your server it will automatically apply an action to them.\n\n\`sm_purgeinvite <link_code> <mute/kick/ban>\`\nApply an action to all users who have joined off a link.\nExample: kick everyone who joined off link ABC123 in the last 10 mins. would allow up to a day if needed.\n\nAnd more coming.\n\n\nEdit: I am now happy for people to start using these features if they wish, you may apply using \`sm_raidapp\`.\nAll of these commands do indeed currently work but i am still adding features and little error catches and the likes.`)
                 .setTimestamp()
                 .setFooter('Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.')
                 .setColor('BLUE')

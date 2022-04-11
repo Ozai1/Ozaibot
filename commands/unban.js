@@ -7,12 +7,12 @@ module.exports = {
             if (!userstatus == 1) {
                   if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('You do not have permissions to use this command.')
             }
-            if (!args[0]) return message.channel.send('Please give a members id to unban.')
+            if (!args[0]) return message.channel.send('Please a user\s id to unban.')
             message.guild.fetchBans().then(bans => {
                   let member = bans.get(args[0]);
-                  if (bans.size == 0) return;
-                  if (member == null) return message.reply('Cannot find a ban for the given user.');
-                  message.guild.members.unban(member.id, 'Unbanned by ' + message.author.tag).then(() => {
+                  if (bans.size == 0) return message.channel.send('This server does not have any bans.');
+                  if (!member) return message.reply('Cannot find a ban for the given user.');
+                  message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
                         message.channel.send('Unbanned <@' + args[0] + '>.');
                   }).catch(err => { console.log(err) });
             })

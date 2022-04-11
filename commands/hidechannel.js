@@ -8,32 +8,37 @@ module.exports = {
                   message.delete().catch(err => { console.log(err) });
                   if (!message.channel.permissionsFor(message.guild.roles.everyone).has('VIEW_CHANNEL')) {
                         let filter = m => m.author.id === message.author.id;
-                        message.channel.send(`are you sure you want to show ${message.channel} to the whole server? \`Y\` / \`N\``).then(() => {
-                              message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(message => {
-                                    message = message.first();
-                                    if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
-                                          message.channel.updateOverwrite(message.channel.guild.roles.everyone, { VIEW_CHANNEL: true }).then(() => {
-                                                const errorEmbed = new Discord.MessageEmbed()
+                        const confmessage = await message.channel.send(`are you sure you want to show ${message.channel} to the whole server? \`Y\` / \`N\``)
+                              message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(message2 => {
+                                    message2 = message2.first();
+                                    if (message2.content.toUpperCase() == 'YES' || message2.content.toUpperCase() == 'Y') {
+                                          const errorEmbed = new Discord.MessageEmbed()
                                                       .setDescription(`'${message.channel.name}' has been revealed!.`)
                                                       .setColor('GREEN');
                                                 message.channel.send(errorEmbed).then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
+                                          confmessage.delete().catch(err => {console.log(err)})
+                                          message2.delete().catch(err => {console.log(err)})
+                                          message.channel.updateOverwrite(message.channel.guild.roles.everyone, { VIEW_CHANNEL: true }).then(() => {
                                           });
-                                    } else if (message.content.toUpperCase() == 'NO' || message.content.toUpperCase() == 'N') {
+                                    } else if (message2.content.toUpperCase() == 'NO' || message2.content.toUpperCase() == 'N') {
+                                          message2.delete().catch(err => {console.log(err)})
+                                          confmessage.delete().catch(err => {console.log(err)})
                                           message.channel.send(`Cancelled.`).then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
                                     } else {
+                                          confmessage.delete().catch(err => {console.log(err)})
+                                          message2.delete().catch(err => {console.log(err)})
                                           message.channel.send(`Cancelled: Invalid Response`).then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
                                     }
                               }).catch(collected => {
+                                    console.log(collected)
                                     message.channel.send('Timed out').then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
                               });
-                        });
                   } else {
-                        message.channel.updateOverwrite(message.channel.guild.roles.everyone, { VIEW_CHANNEL: false }).then(() => {
-                              const msgEmbed = new Discord.MessageEmbed()
+                        const msgEmbed = new Discord.MessageEmbed()
                                     .setDescription(`'${message.channel.name}' has been hidden.`)
                                     .setColor('RED');
                               message.channel.send(msgEmbed).then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
-                        });
+                        message.channel.updateOverwrite(message.channel.guild.roles.everyone, { VIEW_CHANNEL: false })
                   }
             } else {
                   const warningEmbed = new Discord.MessageEmbed()

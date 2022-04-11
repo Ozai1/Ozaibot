@@ -35,7 +35,7 @@ module.exports = {
             if (message.guild.ownerID !== message.author.id) {
                   if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot kick someone with higher or the same roles as your own.');
             }
-            if (!member.kickable) return message.reply("I cannot kick this member!");
+            if (!member.kickable) return message.reply("I do not have high enough permissions to kick this member.");
             let reason = args.slice(1).join(" ");
             if (!reason) reason = 'No reason given';
             message.channel.send(`Kicked ${member}.`)

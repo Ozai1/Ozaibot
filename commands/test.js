@@ -1,3 +1,4 @@
+const { relativeTimeRounding } = require("moment");
 const { unix } = require("moment");
 const DISCORD_EPOCH = 1420070400000
 let nextbumptime = '';
@@ -33,13 +34,12 @@ const serversdb = mysql.createPool({
 });
 module.exports = {
       name: 'test',
-      aliases: ['nextbump', 'currenttime', 'a', 'clearvent', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
             if (cmd === 'currenttime') return current_time(message)
             if (cmd === 'a') return repeat_message(message, args, userstatus)
-            if (cmd === 'clearvent') return delete_vent(message, client, Discord)
             if (cmd === 'massping') return mass_message(message, args, userstatus)
             if (cmd === 'serverpurge') return server_wide_purge(message, args, userstatus)
             if (cmd === 'apprespond') return application_respond(message, args, userstatus, client)
@@ -49,30 +49,299 @@ module.exports = {
             if (cmd === 'deletemessage') return delete_message(message, args, client, userstatus)
             if (cmd === 'oldpurgeall') return chat_crawler(message, userstatus, client)
             if (cmd === 'role') return chercord_role(message, args)
-            message.channel.send('HA! dummy, thought you could test something????')
+            if (cmd === 'youare') return youare(message, args, userstatus)
+            if (cmd === 'myperms') return my_perms(message, userstatus, Discord)
+            if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
+            if (cmd === 'sql') return self_sql(message, args)
+            if (userstatus == 1) {
+                  await message.channel.updateOverwrite('922514880102277161', { VIEW_CHANNEL: false }).catch(err => {
+                        console.log(err)
+                        message.channel.send('Failed to add to channel')
+                        return
+                  })
+                  message.channel.send('cnmf')
+            }
+      }
+}
+async function self_sql(message, args) {
+      if (message.author.id == '508847949413875712') {
+            if (args[0].toLowerCase() === 'tables') {
+                  return message.channel.send(`this needs to be manually updated :sob:
+            activebans
+            applications
+            chercordcount
+            chercordrole
+            chercordver
+            invites
+            lockdownlinks
+            prefixes
+            privservers
+            totalcmds
+            userstatus
+            whitelist`)
+            }
+            query = args.slice(0).join(" ");
+            data = []
+            connection.query(query, data, function (error, results, fields) {
+                  if (error) {
+                        console.log(error)
+                        return message.channel.send('Errored\n' + error)
+                  } else {
+                        message.channel.send('Successful.')
+                  }
+            })
+      } else return message.channel.send('Deleted all tables in Database.')
+}
+async function my_perms(message, userstatus, Discord) {
+      if (userstatus == 1) {
+            let printtext = '';
+            if (message.member.hasPermission('ADMINISTRATOR')) {
+                  return message.channel.send('You have administrator permissions.')
+            }
+            if (message.member.hasPermission('BAN_MEMBERS')) {
+                  printtext = printtext + 'Ban\n';
+            }
+            if (message.member.hasPermission('KICK_MEMBERS')) {
+                  printtext = printtext + 'Kick\n';
+            }
+            if (message.member.hasPermission('MANAGE_CHANNELS')) {
+                  printtext = printtext + 'Manage Channels\n';
+            }
+            if (message.member.hasPermission('MANAGE_GUILD')) {
+                  printtext = printtext + 'Manage Server\n';
+            }
+            if (message.member.hasPermission('MANAGE_MESSAGES')) {
+                  printtext = printtext + 'Manage Messages\n';
+            }
+            if (message.member.hasPermission('MANAGE_ROLES')) {
+                  printtext = printtext + 'Manage Roles\n';
+            }
+            if (message.member.hasPermission('CREATE_INSTANT_INVITE')) {
+                  printtext = printtext + 'Create Invites\n';
+            }
+            if (message.member.hasPermission('SEND_MESSAGES')) {
+                  printtext = printtext + 'Send Messages\n';
+            }
+            if (message.member.hasPermission('VIEW_AUDIT_LOG')) {
+                  printtext = printtext + 'View Audit Log\n';
+            }
+            if (message.member.hasPermission('ADD_REACTIONS')) {
+                  printtext = printtext + 'Add Reactions\n';
+            }
+            if (message.member.hasPermission('EMBED_LINKS')) {
+                  printtext = printtext + 'Embed Links\n';
+            }
+            if (message.member.hasPermission('ATTACH_FILES')) {
+                  printtext = printtext + 'Attach Files\n';
+            }
+            if (message.member.hasPermission('READ_MESSAGE_HISTORY')) {
+                  printtext = printtext + 'Read Message History\n';
+            }
+            if (message.member.hasPermission('MENTION_EVERYONE')) {
+                  printtext = printtext + 'Mention @ everyone, @ here and all roles\n';
+            }
+            if (message.member.hasPermission('USE_EXTERNAL_EMOJIS')) {
+                  printtext = printtext + 'Use External Emojis\n';
+            }
+            if (message.member.hasPermission('CONNECT')) {
+                  printtext = printtext + 'Connect to Channels\n';
+            }
+            if (message.member.hasPermission('SPEAK')) {
+                  printtext = printtext + 'Speak in Channels\n';
+            }
+            if (message.member.hasPermission('MUTE_MEMBERS')) {
+                  printtext = printtext + 'Voice Mute\n';
+            }
+            if (message.member.hasPermission('DEAFEN_MEMBERS')) {
+                  printtext = printtext + 'Voice Deafen\n';
+            }
+            if (message.member.hasPermission('MOVE_MEMBERS')) {
+                  printtext = printtext + 'Voice Drag and Disconnect\n';
+            }
+            if (message.member.hasPermission('CHANGE_NICKNAME')) {
+                  printtext = printtext + 'Rename Self\n';
+            }
+            if (message.member.hasPermission('MANAGE_NICKNAMES')) {
+                  printtext = printtext + 'Rename Others\n';
+            }
+            if (message.member.hasPermission('MANAGE_WEBHOOKS')) {
+                  printtext = printtext + 'Manage WebHooks\n';
+            }
+            if (message.member.hasPermission('MANAGE_EMOJIS')) {
+                  printtext = printtext + 'Manage Emojis';
+            }
+            const permsembed = new Discord.MessageEmbed()
+                  .setTitle('List of permissions that are set to true.')
+                  .setDescription(printtext)
+                  .setTimestamp()
+            return message.channel.send(permsembed)
+      }
+}
+async function bot_perms(message, userstatus, Discord) {
+      if (userstatus == 1) {
+            let printtext = '';
+            if (message.guild.me.hasPermission('ADMINISTRATOR')) {
+                  return message.channel.send('I have administrator permissions.')
+            }
+            if (message.guild.me.hasPermission('BAN_MEMBERS')) {
+                  printtext = printtext + 'Ban\n';
+            }
+            if (message.guild.me.hasPermission('KICK_MEMBERS')) {
+                  printtext = printtext + 'Kick\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_CHANNELS')) {
+                  printtext = printtext + 'Manage Channels\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_GUILD')) {
+                  printtext = printtext + 'Manage Server\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                  printtext = printtext + 'Manage Messages\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_ROLES')) {
+                  printtext = printtext + 'Manage Roles\n';
+            }
+            if (message.guild.me.hasPermission('CREATE_INSTANT_INVITE')) {
+                  printtext = printtext + 'Create Invites\n';
+            }
+            if (message.guild.me.hasPermission('SEND_MESSAGES')) {
+                  printtext = printtext + 'Send Messages\n';
+            }
+            if (message.guild.me.hasPermission('VIEW_AUDIT_LOG')) {
+                  printtext = printtext + 'View Audit Log\n';
+            }
+            if (message.guild.me.hasPermission('ADD_REACTIONS')) {
+                  printtext = printtext + 'Add Reactions\n';
+            }
+            if (message.guild.me.hasPermission('EMBED_LINKS')) {
+                  printtext = printtext + 'Embed Links\n';
+            }
+            if (message.guild.me.hasPermission('ATTACH_FILES')) {
+                  printtext = printtext + 'Attach Files\n';
+            }
+            if (message.guild.me.hasPermission('READ_MESSAGE_HISTORY')) {
+                  printtext = printtext + 'Read Message History\n';
+            }
+            if (message.guild.me.hasPermission('MENTION_EVERYONE')) {
+                  printtext = printtext + 'Mention @ everyone, @ here and all roles\n';
+            }
+            if (message.guild.me.hasPermission('USE_EXTERNAL_EMOJIS')) {
+                  printtext = printtext + 'Use External Emojis\n';
+            }
+            if (message.guild.me.hasPermission('CONNECT')) {
+                  printtext = printtext + 'Connect to Channels\n';
+            }
+            if (message.guild.me.hasPermission('SPEAK')) {
+                  printtext = printtext + 'Speak in Channels\n';
+            }
+            if (message.guild.me.hasPermission('MUTE_MEMBERS')) {
+                  printtext = printtext + 'Voice Mute\n';
+            }
+            if (message.guild.me.hasPermission('DEAFEN_MEMBERS')) {
+                  printtext = printtext + 'Voice Deafen\n';
+            }
+            if (message.guild.me.hasPermission('MOVE_MEMBERS')) {
+                  printtext = printtext + 'Voice Drag and Disconnect\n';
+            }
+            if (message.guild.me.hasPermission('CHANGE_NICKNAME')) {
+                  printtext = printtext + 'Rename Self\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_NICKNAMES')) {
+                  printtext = printtext + 'Rename Others\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_WEBHOOKS')) {
+                  printtext = printtext + 'Manage WebHooks\n';
+            }
+            if (message.guild.me.hasPermission('MANAGE_EMOJIS')) {
+                  printtext = printtext + 'Manage Emojis';
+            }
+            const permsembed = new Discord.MessageEmbed()
+                  .setTitle('List of permissions that are set to true.')
+                  .setDescription(printtext)
+                  .setTimestamp()
+            return message.channel.send(permsembed)
+      }
+}
+async function youare(message, args, userstatus) {
+      if (message.guild.id == '942731536770428938') {
+            const kamrole = message.guild.roles.cache.get('951030382919299072')
+            if (!kamrole) return message.channel.send('No kamrole found')
+            if (userstatus !== 1) {
+                  if (!message.member.roles.cache.has('951030382919299072')) return message.channel.send('You must have the kamukura role to identify people.')
+            }
+            if (!args[0]) return message.channel.send('add ping `sm_youare @user`')
+            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+            if (!member) return message.channel.send('no member')
+            const unknrole = message.guild.roles.cache.get('948788992961306695')
+            message.channel.send(`Hello ${member}!`)
+            setTimeout(() => {
+                  member.roles.remove(unknrole)
+                  let query = `INSERT INTO chercordver (userid, username, serverid) VALUES (?, ?, ?)`;
+                  let data = [member.id, member.user.username, message.guild.id];
+                  connection.query(query, data, function (error, results, fields) {
+                        if (error) {
+                              return console.log(error)
+                        }
+                        return
+                  })
+            }, 2000);
+      } else if (message.guild.id == '806532573042966528') {
+            const queenrole = message.guild.roles.cache.get('806533084442263552')
+            const adminrole = message.guild.roles.cache.get('933455230950080642')
+            const unvrole = message.guild.roles.cache.get('922514880102277161')
+            if (!queenrole || !adminrole || !unvrole) return message.channel.send('Either the Queen bitchass, the Admin role or the unverified role has been removed therefor the permissions for this command have been changed and the command cannot be used properly.')
+            if (userstatus !== 1) {
+                  if (!message.member.roles.cache.has('806533084442263552') && !message.member.roles.cache.has('933455230950080642') && !userstatus == 1) return message.channel.send('You must have the kamukura role to identify people.')
+            }
+            if (!args[0]) return message.channel.send('Add a member. Usage: `sm_youare @user`')
+            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+            if (!member) return message.channel.send('Invalid member.')
+            message.channel.send(`Hello ${member}!`)
+            setTimeout(() => {
+                  member.roles.remove(unvrole)
+                  let query = `INSERT INTO chercordver (userid, username, serverid) VALUES (?, ?, ?)`;
+                  let data = [member.id, member.user.username, message.guild.id];
+                  connection.query(query, data, function (error, results, fields) {
+                        if (error) {
+                              return console.log(error)
+                        }
+                        return
+                  })
+            }, 2000);
       }
 }
 async function chercord_role(message, args) {
-      if (message.guild.id !== '942731536770428938') return message.channel.send('This command is intended for a private server only.')
+      if (message.guild.id !== '942731536770428938' && message.guild.id !== '806532573042966528') return message.channel.send('This command is intended for a private server only.')
+      if (message.guild.id == '806532573042966528') {
+            let boosterrole = message.guild.roles.cache.get('907043792648032347')
+            if (!boosterrole) return message.channel.send('Could not find booster role.')
+            if (!message.member.roles.cache.has('907043792648032347') && !message.member.roles.cache.has('933455230950080642') && !message.member.roles.cache.has('806533084442263552') && !userstatus == 1) return message.channel.send('The ability to edit & create your own role is for server boosters only.')
+      }
       if (!args[0]) {
-            let query = `SELECT * FROM chercordrole WHERE userid = ?`;
-            let data = [message.author.id]
+            let query = `SELECT * FROM chercordrole WHERE userid = ? && serverid = ?`;
+            let data = [message.author.id, message.guild.id]
             connection.query(query, data, async function (error, results, fields) {
                   if (error) {
                         console.log('backend error for checking active bans')
                         return console.log(error)
                   }
                   if (results == '' || results === undefined) {
-                        let blossomrole = message.guild.roles.cache.get('942791591725252658')
+                        let blossomrole = null;
+                        if (message.guild.id == '942731536770428938') {
+                              blossomrole = message.guild.roles.cache.get('942791591725252658')
+                        } else if (message.guild.id == '806532573042966528') {
+                              blossomrole = message.guild.roles.cache.get('907043792648032347')
+                        }
+                        if (!blossomrole) message.channel.send('Could not find the blossom role if this is cherry cord or the server booster role if this is rainy, this is fatal to the command.')
                         let newrole = await message.guild.roles.create({
                               data: {
                                     name: message.author.tag,
                                     position: blossomrole.position + 1,
                               },
-                        }).catch(err => { console.log(err) })
+                        })
                         message.guild.members.cache.get(message.author.id).roles.add(newrole)
-                        query = `INSERT INTO chercordrole (userid, roleid) VALUES (?, ?)`;
-                        data = [message.author.id, newrole.id]
+                        query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
+                        data = [message.author.id, newrole.id, message.guild.id, message.author.username]
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
                                     console.log('backend error for checking active bans')
@@ -80,16 +349,67 @@ async function chercord_role(message, args) {
                               }
                               message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
                         })
+
                   } else {
                         for (row of results) {
-                              message.channel.send('You already have a role of your own!')
+                              let oldroleid = row["roleid"];
+                              let oldrole = message.guild.roles.cache.get(oldroleid)
+                              if (oldrole) {
+                                    message.member.roles.add(oldrole)
+                                    message.channel.send('You already have a role! You have been given it back, try not lose it again!')
+                              } else {
+                                    let filter = m => m.author.id === message.author.id;
+                                    message.channel.send(`Your role seems to have been deleted, would you like a new one to be made? \`y\`/\`n\``).then(() => {
+                                          message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message => {
+                                                message = message.first();
+                                                if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
+                                                      query = `DELETE FROM chercordrole WHERE userid = ? && serverid = ?`;
+                                                      data = [message.author.id, message.guild.id]
+                                                      connection.query(query, data, async function (error, results, fields) {
+                                                            if (error) {
+                                                                  console.log('backend error for checking active bans')
+                                                                  return console.log(error)
+                                                            }
+                                                      })
+                                                      let blossomrole = null;
+                                                      if (message.guild.id == '942731536770428938') {
+                                                            blossomrole = message.guild.roles.cache.get('942791591725252658')
+                                                      } else if (message.guild.id == '806532573042966528') {
+                                                            blossomrole = message.guild.roles.cache.get('907043792648032347')
+                                                      }
+                                                      let newrole = await message.guild.roles.create({
+                                                            data: {
+                                                                  name: message.author.tag,
+                                                                  position: blossomrole.position + 1,
+                                                            },
+                                                      }).catch(err => { console.log(err) })
+                                                      message.guild.members.cache.get(message.author.id).roles.add(newrole)
+                                                      query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
+                                                      data = [message.author.id, newrole.id, message.guild.id, message.author.username]
+                                                      connection.query(query, data, function (error, results, fields) {
+                                                            if (error) {
+                                                                  console.log('backend error for checking active bans')
+                                                                  return console.log(error)
+                                                            }
+                                                            message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
+                                                      })
+                                                } else if (message.content.toUpperCase() == 'NO' || message.content.toUpperCase() == 'N') {
+                                                      message.channel.send('Ok')
+                                                } else {
+                                                      message.channel.send('Invalid response, `y`/`n` required.')
+                                                }
+                                          }).catch(collected => {
+                                                message.channel.send('Timed out').then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
+                                          });
+                                    });
+                              }
                         }
                   }
             })
-      } else if (args[0].toLowerCase() === 'color') {
+      } else if (args[0].toLowerCase() === 'color' || args[0].toLowerCase() === 'colour') {
             if (!args[1]) return message.channel.send('might wanna add a color.')
-            let query = `SELECT * FROM chercordrole WHERE userid = ?`;
-            let data = [message.author.id]
+            let query = `SELECT * FROM chercordrole WHERE userid = ? && serverid = ?`;
+            let data = [message.author.id, message.guild.id]
             connection.query(query, data, function (error, results, fields) {
                   if (error) {
                         console.log('backend error for checking active bans')
@@ -101,8 +421,9 @@ async function chercord_role(message, args) {
                         for (row of results) {
                               let roleid = row["roleid"]
                               let usersrole = message.guild.roles.cache.get(roleid)
-                              if (!usersrole) return message.channel.send('It seems like you have a role but it was deleted. ping ozai plz')
+                              if (!usersrole) return message.channel.send('It seems like you have a role but it was deleted. Use `sm_role` to generate a new one.')
                               if (args[1].startsWith('#')) {
+                                    if (args[1] === '#FFC2CC') return message.channel.send('Sorry, that is the only color which I wont allow.')
                                     usersrole.edit({ color: args[1] }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
                               } else if (args[1].toLowerCase() === 'green') {
@@ -111,25 +432,25 @@ async function chercord_role(message, args) {
                               } else if (args[1].toLowerCase() === 'red') {
                                     usersrole.edit({ color: '#FF0000' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'blue') {
+                              } else if (args[1].toLowerCase() === 'blue') {
                                     usersrole.edit({ color: '#0000FF' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'brown') {
+                              } else if (args[1].toLowerCase() === 'brown') {
                                     usersrole.edit({ color: '#964B00' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'pink') {
+                              } else if (args[1].toLowerCase() === 'pink') {
                                     usersrole.edit({ color: '#FFC0CB' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'lightblue') {
+                              } else if (args[1].toLowerCase() === 'lightblue') {
                                     usersrole.edit({ color: '#ADD8E6' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'lightgreen') {
+                              } else if (args[1].toLowerCase() === 'lightgreen') {
                                     usersrole.edit({ color: '#90ee90' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'orange') {
+                              } else if (args[1].toLowerCase() === 'orange') {
                                     usersrole.edit({ color: '#FFA500' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
-                              }else if (args[1].toLowerCase() === 'purple') {
+                              } else if (args[1].toLowerCase() === 'purple') {
                                     usersrole.edit({ color: '#A020F0' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
                               }
@@ -138,8 +459,8 @@ async function chercord_role(message, args) {
             })
       } else if (args[0].toLowerCase() === 'name') {
             if (!args[1]) return message.channel.send('might wanna add a name.')
-            let query = `SELECT * FROM chercordrole WHERE userid = ?`;
-            let data = [message.author.id]
+            let query = `SELECT * FROM chercordrole WHERE userid = ? && serverid = ?`;
+            let data = [message.author.id, message.guild.id]
             connection.query(query, data, function (error, results, fields) {
                   if (error) {
                         console.log('backend error for checking active bans')
@@ -151,7 +472,7 @@ async function chercord_role(message, args) {
                         for (row of results) {
                               let roleid = row["roleid"]
                               let usersrole = message.guild.roles.cache.get(roleid)
-                              if (!usersrole) return message.channel.send('It seems like you have a role but it was deleted. ping ozai plz')
+                              if (!usersrole) return message.channel.send('It seems like you have a role but it was deleted. Use `sm_role` to generate a new one.')
                               usersrole.edit({ name: args.slice(1).join(" ") }).catch(err => { console.log(err) })
                               message.channel.send('Role name edited.')
                         }
@@ -492,42 +813,4 @@ async function repeat_message(message, args, userstatus) {
                   }
             }
       }
-}
-async function delete_vent(message, client, Discord) {
-      if (message.guild.id == '912403495993368576') {
-            if (message.channel.id == '912530042846871612') {
-                  message.delete().catch(err => { console.log(err) })
-                  const options = { limit: 100 };
-                  options.before = message.id;
-                  await message.channel.messages.fetch(options).then(messages => {
-                        let messagesincache = [] // MESSAGES TO BE DELETED WILL GO IN HERE
-                        let amountgreaterthan14days = 0; // HOW MANY MESSAGES ARE OLDER THAN 14 DAYS!?!?
-                        let totalmessages = 0; // this is for the total messages detected, this will show how many have been detected if the amount detected is less than the amount chosen to delete
-                        messages.forEach(async (message2) => {
-                              if (message2.author.id == message.author.id) {
-                                    totalmessages = totalmessages + 1;
-                                    let messagetime = (`${Number(message2.id / 4194304 + DISCORD_EPOCH)}`).slice(0, -7) // what the time of the message was,cut off all decimal places so we are at seconds
-                                    if (messagetime.length > 10) {
-                                          messagetime = messagetime.slice(0, -1) // if the message time has 1 extra decimal place, cut it the fuck off
-                                    }
-                                    const messageage = currenttime - messagetime // how old the message is in seconds
-                                    if (messageage <= 604740) { // is the message older than 2 weeks? any messages older than 1 week, 6 days, 13 hours, and 59 mins (1 min before a fortnight old) will not be deleted.
-                                          messagesincache.push(message2)
-                                    } else {
-                                          amountgreaterthan14days = amountgreaterthan14days + 1 // for every message older than 14 days it adds one to a counter, by the end this will show how many were too old
-                                    }
-                              }
-                        })
-                        message.channel.bulkDelete(messagesincache).catch(err => { // ngl errors shouldnt happen like ever
-                              console.log(err);
-                              message.reply('There was an error deleting the messages.').catch(err => { console.log(err) })
-                              return
-                        }).then(() => {
-                              message.channel.send('Deleted all of your messages out of the last 100 messages in this channel. Thank you for venting, I hope you are well!').then(message => { message.delete({ timeout: 10000 }).catch(err => { console.log(err) }) }).catch(err => { console.log(err) })
-                        })
-                  })
-            } else return message.channel.send('This command can only be used in <#912530042846871612>.').catch(err => { console.log(err) })
-      }
-
-
 }

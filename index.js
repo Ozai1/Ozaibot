@@ -26,7 +26,9 @@ const guildinvites = new Map();
 const Discord = require('discord.js');
 require('dotenv').config();
 
-const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone', });
+const client = new Discord.Client({
+      partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone', //fetchAllMembers: true 
+});
 
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
@@ -34,7 +36,9 @@ client.events = new Discord.Collection();
 ['command_handler', 'event_handler'].forEach(handler => {
       require(`./handlers/${handler}`)(client, Discord);
 })
-
+client.on('message', async message => {
+      return
+})
 client.on('ready', async () => {
       let rating = Math.floor(Math.random() * 2) + 1;
       if (rating == 1) {
@@ -131,7 +135,7 @@ client.on('ready', async () => {
       alllogs.send(`Bot started up <@!508847949413875712>`)
       console.log(`Signed into ${client.user.tag}`)
 
-})
+});
 client.on('guildMemberAdd', async member => {
       const guild = member.guild
       console.log(`${member.user.tag} joined ${guild}`)
@@ -169,13 +173,58 @@ client.on('guildMemberAdd', async member => {
       })
       if (guild.id == '942731536770428938') {
             let blossomrole = guild.roles.cache.get('942791591725252658')
-            member.roles.add(blossomrole).catch(err => {console.log(err)})
+            member.roles.add(blossomrole).catch(err => { console.log(err) })
+            query = `SELECT * FROM chercordver WHERE userid = ? && serverid = ?`;
+            data = [member.id, guild.id]
+            connection.query(query, data, function (error, results, fields) {
+                  if (error) return console.log(error)
+                  if (results == `` || results === undefined) {
+                        let unknownchannel = client.channels.cache.get('948788617348800532')
+                        let unknownrole = guild.roles.cache.get('948788992961306695')
+                        member.roles.add(unknownrole).catch(err => { console.log(err) })
+                        unknownchannel.send(`<@&951030382919299072> ${member}`).catch(err => { console.log(err) })
+                  } else {
+                        return
+                  }
+
+            })
+
       }
-      const cachedinvites = guildinvites.get(member.guild.id);
+      if (guild.id == '806532573042966528') {
+            query = `SELECT * FROM chercordver WHERE userid = ? && serverid = ?`;
+            data = [member.id, guild.id]
+            connection.query(query, data, async function (error, results, fields) {
+                  if (error) return console.log(error)
+                  if (results == `` || results === undefined) {
+                        let verchannel = client.channels.cache.get('951514055452012644')
+                        let verrole = guild.roles.cache.get('922514880102277161')
+                        member.roles.add(verrole).catch(err => { console.log(err) })
+                        const webhookclient = await verchannel.createWebhook(`Welcome ${member.user.username}!`, {
+                              avatar: 'https://cdn.discordapp.com/attachments/868363455105732609/952954742160650300/unknown.png',
+                        })
+                        const welcomeembed = new Discord.MessageEmbed()
+                              .setTitle(`Hello ${member.user.username}!`)
+                              .setThumbnail(member.user.avatarURL())
+                              .setDescription(`Please bare with us while we get someone to verify you and give you access to the rest of the server!\n\nWe apologise for any inconvenience.`)
+                        await webhookclient.send(`<@&806533084442263552> <@&933455230950080642> ${member} <@508847949413875712>`).then(message => { message.delete() })
+                        await webhookclient.send(welcomeembed)
+                        await webhookclient.delete()
+                  } else {
+                        return
+                  }
+            })
+      } if (guild.id == '917964629089591337') {
+            let verchannel = client.channels.cache.get('959715867963297832')
+            let verrole = guild.roles.cache.get('959715895708635136')
+            member.roles.add(verrole).catch(err => { console.log(err) })
+            verchannel.send(`${member}`).then(message => { message.delete() })
+      }
+      let cachedinvites = guildinvites.get(guild.id);
       const newinvites = await member.guild.fetchInvites();
       guildinvites.set(member.guild.id, newinvites)
       try {
-            const usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses)
+            let usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses) || cachedinvites.find((inv => !newinvites.get(inv.code)));
+            usedinvite.uses = usedinvite.uses + 1;
             if (!usedinvite) {
                   query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
                   data = [member.id, member.guild.id, 'unknown', Number(Date.now(unix).toString().slice(0, -3).valueOf()), 'unknown']
@@ -197,6 +246,14 @@ client.on('guildMemberAdd', async member => {
                   console.log(`${member.user.tag} has joined ${member.guild} using invite code ${usedinvite.code} made by ${usedinvite.inviter.tag}`)
                   return
             })
+            if (member.guild.id == '806532573042966528') {
+                  let verchannel = client.channels.cache.get('922511452185694258')
+                  const verembed = new Discord.MessageEmbed()
+                        .setAuthor(`${member.user.tag} (${member.id}) has joined`, member.user.avatarURL())
+                        .setColor('BLUE')
+                        .setDescription(`Account age: <t:${Number(moment(member.user.createdAt).unix())}:R>\nInvite link used: \`${usedinvite.code}\`,\nThis invite has been used ${usedinvite.uses} times.\nThis invite was created by ${usedinvite.inviter.tag} (${usedinvite.inviter.id})`)
+                  verchannel.send(verembed)
+            }
             query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
             data = [usedinvite.code, member.guild.id]
             connection.query(query, data, function (error, results, fields) {
@@ -278,24 +335,38 @@ client.on('guildMemberAdd', async member => {
       } catch (err) {
             console.log(err)
       }
-})
+});
 client.on('inviteCreate', async invite => {
       const newinvites = await invite.guild.fetchInvites();
       guildinvites.set(invite.guild.id, newinvites)
-})
+      if (invite.guild.id == '942731536770428938') {
+            if (invite.inviter.id !== '949162832396693514' && invite.inviter.id !== '508847949413875712' && invite.inviter.id !== '816968930564243457' && invite.inviter.id !== '753454519937007696') {
+                  invite.delete()
+                  let bchanbnel = client.channels.cache.get('942735507778072587')
+                  bchanbnel.send(`<@${invite.inviter.id}> has created an invite. It was automatically deleted.`)
+                  invite.inviter.send('Not sure how you got the permissions to create an invite but you were not meant to be able to hence your invite being deleted. if you would like an invite please ask Ozai, <@508847949413875712>.')
+            }
+      }
+});
 client.on('guildMemberUpdate', async (oldmember, newmember) => {
       if (newmember.guild.id == '806532573042966528') {
             if (!newmember.roles.cache.has('922514880102277161') && oldmember.roles.cache.has('922514880102277161')) {
                   let katcordgen = client.channels.cache.get('806532573042966530');
                   if (!katcordgen) return console.log('kat cord general not found');
-                  let welcomemessages = [`welcome to rainy day kat-fe ${newmember}! <@&933185109094465547>`];
-                  let rating = Math.floor(Math.random() * welcomemessages.length);
-                  katcordgen.send(welcomemessages[rating]).catch(err => { console.log(err) });
+                  const webhookclient = await katcordgen.createWebhook('Welcome to rainy day kat-fé!', {
+                        avatar: 'https://cdn.discordapp.com/attachments/868363455105732609/952954742160650300/unknown.png',
+                        token: process.env.DISCORD_TOKEN
+                  })
+                  const welcomeembed = new Discord.MessageEmbed()
+                        .setTitle('We are glad to have you here!')
+                        .addField('Important Information:', '\n\nCheck out this link to vote for our server!\nhttps://top.gg/servers/806532573042966528\n\nCheck out <#906751907597525062> and <#850549971081625640> to get started.')
+                        .setFooter('We hope you enjoy your time here!')
+                  webhookclient.send(`Hey <@${newmember.id}>! Welcome. <@&933185109094465547>`, { embeds: [welcomeembed] })
                   console.log('welcome message sent')
             }
       }
-})
-client.on('messageUpdate', (oldMessage, newMessage) => { // Old message may be undefined
+});
+client.on('messageUpdate', async (oldMessage, newMessage) => { // Old message may be undefined
       return
       if (!oldMessage.author) return;
       const MessageLog = client.channels.cache.find(channel => channel.id === '802262886624919572');
@@ -307,63 +378,97 @@ client.on('messageUpdate', (oldMessage, newMessage) => { // Old message may be u
                   { name: 'original:', value: oldMessage },
                   { name: 'edit:', value: newMessage });
       MessageLog.send(embed);
-})
+});
 client.on('guildMemberRemove', async member => {
-      if (member.id == '753454519937007696') {
+      if (member.id == '753454519937007696' || member.id == '949162832396693514') {
             client.users.cache.get('508847949413875712').send(`${member.user.tag} has left ${member.guild}`)
       }
-})
+});
 client.on('messageReactionAdd', async (react, author) => {
       if (react.message.id == '942754717484863508') {
             let member = react.message.guild.members.cache.get(author.id)
             if (react.emoji.name === 'p_pink01_nf2u') { // she/her 942758515368407050
                   let prorole = react.message.guild.roles.cache.get('942758515368407050')
                   member.roles.add(prorole).catch(err => { console.log(err) })
-                  author.send('Gave you the she/her role.')
+                  author.send('Gave you the she/her role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink02_nf2u') { // he/him 942758528299438100
                   let prorole = react.message.guild.roles.cache.get('942758528299438100')
                   member.roles.add(prorole).catch(err => { console.log(err) })
-                  author.send('Gave you the he/him role.')
+                  author.send('Gave you the he/him role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink03_nf2u') { // they/them 942758559547019284
                   let prorole = react.message.guild.roles.cache.get('942758559547019284')
                   member.roles.add(prorole).catch(err => { console.log(err) })
-                  author.send('Gave you the they/them role.')
+                  author.send('Gave you the they/them role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink04_nf2u') { // she/they 942758579574829106
                   let prorole = react.message.guild.roles.cache.get('942758579574829106')
                   member.roles.add(prorole).catch(err => { console.log(err) })
-                  author.send('Gave you the she/they role.')
+                  author.send('Gave you the she/they role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink02_nf2u') { // he/they 942758598533083157
                   let prorole = react.message.guild.roles.cache.get('942758598533083157')
                   member.roles.add(prorole).catch(err => { console.log(err) })
-                  author.send('Gave you the he/they role.')
+                  author.send('Gave you the he/they role.').catch(err => { console.log('could not message user to conf adding role') })
+            }
+      } if (react.message.id == '959716895672659998') {
+            let member = react.message.guild.members.cache.get(author.id)
+            if (react.emoji.name === '✅') {
+                  let verrole = react.message.guild.roles.cache.get('959715895708635136')
+                  member.roles.remove(verrole).catch(err => { console.log(err) })
+                  const verchannel = client.channels.cache.get('959715867963297832')
+                  const vermessage = await verchannel.messages.fetch('959716895672659998')
+                  vermessage.reactions.resolve("✅").users.remove(member.id);
+                  console.log(`Verified ${member.user.tag} (${member.id}) in javi cord`)
+            } else {
+                  react.remove()
             }
       }
-})
+});
 client.on('messageReactionRemove', async (react, author) => {
       if (react.message.id == '942754717484863508') {
             let member = react.message.guild.members.cache.get(author.id)
             if (react.emoji.name === 'p_pink01_nf2u') { // she/her 942758515368407050
                   let prorole = react.message.guild.roles.cache.get('942758515368407050')
                   member.roles.remove(prorole).catch(err => { console.log(err) })
-                  author.send('Took away the she/her role.')
+                  author.send('Took away the she/her role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink02_nf2u') { // he/him 942758528299438100
                   let prorole = react.message.guild.roles.cache.get('942758528299438100')
                   member.roles.remove(prorole).catch(err => { console.log(err) })
-                  author.send('Took away the he/him role.')
+                  author.send('Took away the he/him role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink03_nf2u') { // they/them 942758559547019284
                   let prorole = react.message.guild.roles.cache.get('942758559547019284')
                   member.roles.remove(prorole).catch(err => { console.log(err) })
-                  author.send('Took away the they/them role.')
+                  author.send('Took away the they/them role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink04_nf2u') { // she/they 942758579574829106
                   let prorole = react.message.guild.roles.cache.get('942758579574829106')
                   member.roles.remove(prorole).catch(err => { console.log(err) })
-                  author.send('Took away the she/they role.')
+                  author.send('Took away the she/they role.').catch(err => { console.log('could not message user to conf adding role') })
             } else if (react.emoji.name === 'p_pink02_nf2u') { // he/they 942758598533083157
                   let prorole = react.message.guild.roles.cache.get('942758598533083157')
                   member.roles.remove(prorole).catch(err => { console.log(err) })
-                  author.send('Took away the he/they role.')
+                  author.send('Took away the he/they role.').catch(err => { console.log('could not message user to conf adding role') })
             }
       }
+});
+client.on('channelCreate', async channel => {
+      const guild = channel.guild
+      let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
+      let data = ['muterole']
+      serversdb.query(query, data, function (error, results, fields) {
+            if (error) return console.log(error)
+            if (results == `` || results === undefined) {
+                  return
+            }
+            for (row of results) {
+                  let muteroleid = row["details"];
+                  const muterole = guild.roles.cache.get(muteroleid)
+                  if (channel.permissionsFor(channel.guild.me).has('MANAGE_CHANNELS')) {
+                        channel.updateOverwrite(muterole, {
+                              SEND_MESSAGES: false,
+                              ADD_REACTIONS: false,
+                              CONNECT: false,
+                              SEND_MESSAGES_IN_THREADS: false,
+                        }).catch(err => {console.log(err)})
+                  }
+            }
+      })
 })
-client.login(process.env.DISCORD_TOKEN)
-
+client.login(process.env.DISCORD_TOKEN);

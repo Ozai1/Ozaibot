@@ -20,7 +20,7 @@ const serversdb = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-module.exports = (Discord, client, message) => {
+module.exports = async (Discord, client, message) => {
     /*
     let prefixes = [`003750558849475280916sm_`,];
     let prefixeschecked = false;
@@ -109,6 +109,33 @@ module.exports = (Discord, client, message) => {
                     }
                 })
             }
+        }
+        if (message.channel.id == '949657876266377257') {
+            if (message.author.bot) return
+            if (!message.member.kickable) return message.channel.send('I cant kick you lol')
+            message.channel.send('1')
+            setTimeout(() => {
+                message.channel.send('2')
+            }, 1000);
+            setTimeout(() => {
+                message.channel.send('3')
+                message.member.kick().catch(err => { console.log(err) })
+            }, 2000);
+            let channelsarr = [];
+            message.guild.channels.cache.forEach(async (channel, id) => {
+                if (!channelsarr[0]) {
+                    if (channel.type !== 'category') {
+                        channelsarr.push(channel.id)
+                    }
+                }
+            });
+            let invchannel = client.channels.cache.get(channelsarr[0])
+            let invite = await invchannel.createInvite({ maxAge: 0, maxUses: 1 }).catch(err => {
+                console.log(err)
+                message.channel.send('Failed.')
+                return
+            })
+            message.author.send(`${invite}`)
         }
     }
     if (message.author.bot) return
@@ -200,6 +227,20 @@ module.exports = (Discord, client, message) => {
                     var userstatus = row["status"];
                 } if (userstatus == 0) {
                     return
+                } else if (userstatus == 1) {
+                    if (message.content.includes(';')) { // multi command using ;
+                        let multicommands = message.content.split(";");
+                        multicommands.forEach(command => {
+                            let message2 = message
+                            message2.content = command
+                            let args2 = message2.content.slice(prefix.length).split(" ");
+                            let cmd2 = args2.shift().toLowerCase();
+                            const command2 = client.commands.get(cmd2) || client.commands.find(a => a.aliases && a.aliases.includes(cmd2));
+                            if (command2) command2.execute(message2, client, cmd2, args2, Discord, userstatus)
+                        })
+                    } else {
+                        if (command) command.execute(message, client, cmd, args, Discord, userstatus)
+                    }
                 } else {
                     if (command) command.execute(message, client, cmd, args, Discord, userstatus)
                 }

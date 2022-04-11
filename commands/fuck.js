@@ -2,17 +2,17 @@ module.exports = {
     name: 'fuck',
     description: '',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.author.id == '508847949413875712' || message.author.id == '753454519937007696') {
+        if (message.author.id == '508847949413875712' || message.author.id == '949162832396693514') {
             if (message.guild.id == '750558849475280916') {
                 if (!args[0]) return message.channel.send('You must ping someone to, yk, yeah')
                 let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]);
                 if (!member) return message.channel.send('So youre just gonna fuck the air?')
                 if (message.author.id == '508847949413875712') {
                     if (message.author.id == member) return message.author.send('Better be with Jan...')
-                } if (message.author.id == '753454519937007696') {
+                } if (message.author.id == '949162832396693514') {
                     if (message.author.id == member) return message.author.send('Better be with Riley...')
-                } if (member == '508847949413875712' || member == '753454519937007696') {
-                    cats = [`Hey hey, ${message.author} is getting a little spicy with ${member}.... This could be interesting`, `Oh my! ${message.author} is looking to agressively fuck ${member}!!! be gentle!`, `Jesus i think these two are in love! Lets give them some space.`, `daym this is quite the night, gonna wanna cover your ears leon....`, `Honestly knowing <@!753454519937007696>, idk who is going to be the one needing to be told to be gentle, lets find out!`];
+                } if (member == '508847949413875712' || member == '949162832396693514') {
+                    cats = [`Hey hey, ${message.author} is getting a little spicy with ${member}.... This could be interesting`, `Oh my! ${message.author} is looking to agressively fuck ${member}!!! be gentle!`, `Jesus i think these two are in love! Lets give them some space.`, `daym this is quite the night, gonna wanna cover your ears leon....`, `Honestly knowing <@!949162832396693514>, idk who is going to be the one needing to be told to be gentle, lets find out!`];
                     var random = cats[Math.floor(Math.random() * cats.length)];
                     message.channel.send(random)
                     return

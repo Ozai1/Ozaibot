@@ -25,47 +25,85 @@ module.exports = {
       }
 }
 async function user_command(message, args, Discord, client) {
-      const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1)) || message.mentions.members.first();
-      let user = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0]) || client.users.cache.get(args[0].slice(2, -1)) || message.mentions.users.first();
-      let membertype = 'member'
-      if (!member) {
-            membertype = 'user'
-            if (!user) {
-                  user = await client.users.fetch(args[0])
-                  if (!user) return message.channel.send('Invalid user.')
+      if (!args[0]) {
+            if (message.guild) {
+                  let member = message.guild.members.cache.get(message.author.id)
+                  let user = client.users.cache.get(message.author.id)
+                  const joinedatunix = Number(moment(member.joinedAt).unix())
+                  const createdatunix = Number(moment(user.createdAt).unix())
+                  const uiembed = new Discord.MessageEmbed()
+                        .setTitle(`${user.tag}`)
+                        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+                  if (user.bot) {
+                        uiembed.setDescription('Is a bot')
+                  }
+                  uiembed.addField('ID', user.id)
+                        .addField('Highest rank', member.roles.highest)
+                        .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
+                        .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
+                        .setFooter(`requested by ${message.author.tag}`)
+                        .setTimestamp()
+                        .setColor(member.displayHexColor);
+                  message.channel.send(uiembed)
+            } else {
+                  let user = client.users.cache.get(message.author.id)
+                  const createdatunix = Number(moment(user.createdAt).unix())
+                  const uiembed = new Discord.MessageEmbed()
+                        .setTitle(`${user.tag}`)
+                        .setThumbnail(user.displayAvatarURL({ dynamic: true }))
+                  if (user.bot) {
+                        uiembed.setDescription('Is a bot.')
+                  }
+                  uiembed.addField('ID', user.id)
+                        .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
+                        .setFooter(`requested by ${message.author.tag}`)
+                        .setTimestamp()
+                        .setColor(240116);
+                  message.channel.send(uiembed)
             }
-      }
-      if (membertype === 'member') {
-            const joinedatunix = Number(moment(member.joinedAt).unix())
-            const createdatunix = Number(moment(user.createdAt).unix())
-            const uiembed = new Discord.MessageEmbed()
-                  .setTitle(`${user.tag}`)
-                  .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-            if (user.bot) {
-                  uiembed.setDescription('Is a bot')
-            }
-            uiembed.addField('ID', user.id)
-                  .addField('Highest rank', member.roles.highest)
-                  .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
-                  .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                  .setFooter(`requested by ${message.author.tag}`)
-                  .setTimestamp()
-                  .setColor(member.displayHexColor);
-            message.channel.send(uiembed)
       } else {
-            const createdatunix = Number(moment(user.createdAt).unix())
-            const uiembed = new Discord.MessageEmbed()
-                  .setTitle(`${user.tag}`)
-                  .setThumbnail(user.displayAvatarURL({ dynamic: true }))
-            if (user.bot) {
-                  uiembed.setDescription('Is a bot.')
+            let membertype = 'member'
+            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1)) || message.mentions.members.first();
+            let user = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0]) || client.users.cache.get(args[0].slice(2, -1)) || message.mentions.users.first();
+            if (!member) {
+                  membertype = 'user'
+                  if (!user) {
+                        user = await client.users.fetch(args[0])
+                        if (!user) return message.channel.send('Invalid user.')
+                  }
             }
-            uiembed.addField('ID', user.id)
-                  .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                  .setFooter(`requested by ${message.author.tag}`)
-                  .setTimestamp()
-                  .setColor(240116);
-            message.channel.send(uiembed)
+            if (membertype === 'member') {
+                  const joinedatunix = Number(moment(member.joinedAt).unix())
+                  const createdatunix = Number(moment(user.createdAt).unix())
+                  const uiembed = new Discord.MessageEmbed()
+                        .setTitle(`${user.tag}`)
+                        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+                  if (user.bot) {
+                        uiembed.setDescription('Is a bot')
+                  }
+                  uiembed.addField('ID', user.id)
+                        .addField('Highest rank', member.roles.highest)
+                        .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
+                        .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
+                        .setFooter(`requested by ${message.author.tag}`)
+                        .setTimestamp()
+                        .setColor(member.displayHexColor);
+                  message.channel.send(uiembed)
+            } else {
+                  const createdatunix = Number(moment(user.createdAt).unix())
+                  const uiembed = new Discord.MessageEmbed()
+                        .setTitle(`${user.tag}`)
+                        .setThumbnail(user.displayAvatarURL({ dynamic: true }))
+                  if (user.bot) {
+                        uiembed.setDescription('Is a bot.')
+                  }
+                  uiembed.addField('ID', user.id)
+                        .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
+                        .setFooter(`requested by ${message.author.tag}`)
+                        .setTimestamp()
+                        .setColor(240116);
+                  message.channel.send(uiembed)
+            }
       }
 }
 async function total_bans(message, client, userstatus) {
