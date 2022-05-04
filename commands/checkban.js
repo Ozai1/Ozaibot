@@ -8,9 +8,9 @@ module.exports = {
             if (cmd === 'user' || cmd === 'userinfo' || cmd === 'who' || cmd === 'whois' || cmd === 'ui') return user_command(message, args, Discord, client)
             if (cmd === 'totalbans' || cmd === 'bancount') return total_bans(message, client, userstatus)
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
+            if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
             if (!userstatus == 1) {
-                  if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('Missing permissions.')
+                  if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('Missing permissions.')
             }
             if (!args[0]) return message.channel.send('Ban found on... oh wait')
             message.guild.fetchBans().then(bans => {
@@ -108,7 +108,7 @@ async function user_command(message, args, Discord, client) {
 }
 async function total_bans(message, client, userstatus) {
       if (userstatus == 1) {
-            if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')
+            if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')
             await message.guild.fetchBans().then(bans => {
                   let bancount = 0;
                   bans.forEach(ban => {

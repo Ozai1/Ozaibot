@@ -3,7 +3,7 @@ module.exports = {
     description: 'removes a role from a user',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-        if (userstatus == 1 || message.member.hasPermission('MANAGE_ROLES')) {
+        if (userstatus == 1 || message.member.permissions.has('MANAGE_ROLES')) {
             let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (!member) return message.reply('Usage is "sm_addrole <@user> <role name>')
             let rolename = args.slice(1).join(" ").toLocaleLowerCase();

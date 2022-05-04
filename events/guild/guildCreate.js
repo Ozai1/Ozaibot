@@ -1,19 +1,24 @@
 const mysql = require('mysql2')
 const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: 'P0V6g5',
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: `P0V6g5`,
+    database: 'ozaibotservers',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
-module.exports = (Discord, client, guildCreate) => {
+module.exports = async (Discord, client, guildCreate) => {
     let guild = guildCreate
     let alllogs = client.channels.cache.get('926353043144990740');
+    await guild.members.fetch()
+    let totalmembers = 0;
+    guild.members.cache.forEach(member => {
+        totalmembers = totalmembers + 1;
+    })
     const commandembed = new Discord.MessageEmbed()
-        .setDescription(`Ozaibot has been added to a new server. \nServer = ${guild.name}\nID = ${guild.id}\nGuildOwner = <@${guild.ownerID}> (${guild.ownerID})`)
+        .setDescription(`Ozaibot has been added to a new server. \nServer = ${guild.name}\nID = ${guild.id}\nGuildOwner = <@${guild.ownerID}> (${guild.ownerID})\n Members: ${totalmembers}`)
         .setTimestamp()
     alllogs.send('<@508847949413875712>', { embed: commandembed })
     console.log(`**Ozaibot has been added to a new server.** \nServer = **${guild.name}**\nID = ${guild.id}\nGuildOwner = <@${guild.ownerID}> (${guild.ownerID})\n\n`)

@@ -3,9 +3,9 @@ module.exports = {
       description: 'adds a user to a channel',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (message.member.hasPermission('ADMINISTRATOR') || userstatus == 1) {
+            if (message.member.permissions.has('ADMINISTRATOR') || userstatus == 1) {
                   let channelselected = message.channel;
-                  if (!message.guild.me.hasPermission('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
+                  if (!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
                   if (args[1]) {
                         if (!isNaN(args[1])) {
                               channelselected = message.guild.channels.cache.get(args[1]);

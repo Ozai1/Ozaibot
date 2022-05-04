@@ -26,13 +26,6 @@ module.exports = async (Discord, client, message) => {
     let prefixeschecked = false;
     let currentprefix = [];
     */
-    if (message.channel.id == '928962860103630848') {
-        if (message.author.id !== '508847949413875712' && message.author.id !== '742612722465636393') {
-            if (message.attachments.size > 0 || message.content.includes('https:')) return
-            message.delete().catch(err => { console.log(err) })
-            message.author.send('Your message must contain an image, video or gif in this channel.').catch(err => { })
-        }
-    }
     if (message.guild) {
         if (message.channel.id == '942735613730357269') {
             message.delete().catch(err => { console.log(err) })
@@ -110,33 +103,7 @@ module.exports = async (Discord, client, message) => {
                 })
             }
         }
-        if (message.channel.id == '949657876266377257') {
-            if (message.author.bot) return
-            if (!message.member.kickable) return message.channel.send('I cant kick you lol')
-            message.channel.send('1')
-            setTimeout(() => {
-                message.channel.send('2')
-            }, 1000);
-            setTimeout(() => {
-                message.channel.send('3')
-                message.member.kick().catch(err => { console.log(err) })
-            }, 2000);
-            let channelsarr = [];
-            message.guild.channels.cache.forEach(async (channel, id) => {
-                if (!channelsarr[0]) {
-                    if (channel.type !== 'category') {
-                        channelsarr.push(channel.id)
-                    }
-                }
-            });
-            let invchannel = client.channels.cache.get(channelsarr[0])
-            let invite = await invchannel.createInvite({ maxAge: 0, maxUses: 1 }).catch(err => {
-                console.log(err)
-                message.channel.send('Failed.')
-                return
-            })
-            message.author.send(`${invite}`)
-        }
+
     }
     if (message.author.bot) return
     if (message.channel.type === 'dm') {
@@ -207,19 +174,19 @@ module.exports = async (Discord, client, message) => {
                 const commandembed = new Discord.MessageEmbed()
                     .setDescription(`**${message.guild}** (${message.guild.id})\n ${message.channel} (${message.channel.name} | ${message.channel.id})\n**${message.author.tag}** (${message.author.id})\n"${message.content}".`)
                     .setTimestamp()
-                alllogs.send(commandembed);
+                alllogs.send({ embeds: [commandembed] });
             } else {
                 let alllogs = client.channels.cache.get('882845463647256637');
                 const commandembed = new Discord.MessageEmbed()
                     .setDescription(`**${message.author.tag}** (${message.author.id}) IN DMS\n"${message.content}".`)
                     .setTimestamp()
-                alllogs.send(commandembed);
+                alllogs.send({ embeds: [commandembed] });
             }
             query = "SELECT * FROM userstatus WHERE userid = ?";
             data = [message.author.id]
             connection.query(query, data, function (error, results, fields) {
                 if (error) return console.log(error)
-                if (!results) {
+                if (results == '' || results === undefined) { // User does not have a row.
                     var userstatus = false;
                     if (command) command.execute(message, client, cmd, args, Discord, userstatus)
                     return

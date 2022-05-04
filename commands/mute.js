@@ -1,10 +1,11 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
+const { GetMember } = require("../functions")
 const serversdb = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibotservers',
       waitForConnections: true,
       connectionLimit: 10,
@@ -14,7 +15,7 @@ const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -22,12 +23,12 @@ const connection = mysql.createPool({
 });
 module.exports = {
       name: 'mute',
-      aliases: ['muteuser', 'silence', 'm', 'mute-user'],
+      aliases: ['m'],
       description: 'mutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!userstatus == 1) {
-                  if (!message.member.hasPermission("MANAGE_CHANNELS")) {
+                  if (!message.member.permissions.has("MANAGE_CHANNELS")) {
                         console.log("You don't have the permissions.")
                         return message.channel.send("You don't have the permissions.");
                   }
@@ -37,15 +38,14 @@ module.exports = {
                               return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
                         }
                   }
-            } if (!message.guild.me.hasPermission('MANAGE_ROLES')) {
+            } if (!message.guild.me.permissions.has('MANAGE_ROLES')) {
                   console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.')
                   return message.channel.send('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
 
             }
-            
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
             let data = ['muterole']
-            serversdb.query(query, data, function (error, results, fields) {
+            serversdb.query(query, data, async function (error, results, fields) {
                   if (error) return console.log(error)
                   if (results == ``) {
                         console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
@@ -62,25 +62,7 @@ module.exports = {
                   for (row of results) {
                         let muteroleid = row["details"];
                         const muterole = message.guild.roles.cache.get(muteroleid)
-                        let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-                        if (member) {
-                              if (member.id === message.author.id) {
-                                    console.log('You can\'t mute yourself.')
-                                    return message.channel.send('You can\'t mute yourself.');
-                              }
-                              if (message.guild.ownerID !== message.author.id) {
-                                    if (member.id == message.guild.ownerID || member.hasPermission('ADMINISTRATOR')) {
-                                          console.log('You cannot mute a member with administrator permissions')
-                                          return message.channel.send('You cannot mute a member with administrator permissions')
-                                    }
-                                    if (message.author.id !== '508847949413875712') {
-                                          if (message.member.roles.highest.position <= member.roles.highest.position) {
-                                                console.log('You cannot mute someone with higher or the same roles as your own.')
-                                                return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
-                                          }
-                                    }
-                              }
-                        } if (!muterole) {
+                        if (!muterole) {
                               console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
                               return message.channel.send('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
                         }
@@ -88,6 +70,7 @@ module.exports = {
                               console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                               return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                         }
+                        let member = await GetMember(message, args[0], Discord);
                         if (!member) {
                               console.log('invalid member')
                               const errorembed = new Discord.MessageEmbed()
@@ -95,6 +78,22 @@ module.exports = {
                                     .setColor(15684432)
                                     .setDescription(`Invalid member.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
                               return message.channel.send(errorembed)
+                        }
+                        if (member.id === message.author.id) {
+                              console.log('You can\'t mute yourself.')
+                              return message.channel.send('You can\'t mute yourself.');
+                        }
+                        if (message.guild.ownerID !== message.author.id) {
+                              if (member.id == message.guild.ownerID || member.permissions.has('ADMINISTRATOR')) {
+                                    console.log('You cannot mute a member with administrator permissions')
+                                    return message.channel.send('You cannot mute a member with administrator permissions')
+                              }
+                              if (message.author.id !== '508847949413875712') {
+                                    if (message.member.roles.highest.position <= member.roles.highest.position) {
+                                          console.log('You cannot mute someone with higher or the same roles as your own.')
+                                          return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
+                                    }
+                              }
                         }
                         if (member.roles.cache.has(muterole.id)) {
                               console.log('This member is already muted.')
@@ -206,7 +205,7 @@ module.exports = {
                         })
                         console.log(`user has been muted${display}.`)
                         if (mutetimeseconds === null) return
-                        if (mutetimeseconds < 604800) {
+                        if (mutetimeseconds < 86400) {
                               setTimeout(() => {
                                     let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
                                     let data = ['muterole']
@@ -220,7 +219,7 @@ module.exports = {
                                                 const muterole = message.guild.roles.cache.get(muteroleid)
                                                 if (!muterole) return console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
                                                 if (message.guild.me.roles.highest.position <= muterole.position) return console.log('I do not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                                                if (!message.guild.me.hasPermission('MANAGE_ROLES')) return console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
+                                                if (!message.guild.me.permissions.has('MANAGE_ROLES')) return console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
                                                 member.roles.remove(muterole).catch(err => { console.log(err) })
                                                 console.log(`User ${member.id} unmuted for mute from same life in ${message.guild}(${message.guild.id})`)
                                                 query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
@@ -243,6 +242,6 @@ module.exports = {
                               }, mutetimeseconds * 1000);
                         }
                   }
-            })
+            });
       }
 }

@@ -4,7 +4,7 @@ module.exports = {
     description: 'changes the @ everyone permission of SEND_MESSAGES to the opposet of what it was before',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-        if (message.member.hasPermission('MANAGE_CHANNELS') || userstatus == 1) {
+        if (message.member.permissions.has('MANAGE_CHANNELS') || userstatus == 1) {
             if (!message.channel.permissionsFor(message.guild.roles.everyone).has('SEND_MESSAGES')) {
                 message.channel.updateOverwrite(message.channel.guild.roles.everyone, { SEND_MESSAGES: true, ADD_REACTIONS: true }).then(() => {
                     const msgEmbed = new Discord.MessageEmbed()

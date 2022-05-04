@@ -3,7 +3,7 @@ const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -13,7 +13,7 @@ module.exports = {
       name: 'blacklist',
       description: 'bans someone from bot use',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id) {
+            if (userstatus == 1 || message.author.id == '508847949413875712') {
                   if (!args[0]) return message.channel.send('Please give a member to blacklist')
                   let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                   if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id

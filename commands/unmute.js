@@ -3,7 +3,7 @@ const serversdb = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibotservers',
       waitForConnections: true,
       connectionLimit: 10,
@@ -13,22 +13,23 @@ const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
 });
+const { GetMember } = require("../functions")
 module.exports = {
       name: 'unmute',
-      aliases: ['muterole'],
+      aliases: ['muterole', 'unm'],
       description: 'unmutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (cmd === 'muterole') return mute_role(message, cmd, args, userstatus, Discord)
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
             let data = ['muterole']
-            serversdb.query(query, data, function (error, results, fields) {
+            serversdb.query(query, data,async function (error, results, fields) {
                   if (error) return console.log(error)
                   if (results == ``) {
                         return message.channel.send('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
@@ -37,8 +38,11 @@ module.exports = {
                         let muteroleid = row["details"];
                         const muterole = message.guild.roles.cache.get(muteroleid)
                         let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+                        if (!member) {
+                              member = await GetMember(message, args[0], Discord);
+                        }
                         if (!userstatus == 1) {
-                              if (!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send("You don't have the permissions.");
+                              if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You don't have the permissions.");
                               if (message.guild.ownerID !== message.author.id) {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }
@@ -73,7 +77,7 @@ module.exports = {
 }
 async function mute_role(message, cmd, args, userstatus, Discord) {
       if (!userstatus == 1) {
-            if (!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send("You do not have enough permissions to use this command.");
+            if (!message.member.permissions.has("ADMINISTRATOR")) return message.channel.send("You do not have enough permissions to use this command.");
       }
       if (!args[0]) {
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;

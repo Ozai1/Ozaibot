@@ -1,3 +1,4 @@
+const { GetMember } = require("../functions")
 module.exports = {
     name: 'ban',
     aliases: ['b', 'sban'],
@@ -6,14 +7,17 @@ module.exports = {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
         if (cmd === 'sban') return sban(message, args, userstatus)
         let offserver = false
-        if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
+        if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
         if (!args[0]) {
             console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
             return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
         }
         let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+        if (!member) {
+            member = await GetMember(message, args[0], Discord);
+      }
         if (userstatus == 1) {
-            if (!message.member.hasPermission('BAN_MEMBERS')) {
+            if (!message.member.permissions.has('BAN_MEMBERS')) {
                 if (!member) {
                     if (isNaN(args[0])) {
                         console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"');
@@ -85,7 +89,7 @@ module.exports = {
                 }
             }
         }
-        if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
+        if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
         if (!member) {
             if (isNaN(args[0])) return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"');
             member = await client.users.fetch(args[0]).catch(err => { })
@@ -161,7 +165,7 @@ async function sban(message, args, userstatus) {
     if (userstatus == 1) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
         const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-        if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
+        if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
         if (!member) return message.author.send('no member')
         if (!member.bannable) return message.author.send('I do not have high enough permissions for this or they\'re not on the server or smth')
         await member.ban().catch(err => {

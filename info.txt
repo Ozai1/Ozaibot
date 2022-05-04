@@ -96,7 +96,7 @@ DELETING FROM STRING START AND END
            ^ amount to remove from end (make sure to include the -
 .slice (1)
         ^ amount to remove from start
-for (i = 0; i <= 100; i = i + 1) { // loop 100 times
+for (i = 0; i <= 100; i = i + 1) { 
 }
 
 

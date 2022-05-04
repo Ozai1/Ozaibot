@@ -7,8 +7,10 @@ module.exports = {
             eval(`${args.slice(0).join(" ")}`).catch(err => {
                 const helpembed = new Discord.MessageEmbed()
                 .setTitle('error spat')
-                .setDescription(err)
-                .setColor('BLUE')
+if (err) {
+helpembed.setDescription(err)
+}
+                helpembed.setColor('BLUE')
             message.channel.send(helpembed)
             });
     }

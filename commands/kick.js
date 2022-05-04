@@ -1,3 +1,4 @@
+const { GetMember } = require("../functions")
 module.exports = {
       name: 'kick',
       aliases: ['k', 'skick'],
@@ -5,11 +6,14 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (cmd === 'skick') return skick(message, args, userstatus)
-            if (!message.guild.me.hasPermission('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
+            if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!args[0]) return message.channel.send('You must add a member to kick.')
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+            if (!member) {
+                  member = await GetMember(message, args[0], Discord);
+            }
             if (userstatus == 1) {
-                  if (!message.member.hasPermission('KICK_MEMBERS')) {
+                  if (!message.member.permissions.has('KICK_MEMBERS')) {
                         if (!member) return message.author.send('no member')
                         if (!member.kickable) return message.author.send('I do not have high enough permissions for this or theyre not on the server or smth')
                         let reason = args.slice(1).join(" ");
@@ -29,7 +33,7 @@ module.exports = {
                         return
                   }
             }
-            if (!message.member.hasPermission('KICK_MEMBERS')) return message.reply('You do not have permissions to do this!');
+            if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have permissions to do this!');
             if (!member) return message.reply("Usage is \"sm_kick <@user|user_id> <reason>\"");
             if (member.id === message.author.id) return message.channel.send('You cant kick yourself!');
             if (message.guild.ownerID !== message.author.id) {
@@ -56,7 +60,7 @@ async function skick(message, args, userstatus) {
       if (userstatus == 1) {
             if (!args[0]) return message.member.send('You must add a member to kick.')
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-            if (!message.guild.me.hasPermission('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
+            if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!member) return message.author.send('no member ')
             if (!member.kickable) return message.author.send('I do not have high enough permissions for this or theyre not on the server or smth')
             await member.kick().catch(err => {

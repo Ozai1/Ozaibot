@@ -3,24 +3,24 @@ const imissjansomuchithurts = 1420070400000
 const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
 module.exports = {
       name: 'purge',
-      aliases: ['bulkdelete', 'clear', 'delete', 'deletemessages'],
+      aliases: ['bulkdelete', 'clear', 'delete'],
       description: 'Deletes messages in bulk',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
             let hasperms = true;
-            if (!message.member.hasPermission('MANAGE_CHANNELS')) { hasperms = 'server'; }
-            if (message.member.hasPermission('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 'channel'; }
+            if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 'server'; }
+            if (message.member.permissions.has('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 'channel'; }
             if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = true; }
             if (userstatus == 1) { hasperms = true; }
             if (hasperms === true) {
                   let ozaibotperms = false;
-                  if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                  if (message.guild.me.permissions.has('MANAGE_MESSAGES')) {
                         if (!message.channel.permissionsFor(message.guild.me).has('MANAGE_MESSAGES')) { ozaibotperms = 'channel'; }
-                  } if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) { ozaibotperms = 'server'; }
-                  if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                  } if (!message.guild.me.permissions.has('MANAGE_MESSAGES')) { ozaibotperms = 'server'; }
+                  if (!message.guild.me.permissions.has('MANAGE_MESSAGES')) {
                         if (message.channel.permissionsFor(message.guild.me).has('MANAGE_MESSAGES')) { ozaibotperms = true; }
-                  } if (message.guild.me.hasPermission('MANAGE_MESSAGES')) { ozaibotperms = true; }
+                  } if (message.guild.me.permissions.has('MANAGE_MESSAGES')) { ozaibotperms = true; }
                   if (ozaibotperms === true) {
                         let amount = Number(args[0]);
                         if (amount < 101) {

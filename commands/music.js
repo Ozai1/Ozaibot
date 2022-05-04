@@ -3,7 +3,7 @@ const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -12,6 +12,7 @@ const connection = mysql.createPool({
 const ytdl = require('ytdl-core')
 const ytSearch = require('yt-search')
 const queue = new Map()
+
 module.exports = {
       name: 'music',
       aliases: ['skip', 'stop', 'fuckoff', 'leave', 'dc', 'disconnect', 'play', 'musicban', 'pause', 'resume', 'unpause', 'seek', 'debug', 'queue'],
@@ -90,7 +91,7 @@ module.exports = {
                         server_queue.songs.push(song);
                         return message.channel.send(`👍 \`${song.title}\` added to queue!`);
                   }
-            }else if (cmd === 'skip') skip_song(message, server_queue, message.guild);
+            } else if (cmd === 'skip') skip_song(message, server_queue, message.guild);
             else if (cmd === 'stop' || cmd === 'leave' || cmd === 'fuckoff' || cmd === 'dc' || cmd === 'disconnect') stop_song(message, server_queue);
             else if (cmd === 'unpause' || cmd === 'resume') resume_song(message, server_queue)
             else if (cmd === 'pause') pause_song(message, server_queue)
@@ -134,7 +135,7 @@ const video_player = async (guild, song) => {
             song_queue.text_channel.send('Queue ended, leaving channel.')
             return
       }
-      const stream = ytdl(song.url, { filter: 'audioonly' });
+      const stream = ytdl(song.url, { filter: 'audioonly', highWaterMark: 1024 * 1024 * 30 });// 30 megabytes buffer
       let dispatcher = song_queue.connection.play(stream, { seek: 0, volume: 0.3 })
             .on('finish', () => {
                   song_queue.songs.shift();

@@ -1,12 +1,19 @@
 console.log('Stwarting Ozwaibot!!!')
 const { unix } = require('moment');
+console.log("Stwarting Ozwaibot!!!")
+const { SlashCommandBuilder } = require("@discordjs/builders");
+const { REST } = require("@discordjs/rest");
+const { Routes } = require("discord-api-types/v9");
+const Intents = require("discord.js/src/util/Intents");
+const Discord = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
+const clientID = '862247858740789269'
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -16,18 +23,17 @@ const serversdb = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibotservers',
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0
 });
 const guildinvites = new Map();
-const Discord = require('discord.js');
 require('dotenv').config();
-
+allIntents = new Intents(98047);
 const client = new Discord.Client({
-      partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone', //fetchAllMembers: true 
+      intents: allIntents, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',// fetchAllMembers: true
 });
 
 client.commands = new Discord.Collection();
@@ -36,9 +42,7 @@ client.events = new Discord.Collection();
 ['command_handler', 'event_handler'].forEach(handler => {
       require(`./handlers/${handler}`)(client, Discord);
 })
-client.on('message', async message => {
-      return
-})
+
 client.on('ready', async () => {
       let rating = Math.floor(Math.random() * 2) + 1;
       if (rating == 1) {
@@ -50,7 +54,7 @@ client.on('ready', async () => {
             if (error) return console.log(error)
       })
       data = []
-      client.guilds.cache.forEach(async (guild) => {
+      client.guilds.cache.forEach(async guild => {
             query = `CREATE TABLE IF NOT EXISTS ${guild.id}config(id INT(12) AUTO_INCREMENT PRIMARY KEY, type VARCHAR(255) COLLATE utf8mb4_unicode_ci, details VARCHAR(255) COLLATE utf8mb4_unicode_ci, details2 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details3 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details4 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details5 VARCHAR(255) COLLATE utf8mb4_unicode_ci);`;
             serversdb.query(query, data, function (error, results, fields) {
                   if (error) return console.log(error)
@@ -59,8 +63,8 @@ client.on('ready', async () => {
             serversdb.query(query, data, function (error, results, fields) {
                   if (error) return console.log(error)
             })
-            if (guild.me.hasPermission('MANAGE_GUILD')) {
-                  guild.fetchInvites().then(invites => guildinvites.set(guild.id, invites)).catch(err => { console.log(err) })
+            if (guild.me.permissions.has('MANAGE_GUILD')) {
+                  guild.invites.fetch().then(invites => guildinvites.set(guild.id, invites)).catch(err => { console.log(err) })
             }
       })
       setInterval(() => { // 2 second interval, being used for mute checking
@@ -97,7 +101,7 @@ client.on('ready', async () => {
                                           const muterole = guild.roles.cache.get(muteroleid)
                                           if (!muterole) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the mute role was not found.`)
                                           if (guild.me.roles.highest.position <= muterole.position) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the mute role was higher in perms than me.`)
-                                          if (!guild.me.hasPermission('MANAGE_ROLES')) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the i no longer have manage roles.`)
+                                          if (!guild.me.permissions.has('MANAGE_ROLES')) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the i no longer have manage roles.`)
                                           member.roles.remove(muterole).catch(err => { console.log(err) })
                                           console.log(`unmuted ${userid} in ${guild}(${guild.id})`)
                                     }
@@ -105,7 +109,31 @@ client.on('ready', async () => {
                         }
                   }
             })
-
+            query = `SELECT * FROM reminders WHERE time < ?`;
+            data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
+            connection.query(query, data, function (error, results, fields) {
+                  if (error) {
+                        console.log('backend error for checking active bans')
+                        return console.log(error)
+                  }
+                  if (results !== ``) {
+                        for (row of results) {
+                              query = "DELETE FROM reminders WHERE id = ?";
+                              data = [row["id"]]
+                              connection.query(query, data, function (error, results, fields) {
+                                    if (error) return console.log(error)
+                              })
+                              var channelid = row["channelid"];
+                              var userid = row["userid"];
+                              let text = row["text"];
+                              const channel = client.channels.cache.get(channelid);
+                              let member = channel.guild.members.cache.get(userid);
+                              if (!member) { member = searchmember(userid, channel.guild) }
+                              if (!member) { return console.log('failed to spit reminder because member could not be found') }
+                              channel.send(text).catch(err => console.log(err));
+                        }
+                  }
+            })
       }, 2000);
       setInterval(() => { // 1 min interval, being used for blacklisted invites checking
             let query = `SELECT * FROM lockdownlinks WHERE timeremove < ?`;
@@ -136,10 +164,11 @@ client.on('ready', async () => {
       console.log(`Signed into ${client.user.tag}`)
 
 });
+
 client.on('guildMemberAdd', async member => {
       const guild = member.guild
       console.log(`${member.user.tag} joined ${guild}`)
-      if (!guild.me.hasPermission('MANAGE_GUILD')) return
+      if (!guild.me.permissions.has('MANAGE_GUILD')) return
       let query = `SELECT * FROM ${member.guild.id}config WHERE type = ?`;
       let data = ['whitelist']
       serversdb.query(query, data, async function (error, results, fields) {
@@ -158,11 +187,9 @@ client.on('guildMemberAdd', async member => {
                         }
                         if (results == '' || results === undefined) {
                               try {
-                                    if (member.guild.me.hasPermission('BAN_MEMBERS') && member.guild.me.roles.highest > member.roles.highest) {
+                                    if (member.guild.me.permissions.has('BAN_MEMBERS') && member.guild.me.roles.highest > member.roles.highest) {
                                           member.ban({ reason: `Unauthed join, autoban (was not added to whitelist)`, days: 1 }).catch(err => { console.log(err) })
                                           console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`)
-                                          const ozacordgen = client.channels.cache.get('926782590826987563')
-                                          ozacordgen.send(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`).catch(err => { console.log(err) })
                                     } else console.log(`Ozaibot either doesnt have ban perms or doesnt have high enough perms to ban new members in guild ${member.guild.id} for its whitelist`)
                               } catch (err) {
                                     console.log(err)
@@ -186,7 +213,6 @@ client.on('guildMemberAdd', async member => {
                   } else {
                         return
                   }
-
             })
 
       }
@@ -208,7 +234,7 @@ client.on('guildMemberAdd', async member => {
                               .setDescription(`Please bare with us while we get someone to verify you and give you access to the rest of the server!\n\nWe apologise for any inconvenience.`)
                         await webhookclient.send(`<@&806533084442263552> <@&933455230950080642> ${member} <@508847949413875712>`).then(message => { message.delete() })
                         await webhookclient.send(welcomeembed)
-                        await webhookclient.delete()
+                        webhookclient.delete()
                   } else {
                         return
                   }
@@ -220,12 +246,19 @@ client.on('guildMemberAdd', async member => {
             verchannel.send(`${member}`).then(message => { message.delete() })
       }
       let cachedinvites = guildinvites.get(guild.id);
-      const newinvites = await member.guild.fetchInvites();
+      const newinvites = await member.guild.invites.fetch();
       guildinvites.set(member.guild.id, newinvites)
       try {
-            let usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses) || cachedinvites.find((inv => !newinvites.get(inv.code)));
-            usedinvite.uses = usedinvite.uses + 1;
+            let usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses);
             if (!usedinvite) {
+                  usedinvite = cachedinvites.find((inv => !newinvites.get(inv.code)));
+            }
+            if (member.bot) {
+                  usedinvite.inviter.id = "CHECK AUDIT LOGS FOR WHO ADDED THE BOT"
+                  usedinvite.code = "BOT_ADD_METHOD"
+            }
+            if (!usedinvite) {
+                        usedinvite.uses = usedinvite.uses + 1;
                   query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
                   data = [member.id, member.guild.id, 'unknown', Number(Date.now(unix).toString().slice(0, -3).valueOf()), 'unknown']
                   connection.query(query, data, function (error, results, fields) {
@@ -336,8 +369,9 @@ client.on('guildMemberAdd', async member => {
             console.log(err)
       }
 });
+
 client.on('inviteCreate', async invite => {
-      const newinvites = await invite.guild.fetchInvites();
+      const newinvites = await invite.guild.invites.fetch();
       guildinvites.set(invite.guild.id, newinvites)
       if (invite.guild.id == '942731536770428938') {
             if (invite.inviter.id !== '949162832396693514' && invite.inviter.id !== '508847949413875712' && invite.inviter.id !== '816968930564243457' && invite.inviter.id !== '753454519937007696') {
@@ -348,6 +382,7 @@ client.on('inviteCreate', async invite => {
             }
       }
 });
+
 client.on('guildMemberUpdate', async (oldmember, newmember) => {
       if (newmember.guild.id == '806532573042966528') {
             if (!newmember.roles.cache.has('922514880102277161') && oldmember.roles.cache.has('922514880102277161')) {
@@ -355,17 +390,18 @@ client.on('guildMemberUpdate', async (oldmember, newmember) => {
                   if (!katcordgen) return console.log('kat cord general not found');
                   const webhookclient = await katcordgen.createWebhook('Welcome to rainy day kat-fé!', {
                         avatar: 'https://cdn.discordapp.com/attachments/868363455105732609/952954742160650300/unknown.png',
-                        token: process.env.DISCORD_TOKEN
                   })
                   const welcomeembed = new Discord.MessageEmbed()
                         .setTitle('We are glad to have you here!')
                         .addField('Important Information:', '\n\nCheck out this link to vote for our server!\nhttps://top.gg/servers/806532573042966528\n\nCheck out <#906751907597525062> and <#850549971081625640> to get started.')
                         .setFooter('We hope you enjoy your time here!')
-                  webhookclient.send(`Hey <@${newmember.id}>! Welcome. <@&933185109094465547>`, { embeds: [welcomeembed] })
+                  await webhookclient.send(`Hey <@${newmember.id}>! Welcome. <@&933185109094465547>`, { embeds: [welcomeembed] })
                   console.log('welcome message sent')
+                  await webhookclient.delete()
             }
       }
 });
+
 client.on('messageUpdate', async (oldMessage, newMessage) => { // Old message may be undefined
       return
       if (!oldMessage.author) return;
@@ -379,11 +415,13 @@ client.on('messageUpdate', async (oldMessage, newMessage) => { // Old message ma
                   { name: 'edit:', value: newMessage });
       MessageLog.send(embed);
 });
+
 client.on('guildMemberRemove', async member => {
       if (member.id == '753454519937007696' || member.id == '949162832396693514') {
             client.users.cache.get('508847949413875712').send(`${member.user.tag} has left ${member.guild}`)
       }
 });
+
 client.on('messageReactionAdd', async (react, author) => {
       if (react.message.id == '942754717484863508') {
             let member = react.message.guild.members.cache.get(author.id)
@@ -422,6 +460,7 @@ client.on('messageReactionAdd', async (react, author) => {
             }
       }
 });
+
 client.on('messageReactionRemove', async (react, author) => {
       if (react.message.id == '942754717484863508') {
             let member = react.message.guild.members.cache.get(author.id)
@@ -448,27 +487,5 @@ client.on('messageReactionRemove', async (react, author) => {
             }
       }
 });
-client.on('channelCreate', async channel => {
-      const guild = channel.guild
-      let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-      let data = ['muterole']
-      serversdb.query(query, data, function (error, results, fields) {
-            if (error) return console.log(error)
-            if (results == `` || results === undefined) {
-                  return
-            }
-            for (row of results) {
-                  let muteroleid = row["details"];
-                  const muterole = guild.roles.cache.get(muteroleid)
-                  if (channel.permissionsFor(channel.guild.me).has('MANAGE_CHANNELS')) {
-                        channel.updateOverwrite(muterole, {
-                              SEND_MESSAGES: false,
-                              ADD_REACTIONS: false,
-                              CONNECT: false,
-                              SEND_MESSAGES_IN_THREADS: false,
-                        }).catch(err => {console.log(err)})
-                  }
-            }
-      })
-})
+
 client.login(process.env.DISCORD_TOKEN);

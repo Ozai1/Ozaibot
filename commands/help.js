@@ -3,7 +3,7 @@ const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: 'P0V6g5',
+      password: `P0V6g5`,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -11,7 +11,7 @@ const connection = mysql.createPool({
 });
 module.exports = {
     name: 'help',
-    aliases: ['zhelp', 'invite'],
+    aliases: ['zhelp', 'invite', 'ahelp'],
     description: 'sends a help message',
     async execute(message, client, cmd, args, Discord, userstatus) {
         let prefix = 'sm_';
@@ -214,6 +214,29 @@ module.exports = {
                     .setColor('BLUE')
                 message.channel.send(helpembed);
                 return
+            }
+            if (cmd === 'ahelp') {
+                let printarr = []
+                    client.commands.forEach(entry => {
+                        if (entry.aliases) {
+                            entry.aliases.forEach(alias => {
+                                printarr.push(alias)
+                            })
+                        }
+                        printarr.push(entry.name)
+                    });
+                    let descriptionlength = 0
+                    printarr.forEach(entry => {
+                        descriptionlength = descriptionlength + entry.length
+                    })
+                    if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
+                    const helpembed = new Discord.MessageEmbed()
+                        .setTitle('Literally every command')
+                        .setDescription(printarr)
+                        .setTimestamp()
+                        .setColor('BLUE')
+                    message.channel.send(helpembed);
+                    return
             }
             if (!args[0]) {
                 message.channel.send({
