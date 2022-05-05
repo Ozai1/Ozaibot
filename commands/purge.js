@@ -63,8 +63,11 @@ module.exports = {
                                                             return conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`).catch(err => { console.log(err) });
                                                       }
                                                       if (args[1].toLowerCase() === 'silent') {
-                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`).catch(err => { console.log(err) }).then(message => { message.delete({ timeout: 4000 }).catch(err => { console.log(err) }) });
-                                                            return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`)
+                                                            setTimeout(() => {
+                                                                  conformationmessage.delete()
+                                                                  return message.delete()
+                                                            }, 5000);
                                                       }
                                                 }
                                                 if (amountgreaterthan14days !== 0) {
@@ -75,8 +78,11 @@ module.exports = {
                                                             return conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted and ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).catch(err => { console.log(err) });
                                                       }
                                                       if (args[1].toLowerCase() === 'silent') {
-                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted and ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).then(message => { message.delete({ timeout: 4000 }).catch(err => { console.log(err) }) });
-                                                            return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted and ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`)
+                                                            setTimeout(() => {
+                                                                  conformationmessage.delete()
+                                                                  return message.delete()
+                                                            }, 5000);
                                                       }
                                                 }
                                           }
@@ -88,8 +94,11 @@ module.exports = {
                                                       return conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages.`).catch(err => { console.log(err) });
                                                 }
                                                 if (args[1].toLowerCase() === 'silent') {
-                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages.`).then(message => { message.delete({ timeout: 2000 }).catch(err => { console.log(err) }) });
-                                                      return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages.`)
+                                                      setTimeout(() => {
+                                                            conformationmessage.delete()
+                                                            return message.delete()
+                                                      }, 5000);
                                                 }
                                           } if (amountgreaterthan14days !== 0) {
                                                 if (!args[1]) {
@@ -99,8 +108,11 @@ module.exports = {
                                                       return conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages, ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).catch(err => { console.log(err) });
                                                 }
                                                 if (args[1].toLowerCase() === 'silent') {
-                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages, ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).then(message => { message.delete({ timeout: 2000 }).catch(err => { console.log(err) }) });
-                                                      return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages, ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`)
+                                                      setTimeout(() => {
+                                                            conformationmessage.delete()
+                                                            return message.delete()
+                                                      }, 5000);
                                                 }
                                           }
                                     });

@@ -9,6 +9,7 @@ module.exports = {
                 message.react('☑️')
                 console.log('Shut down by command')
                 exec(`forever stopall`)
+                justincasethatdoesntworkthisisafunctionthatwillmakethebotcrash
             } else if (cmd === 'restart') {
                 message.delete()
                 exec('forever restart 0')

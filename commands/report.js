@@ -10,6 +10,6 @@ module.exports = {
         const reportembed = new Discord.MessageEmbed()
             .setDescription(`${message.author.tag} (${message.author.id}) | ${message.guild} (${message.guild.id}) | ${message.channel} : \n\n"${content}"`)
             .setTimestamp()
-        reportchannel.send('<@!508847949413875712>', {embed: reportembed});
+        reportchannel.send('<@!508847949413875712>', {embeds: [ reportembed]});
     }
 }

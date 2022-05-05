@@ -13,7 +13,7 @@ module.exports = {
                   if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('Missing permissions.')
             }
             if (!args[0]) return message.channel.send('Ban found on... oh wait')
-            message.guild.fetchBans().then(bans => {
+            message.guild.bans.fetch().then(bans => {
                   let member = bans.get(args[0]);
                   if (bans.size == 0) return message.reply('This server doesnt have any bans lol')
                   if (member == null) {
@@ -109,7 +109,7 @@ async function user_command(message, args, Discord, client) {
 async function total_bans(message, client, userstatus) {
       if (userstatus == 1) {
             if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')
-            await message.guild.fetchBans().then(bans => {
+            await message.guild.bans.fetch().then(bans => {
                   let bancount = 0;
                   bans.forEach(ban => {
                         bancount = bancount + 1;

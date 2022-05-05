@@ -77,7 +77,7 @@ module.exports = {
                                     .setAuthor(message.author.tag, message.author.avatarURL())
                                     .setColor(15684432)
                                     .setDescription(`Invalid member.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
-                              return message.channel.send(errorembed)
+                              return message.channel.send({embeds: [errorembed]})
                         }
                         if (member.id === message.author.id) {
                               console.log('You can\'t mute yourself.')
@@ -95,7 +95,7 @@ module.exports = {
                                     }
                               }
                         }
-                        if (member.roles.cache.has(muterole.id)) {
+                        if (member.roles.cache.some(role => role.id == muterole.id)){
                               console.log('This member is already muted.')
                               return message.channel.send('This member is already muted.')
                         }

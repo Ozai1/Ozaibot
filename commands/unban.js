@@ -8,7 +8,7 @@ module.exports = {
                   if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to use this command.')
             }
             if (!args[0]) return message.channel.send('Please a user\s id to unban.')
-            message.guild.fetchBans().then(bans => {
+            message.guild.bans.fetch().then(bans => {
                   let member = bans.get(args[0]);
                   if (bans.size == 0) return message.channel.send('This server does not have any bans.');
                   if (!member) return message.reply('Cannot find a ban for the given user.');

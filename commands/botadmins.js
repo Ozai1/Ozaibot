@@ -44,7 +44,7 @@ module.exports = {
                         .setDescription(printmessage)
                     if (!extra === '') { helpembed.setFooter(extra) }
                     helpembed.setColor('BLUE')
-                    message.channel.send(helpembed)
+                    message.channel.send({embeds: [helpembed]})
                 }
             })
         }

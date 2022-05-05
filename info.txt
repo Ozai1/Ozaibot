@@ -164,7 +164,7 @@ ME SUBSTRING SEARCH SHIT SO FAR
                         .setFooter('Hi Jan')
                         .setColor('BLUE')
                   let filter = m => m.author.id === message.author.id;
-                  await message.channel.send(helpembed).then(confmessage => {
+                  await message.channel.send({embeds: [helpembed]}).then(confmessage => {
                         message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                               message2 = message2.first();
                               message2.delete().catch(err => { })

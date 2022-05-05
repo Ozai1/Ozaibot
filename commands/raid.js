@@ -105,7 +105,7 @@ module.exports = {
                             .setDescription(printmessage)
                         if (!extra === '') { helpembed.setFooter(extra) }
                         helpembed.setColor('BLUE')
-                        message.channel.send(helpembed)
+                        message.channel.send({embeds: [helpembed]})
                     }
                 })
             } else if (cmd === 'whoinvited') {
@@ -266,7 +266,7 @@ module.exports = {
                     .setTimestamp()
                     .setFooter('Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.')
                     .setColor('BLUE')
-                message.channel.send(helpembed);
+                message.channel.send({embeds: [helpembed]});
                 return
             } else if (cmd === 'unblacklistinvite') {
                 if (userstatus == 1 || userstatus == 3) {
@@ -351,7 +351,7 @@ module.exports = {
                                 .setFooter('Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N')
                                 .setColor('ORANGE')
                             let filter = m => m.author.id === message.author.id;
-                            message.channel.send(helpembed).then(() => {
+                            message.channel.send({embeds: [helpembed]}).then(() => {
                                 message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message => {
                                     message = message.first();
                                     if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
@@ -385,7 +385,7 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:', { embed: helpembed })
+                                            conformationmessage.edit('Done:',  {embeds: [ helpembed ]})
                                         } else if (action === 'kick') {
                                             let finalarr2 = []
                                             for (i = 0; i <= finalarr.length; i = i + 1) { 
@@ -414,7 +414,7 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:', { embed: helpembed })
+                                            conformationmessage.edit('Done:',{  embeds: [ helpembed ]})
                                         } else if (action === 'mute') {
                                             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
                                             let data = ['muterole']
@@ -509,7 +509,7 @@ module.exports = {
                                     .setDescription(`**Message**:\n${args.slice(0).join(" ")}`)
                                     .setFooter(`application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>`)
                                     .setColor('BLUE')
-                                appchannel.send(helpembed).catch(err => { console.log(err) })
+                                appchannel.send({embeds: [helpembed]}).catch(err => { console.log(err) })
                             }
                         })
                     } else return message.channel.send('You already have a raid app in.')

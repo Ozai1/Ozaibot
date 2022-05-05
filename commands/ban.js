@@ -12,10 +12,7 @@ module.exports = {
             console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
             return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
         }
-        let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-        if (!member) {
-            member = await GetMember(message, args[0], Discord);
-      }
+        member = await GetMember(message, args[0], Discord);
         if (userstatus == 1) {
             if (!message.member.permissions.has('BAN_MEMBERS')) {
                 if (!member) {
@@ -56,7 +53,7 @@ module.exports = {
                         .setColor('RED')
                         .setTimestamp()
                     if (offserver === false) {
-                        member.send(bannedembed).catch(err => { })
+                        member.send({embeds: [bannedembed]}).catch(err => { })
                         console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
                     }
                     await message.guild.members.ban(member, { days: days, reason: `${reason}`, }).catch(err => {
@@ -77,7 +74,7 @@ module.exports = {
                         .setColor('RED')
                         .setTimestamp()
                     if (offserver === false) {
-                        member.send(bannedembed).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+                        member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
                         console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
                     }
                     await message.guild.members.ban(member, { reason: `${reason}`, }).catch(err => {
@@ -132,7 +129,7 @@ module.exports = {
                 .setColor('RED')
                 .setTimestamp()
             if (offserver === false) {
-                member.send(bannedembed).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+                member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
                 console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
             }
             await message.guild.members.ban(member, { days: days, reason: `"${reason}" - ${message.author.tag} (${message.author.id})`, }).catch(err => {
@@ -151,7 +148,7 @@ module.exports = {
             .setColor('RED')
             .setTimestamp()
         if (offserver === false) {
-            member.send(bannedembed).catch(err => { })
+            member.send({embeds: [bannedembed]}).catch(err => { })
             console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
         }
         await message.guild.members.ban(member, { reason: `"${reason}" - ${message.author.tag} (${message.author.id})` }).catch(err => {

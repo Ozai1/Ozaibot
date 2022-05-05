@@ -39,7 +39,6 @@ module.exports.getTime = (key) => {
     }
     return -1;
 }
-
 module.exports.aliases = times;
 module.exports.GetMember = async (message, string, Discord) => {
     try {
@@ -82,7 +81,7 @@ module.exports.GetMember = async (message, string, Discord) => {
             .setDescription(possibleusers)
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;
-        return await message.channel.send(helpembed).then(async confmessage => {
+        return await message.channel.send({embeds: [helpembed]}).then(async confmessage => {
             return await message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                 message2 = message2.first();
                 message2.delete().catch(err => { });

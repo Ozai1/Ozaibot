@@ -49,6 +49,7 @@ module.exports = {
                         }
                         if (!member || !args[0]) return message.channel.send("You have to mention a valid member");
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
+                        if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
                         member.roles.remove(muterole).catch(err => {
                               console.log(err)
                               message.channel.send('Failed.')
@@ -99,7 +100,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                               .setAuthor(message.author.tag, message.author.avatarURL())
                               .setColor('BLUE')
                               .setDescription(`This server's mute role is currently ${muterole}.\n\nYou may stop the bot using this role with \n\`sm_muterole remove\`.\n\nIf you would like to set a new mute role you can do so using\n\`sm_muterole set [@role/role_id]\`.\n\nIf you remove the mute role and do not set another the mute command will stop working.`);
-                        return message.channel.send(embed);
+                        return message.channel.send({embeds: [embed]});
 
                   }
             });

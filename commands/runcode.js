@@ -11,7 +11,7 @@ if (err) {
 helpembed.setDescription(err)
 }
                 helpembed.setColor('BLUE')
-            message.channel.send(helpembed)
+            message.channel.send({embeds: [helpembed]})
             });
     }
 }

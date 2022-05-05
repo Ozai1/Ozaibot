@@ -112,7 +112,7 @@ module.exports = async (Discord, client, message) => {
         const commandembed = new Discord.MessageEmbed()
             .setDescription(`**${message.author.tag} IN DMS \n"**${message.content}**".**`)
             .setTimestamp()
-        dmlogs.send(commandembed);
+        dmlogs.send({ embeds: [commandembed] });
     }
     let prefix = 'sm_';
     /*

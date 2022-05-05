@@ -13,7 +13,7 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                     .setDescription(content)
                     .setColor('#F28FB0')
-                message.channel.send(embed).catch(err => { })
+                message.channel.send({embeds: [embed]}).catch(err => { })
                 return
             }
             if (message.content.toLocaleLowerCase().includes('<@&')) return

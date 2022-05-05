@@ -1,6 +1,8 @@
 console.log('Stwarting Ozwaibot!!!')
+const fs = require('fs')
 const { unix } = require('moment');
 console.log("Stwarting Ozwaibot!!!")
+const { Player } = require('discord-player');
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
@@ -8,7 +10,10 @@ const Intents = require("discord.js/src/util/Intents");
 const Discord = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
+const synchronizeSlashCommands = require('discord-sync-commands-v14');
+const queue = require('./slashcommands/queue');
 const clientID = '862247858740789269'
+
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -32,18 +37,33 @@ const serversdb = mysql.createPool({
 const guildinvites = new Map();
 require('dotenv').config();
 allIntents = new Intents(98047);
-const client = new Discord.Client({
-      intents: allIntents, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',// fetchAllMembers: true
-});
 
+
+const client = new Discord.Client({
+      intents: allIntents, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
+});
+client.musicConfig = require('./musicconfig');
+client.player = new Player(client, client.musicConfig.opt.discordPlayer);
+const player = client.player
 client.commands = new Discord.Collection();
+client.slashcommands = new Discord.Collection()
 client.events = new Discord.Collection();
 
-['command_handler', 'event_handler'].forEach(handler => {
+['command_handler', 'event_handler', 'slashcommand_handler'].forEach(handler => {
       require(`./handlers/${handler}`)(client, Discord);
 })
 
 client.on('ready', async () => {
+      fs.readdir("./slashcommands/", (_err, files) => {
+            synchronizeSlashCommands(client, client.slashcommands.map((c) => ({
+                  name: c.name,
+                  description: c.description,
+                  options: c.options,
+                  type: 'CHAT_INPUT'
+            })), {
+                  debug: false
+            });
+      })
       let rating = Math.floor(Math.random() * 2) + 1;
       if (rating == 1) {
             client.user.setPresence({ status: 'dnd' });
@@ -66,6 +86,7 @@ client.on('ready', async () => {
             if (guild.me.permissions.has('MANAGE_GUILD')) {
                   guild.invites.fetch().then(invites => guildinvites.set(guild.id, invites)).catch(err => { console.log(err) })
             }
+            guild.members.fetch()
       })
       setInterval(() => { // 2 second interval, being used for mute checking
             let query = `SELECT * FROM activebans WHERE timeunban < ?`;
@@ -187,10 +208,13 @@ client.on('guildMemberAdd', async member => {
                         }
                         if (results == '' || results === undefined) {
                               try {
-                                    if (member.guild.me.permissions.has('BAN_MEMBERS') && member.guild.me.roles.highest > member.roles.highest) {
-                                          member.ban({ reason: `Unauthed join, autoban (was not added to whitelist)`, days: 1 }).catch(err => { console.log(err) })
+                                    if (member.bannable) {
+                                          member.ban({ reason: `Unauthed join, autoban (was not added to whitelist)`, days: 1 }).catch(err => {
+                                                console.log(err)
+                                                console.log('Ozaibot could not ban the following user.')
+                                          })
                                           console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`)
-                                    } else console.log(`Ozaibot either doesnt have ban perms or doesnt have high enough perms to ban new members in guild ${member.guild.id} for its whitelist`)
+                                    }
                               } catch (err) {
                                     console.log(err)
                               }
@@ -214,7 +238,6 @@ client.on('guildMemberAdd', async member => {
                         return
                   }
             })
-
       }
       if (guild.id == '806532573042966528') {
             query = `SELECT * FROM chercordver WHERE userid = ? && serverid = ?`;
@@ -249,91 +272,100 @@ client.on('guildMemberAdd', async member => {
       const newinvites = await member.guild.invites.fetch();
       guildinvites.set(member.guild.id, newinvites)
       try {
-            let usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses);
-            if (!usedinvite) {
-                  usedinvite = cachedinvites.find((inv => !newinvites.get(inv.code)));
-            }
-            if (member.bot) {
-                  usedinvite.inviter.id = "CHECK AUDIT LOGS FOR WHO ADDED THE BOT"
-                  usedinvite.code = "BOT_ADD_METHOD"
-            }
-            if (!usedinvite) {
-                        usedinvite.uses = usedinvite.uses + 1;
+            if (member.user.bot) {
                   query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
-                  data = [member.id, member.guild.id, 'unknown', Number(Date.now(unix).toString().slice(0, -3).valueOf()), 'unknown']
+                  data = [member.id, member.guild.id, 'BOT', Number(Date.now(unix).toString().slice(0, -3).valueOf()), 'BOT_ADD_METHOD']
                   connection.query(query, data, function (error, results, fields) {
                         if (error) {
                               return console.log(error)
                         }
-                        console.log(`${member.user.tag} has joined ${member.guild} using invite code [unknown] made by [unknown]`)
+                        console.log(`${member.user.tag} | *BOT* has joined ${member.guild}`)
                         return
                   })
                   return
-            }
-            query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
-            data = [member.id, member.guild.id, usedinvite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), usedinvite.code]
-            connection.query(query, data, function (error, results, fields) {
-                  if (error) {
-                        return console.log(error)
+            } else {
+                  let usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses);
+                  if (!usedinvite) {
+                        usedinvite = cachedinvites.find((inv => !newinvites.get(inv.code)));
+                        usedinvite.uses = usedinvite.uses + 1;
                   }
-                  console.log(`${member.user.tag} has joined ${member.guild} using invite code ${usedinvite.code} made by ${usedinvite.inviter.tag}`)
-                  return
-            })
-            if (member.guild.id == '806532573042966528') {
-                  let verchannel = client.channels.cache.get('922511452185694258')
-                  const verembed = new Discord.MessageEmbed()
-                        .setAuthor(`${member.user.tag} (${member.id}) has joined`, member.user.avatarURL())
-                        .setColor('BLUE')
-                        .setDescription(`Account age: <t:${Number(moment(member.user.createdAt).unix())}:R>\nInvite link used: \`${usedinvite.code}\`,\nThis invite has been used ${usedinvite.uses} times.\nThis invite was created by ${usedinvite.inviter.tag} (${usedinvite.inviter.id})`)
-                  verchannel.send(verembed)
-            }
-            query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
-            data = [usedinvite.code, member.guild.id]
-            connection.query(query, data, function (error, results, fields) {
-                  if (error) {
-                        return console.log(error)
+                  if (!usedinvite) {
+                        query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
+                        data = [member.id, member.guild.id, 'unknown', Number(Date.now(unix).toString().slice(0, -3).valueOf()), 'unknown']
+                        connection.query(query, data, function (error, results, fields) {
+                              if (error) {
+                                    return console.log(error)
+                              }
+                              console.log(`${member.user.tag} has joined ${member.guild} using invite code [unknown] made by [unknown]`)
+                              return
+                        })
+                        return
                   }
-                  if (results == '' || results === undefined) return
-                  for (row of results) {
-                        let action = row["action"]
-                        let adminid = row["adminid"]
-                        if (action === 'mute') {
-                              let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-                              let data = ['muterole']
-                              serversdb.query(query, data, function (error, results, fields) {
-                                    if (error) return console.log(error)
-                                    if (results == `` || results === undefined) {
-                                          return console.log(`${guild} (${guild.id}) has set up a link to automute but there is no mute role for this server`)
-                                    }
-                                    for (row of results) {
-                                          let muteroleid = row["details"];
-                                          const muterole = guild.roles.cache.get(muteroleid)
-                                          if (!muterole) {
-                                                return console.log(`${guild} (${guild.id}) has set up a link to automute but the mute role could not be found`)
-                                          }
-                                          if (guild.me.roles.highest.position <= muterole.position) {
-                                                console.log(`${guild} (${guild.id}) has set up a link to automute but I do not have high enough permissions to mute the user`)
-                                          }
-                                          member.roles.add(muterole).catch(err => {
-                                                console.log(err)
-                                          })
-                                          console.log(`${member.user.tag} was muted from ${guild} (${guild.id}) for using blacklisted link: ${usedinvite.code}`)
-                                          member.send(`You have been muted because you are a prime suspect in an on going raid.`)
-                                    }
-                              })
-                        } else if (action === 'kick') {
-                              member.send(`You have been kicked from ${guild} because you are a prime suspect in an on going raid.`)
-                              member.kick().catch(err => { console.log(err) })
-                              console.log(`${member.user.tag} was kicked from ${guild} for using blacklisted link: ${usedinvite.code}`)
-                        } else if (action === 'ban') {
-                              let admin = client.users.cache.get(adminid)
-                              if (!admin) { admin = 'Unknownuser' } else { admin = admin.tag }
-                              member.send(`You have been banned from ${guild} because you are a prime suspect in an on going raid.`)
-                              member.ban({ reason: `AUTOBAN: Used link set for autoban: ${usedinvite.code}. The blacklist on this invite was set by ${admin}(${adminid})` }).catch(err => { console.log(err) })
-                              console.log(`${member.user.tag} was banned from ${guild} for using blacklisted link: ${usedinvite.code}.`)
+                  query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
+                  data = [member.id, member.guild.id, usedinvite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), usedinvite.code]
+                  connection.query(query, data, function (error, results, fields) {
+                        if (error) {
+                              return console.log(error)
                         }
+                        console.log(`${member.user.tag} has joined ${member.guild} using invite code ${usedinvite.code} made by ${usedinvite.inviter.tag}`)
+                        return
+                  })
+                  if (member.guild.id == '806532573042966528') {
+                        let verchannel = client.channels.cache.get('922511452185694258')
+                        const verembed = new Discord.MessageEmbed()
+                              .setAuthor(`${member.user.tag} (${member.id}) has joined`, member.user.avatarURL())
+                              .setColor('BLUE')
+                              .setDescription(`Account age: <t:${Number(moment(member.user.createdAt).unix())}:R>\nInvite link used: \`${usedinvite.code}\`,\nThis invite has been used ${usedinvite.uses} times.\nThis invite was created by ${usedinvite.inviter.tag} (${usedinvite.inviter.id})`)
+                        verchannel.send(verembed)
                   }
-            })
+                  query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
+                  data = [usedinvite.code, member.guild.id]
+                  connection.query(query, data, function (error, results, fields) {
+                        if (error) {
+                              return console.log(error)
+                        }
+                        if (results == '' || results === undefined) return
+                        for (row of results) {
+                              let action = row["action"]
+                              let adminid = row["adminid"]
+                              if (action === 'mute') {
+                                    let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
+                                    let data = ['muterole']
+                                    serversdb.query(query, data, function (error, results, fields) {
+                                          if (error) return console.log(error)
+                                          if (results == `` || results === undefined) {
+                                                return console.log(`${guild} (${guild.id}) has set up a link to automute but there is no mute role for this server`)
+                                          }
+                                          for (row of results) {
+                                                let muteroleid = row["details"];
+                                                const muterole = guild.roles.cache.get(muteroleid)
+                                                if (!muterole) {
+                                                      return console.log(`${guild} (${guild.id}) has set up a link to automute but the mute role could not be found`)
+                                                }
+                                                if (guild.me.roles.highest.position <= muterole.position) {
+                                                      console.log(`${guild} (${guild.id}) has set up a link to automute but I do not have high enough permissions to mute the user`)
+                                                }
+                                                member.roles.add(muterole).catch(err => {
+                                                      console.log(err)
+                                                })
+                                                console.log(`${member.user.tag} was muted from ${guild} (${guild.id}) for using blacklisted link: ${usedinvite.code}`)
+                                                member.send(`You have been muted because you are a prime suspect in an on going raid.`)
+                                          }
+                                    })
+                              } else if (action === 'kick') {
+                                    member.send(`You have been kicked from ${guild} because you are a suspect in an on going raid.`)
+                                    member.kick().catch(err => { console.log(err) })
+                                    console.log(`${member.user.tag} was kicked from ${guild} for using blacklisted link: ${usedinvite.code}`)
+                              } else if (action === 'ban') {
+                                    let admin = client.users.cache.get(adminid)
+                                    if (!admin) { admin = 'Unknownuser' } else { admin = admin.tag }
+                                    member.send(`You have been banned from ${guild} because you are a prime suspect in an on going raid.`)
+                                    member.ban({ reason: `AUTOBAN: Used link set for autoban: ${usedinvite.code}. The blacklist on this invite was set by ${admin}(${adminid})` }).catch(err => { console.log(err) })
+                                    console.log(`${member.user.tag} was banned from ${guild} for using blacklisted link: ${usedinvite.code}.`)
+                              }
+                        }
+                  })
+            }
             query = `SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?`;
             data = [member.id, member.guild.id, 'mute']
             connection.query(query, data, function (error, results, fields) {
@@ -489,3 +521,22 @@ client.on('messageReactionRemove', async (react, author) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+player.on('trackStart', (queue, track) => {
+      if (!client.musicConfig.opt.loopMessage && queue.repeatMode !== 0) return;
+      queue.metadata.send({ content: `🎵 Music started playing: **${track.title}**.` }).catch(e => { })
+});
+player.on('trackAdd', (queue, track) => {
+      queue.metadata.send({ content: `**${track.title}** added to playlist. ✅` }).catch(e => { })
+});
+player.on('queueEnd', (queue) => {
+      if (client.musicConfig.opt.voiceConfig.leaveOnTimer.status === true) {
+            setTimeout(() => {
+                  if (queue.connection) queue.connection.disconnect();
+            }, client.musicConfig.opt.voiceConfig.leaveOnTimer.time);
+      }
+      queue.metadata.send({ content: 'All play queue finished, I think you can listen to some more music. ✅' }).catch(e => { })
+});
+player.on('tracksAdd', (queue) => {
+      queue.metadata.send({ content: `Added playlist. ✅` }).catch(e => { })
+})

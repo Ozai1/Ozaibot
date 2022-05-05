@@ -48,7 +48,7 @@ module.exports = {
                                 return console.log(error)
                             }
                             message.channel.send(`${member} has been added to this server's whitelist. They will be automatically unbanned if they have a current ban.`)
-                            message.guild.fetchBans().then(bans => {
+                            message.guild.bans.fetch().then(bans => {
                                 let member2 = bans.get(member.id);
                                 if (bans.size == 0) return;
                                 if (member2 == null) return;

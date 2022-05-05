@@ -23,7 +23,7 @@ module.exports = {
                               .addField(`**You have been kicked from** ${message.guild}.`, `**For**: ${reason}`)
                               .setColor('ORANGE')
                               .setTimestamp()
-                        member.send(kickedembed).catch(err => { })
+                        member.send({embeds: [kickedembed]}).catch(err => { })
                         console.log(`confirmation message sent to ${member.tag} for being kicked from ${message.guild} by ${message.author.tag}`)
                         await member.kick({ reason: `${reason}` }).catch(err => {
                               console.log(err)
@@ -47,7 +47,7 @@ module.exports = {
                   .addField(`**You have been kicked from**: ${message.guild}.`, `**Kicked by**: ${message.author} \n **For**: "${reason}".`)
                   .setColor('ORANGE')
                   .setTimestamp()
-            member.send(kickedembed).catch(err => { })
+            member.send({embeds: [kickedembed]}).catch(err => { })
             console.log(`confirmation message sent to ${member.tag} for being kicked from ${message.guild} by ${message.author.tag}`)
             await member.kick({ reason: `${reason} - ${message.author.tag}` }).catch(err => {
                   console.log(err)

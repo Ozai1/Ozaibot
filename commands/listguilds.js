@@ -10,7 +10,7 @@ module.exports = {
                   const commandembed = new Discord.MessageEmbed()
                         .setDescription(channels2)
                         .setTimestamp()
-                  message.channel.send(commandembed).catch(err => { console.log(err) })
+                  message.channel.send({embeds: [commandembed]}).catch(err => { console.log(err) })
             }
       }
 }

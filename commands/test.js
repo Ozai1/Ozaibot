@@ -3,7 +3,7 @@ const { unix } = require("moment");
 const DISCORD_EPOCH = 1420070400000
 let nextbumptime = '';
 let lastbumptime = '';
-const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
+
 const imissjansomuchithurts = 1420070400000
 const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
       nextbumptime = (`${snowflake / 4194304 + epoch}`).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1)
@@ -34,7 +34,7 @@ const serversdb = mysql.createPool({
 });
 module.exports = {
       name: 'test',
-      aliases: ['youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['slashcommands','youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -53,11 +53,18 @@ module.exports = {
             if (cmd === 'myperms') return my_perms(message, userstatus, Discord)
             if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
             if (cmd === 'sql') return self_sql(message, args)
+            if (cmd === 'slashcommands') return slash_command_invite(message)
             if (userstatus == 1) {
             }
       }
 }
-
+async function slash_command_invite(message) {
+      if (message.channel.type === 'dm') {
+message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands`)
+            return
+      }
+      message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands&guild_id=${message.guild.id}`)
+}
 async function self_sql(message, args) {
       if (message.author.id == '508847949413875712') {
             if (args[0].toLowerCase() === 'tables') {
@@ -581,7 +588,7 @@ async function drag_user(message, args, userstatus, Discord) {
                         .setFooter('Hi Jan')
                         .setColor('BLUE')
                   let filter = m => m.author.id === message.author.id;
-                  await message.channel.send(helpembed).then(confmessage => {
+                  await message.channel.send({embeds: [helpembed]}).then(confmessage => {
                         message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                               message2 = message2.first();
                               message2.delete().catch(err => { })
@@ -636,7 +643,7 @@ async function drag_user(message, args, userstatus, Discord) {
       }
 }
 async function message_length(message) {
-      return message.channel.send(message.content.length - 8).catch(err => { console.log(err) })
+      return message.channel.send(`${message.content.length - 8}`).catch(err => { console.log(err) })
 }
 async function mass_message(message, args, userstatus) {
       if (userstatus == 1) {
@@ -796,6 +803,7 @@ async function next_bump(message) {
       }
 }
 async function current_time(message) {
+      const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
       message.channel.send(`${currenttime}, <t:${currenttime}>, <t:${currenttime}:R>`)
 }
 async function repeat_message(message, args, userstatus) {
