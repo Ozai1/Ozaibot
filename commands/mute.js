@@ -70,7 +70,7 @@ module.exports = {
                               console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                               return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                         }
-                        let member = await GetMember(message, args[0], Discord);
+                        let member = await GetMember(message, args[0], Discord, false);
                         if (!member) {
                               console.log('invalid member')
                               const errorembed = new Discord.MessageEmbed()

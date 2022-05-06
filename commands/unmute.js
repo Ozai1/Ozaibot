@@ -39,7 +39,7 @@ module.exports = {
                         const muterole = message.guild.roles.cache.get(muteroleid)
                         let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
                         if (!member) {
-                              member = await GetMember(message, args[0], Discord);
+                              member = await GetMember(message, args[0], Discord, false);
                         }
                         if (!userstatus == 1) {
                               if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You don't have the permissions.");

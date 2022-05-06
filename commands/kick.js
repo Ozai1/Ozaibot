@@ -10,7 +10,7 @@ module.exports = {
             if (!args[0]) return message.channel.send('You must add a member to kick.')
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (!member) {
-                  member = await GetMember(message, args[0], Discord);
+                  member = await GetMember(message, args[0], Discord, false);
             }
             if (userstatus == 1) {
                   if (!message.member.permissions.has('KICK_MEMBERS')) {

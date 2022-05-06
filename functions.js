@@ -40,7 +40,16 @@ module.exports.getTime = (key) => {
     return -1;
 }
 module.exports.aliases = times;
-module.exports.GetMember = async (message, string, Discord) => {
+
+    /**
+     * Retreves a member from the guild of message object
+     * @param {Object} message Message object
+     * @param {string} string The string that is used to find a member
+     * @param {Object} Discord Used for embeds
+     * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
+     * @returns {Object} member on success or undefined on fail
+     */
+module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults) => {
     try {
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
@@ -72,12 +81,13 @@ module.exports.GetMember = async (message, string, Discord) => {
             member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(4, -1));
             return member
         }
+        if (MustNotHaveMultiResults == 1 || MustNotHaveMultiResults === true) return undefined
         if (possibleusers.length > 9) {
-            message.channel.send('To many possible members from that name, use a more definitive string.')
             return undefined
         }
         const helpembed = new Discord.MessageEmbed()
             .setTitle('Which of these members did you mean? Please type out the corrosponding number.')
+            .setFooter('Type cancel to cancel the search.')
             .setDescription(possibleusers)
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;
@@ -86,6 +96,10 @@ module.exports.GetMember = async (message, string, Discord) => {
                 message2 = message2.first();
                 message2.delete().catch(err => { });
                 confmessage.delete().catch(err => { });
+                if (message.content.toLowerCase.startsWith("cancel")) {
+                    message.channel.send('Cancelled.')
+                    return undefined
+                }
                 if (isNaN(message2.content)) {
                     message2.channel.send('Failed, you are supposed to pick one of the #-numbers.')
                     return undefined

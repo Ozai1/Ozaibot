@@ -12,7 +12,7 @@ module.exports = {
             console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
             return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
         }
-        member = await GetMember(message, args[0], Discord);
+        member = await GetMember(message, args[0], Discord, false);
         if (userstatus == 1) {
             if (!message.member.permissions.has('BAN_MEMBERS')) {
                 if (!member) {
