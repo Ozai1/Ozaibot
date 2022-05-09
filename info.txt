@@ -197,3 +197,4 @@ ME SUBSTRING SEARCH SHIT SO FAR
                         });
                   });
             
+welchannel.permissionOverwrites.edit(message.author.id, { MANAGE_MESSAGES: true});

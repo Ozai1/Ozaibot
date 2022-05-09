@@ -16,7 +16,7 @@ module.exports = {
                 .addField(`Message Latency`, `\`${last - start}ms\` 🛰️`)
                 .addField(`API Latency`, `\`${Math.round(client.ws.ping)}ms\` 🛰️`)
                 .setTimestamp()
-            interaction.editReply({ embeds: [embed] }).catch(e => { });
+            interaction.editReply({ embeds: [embed], ephemeral: false }).catch(e => { });
         })
     },
 };

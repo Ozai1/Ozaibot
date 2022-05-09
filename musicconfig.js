@@ -11,7 +11,7 @@ module.exports = {
             }
         },
 
-        maxVol: 100, //You can specify the maximum volume level.
+        maxVol: 200, //You can specify the maximum volume level.
         loopMessage: false,
 
         discordPlayer: {

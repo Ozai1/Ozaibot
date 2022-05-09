@@ -23,7 +23,7 @@ module.exports = {
                   } if (message.guild.me.permissions.has('MANAGE_MESSAGES')) { ozaibotperms = true; }
                   if (ozaibotperms === true) {
                         let amount = Number(args[0]);
-                        if (amount < 101) {
+                        if (amount <= 100) {
                               let amountcached = 0;
                               const options = { limit: amount };
                               options.before = message.id;
@@ -173,7 +173,7 @@ async function bulkdelete(message, conformationmessage, amount, args) {
       conformationmessage.edit('Fetching....')
       while (janisamazing) {
             let options = null;
-            if (totalleft > 101) {
+            if (totalleft >= 100) {
                   options = { limit: 100 };
             } else {
                   options = { limit: totalleft };

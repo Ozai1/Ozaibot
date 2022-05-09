@@ -2,18 +2,12 @@ console.log('Stwarting Ozwaibot!!!')
 const fs = require('fs')
 const { unix } = require('moment');
 console.log("Stwarting Ozwaibot!!!")
-const { joinVoiceChannel } = require('@discordjs/voice');
 const { Player } = require('discord-player');
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
 const Intents = require("discord.js/src/util/Intents");
-const Discord = require('discord.js');
+const Discord  = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
-const queue = require('./slashcommands/queue');
-const clientID = '862247858740789269'
 
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -87,6 +81,9 @@ client.on('ready', async () => {
                   guild.invites.fetch().then(invites => guildinvites.set(guild.id, invites)).catch(err => { console.log(err) })
             }
             guild.members.fetch()
+            const newinvites = await guild.invites.fetch()
+            guildinvites.set(guild.id, newinvites)
+            console.log('cached invites for a guild')
       })
       setInterval(() => { // 2 second interval, being used for mute checking
             let query = `SELECT * FROM activebans WHERE timeunban < ?`;
@@ -234,7 +231,7 @@ client.on('guildMemberAdd', async member => {
                         member.roles.add(unknownrole).catch(err => { console.log(err) })
                         unknownchannel.send(`<@&951030382919299072> ${member}`).catch(err => { console.log(err) })
                   } else {
-                        return
+                        return;
                   }
             })
       }
@@ -286,7 +283,6 @@ client.on('guildMemberAdd', async member => {
                   let usedinvite = newinvites.find(inv => cachedinvites.get(inv.code).uses < inv.uses);
                   if (!usedinvite) {
                         usedinvite = cachedinvites.find((inv => !newinvites.get(inv.code)));
-                        usedinvite.uses = usedinvite.uses + 1;
                   }
                   if (!usedinvite) {
                         query = `INSERT INTO invites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
@@ -309,13 +305,13 @@ client.on('guildMemberAdd', async member => {
                         console.log(`${member.user.tag} has joined ${member.guild} using invite code ${usedinvite.code} made by ${usedinvite.inviter.tag}`)
                         return
                   })
-                  if (member.guild.id == '806532573042966528') {
+                  if (guild.id == '806532573042966528') {
                         let verchannel = client.channels.cache.get('922511452185694258')
                         const verembed = new Discord.MessageEmbed()
-                              .setAuthor(`${member.user.tag} (${member.id}) has joined`, member.user.avatarURL())
+                              .embedAuthorData(`${member.user.tag} (${member.id}) has joined`, member.user.avatarURL())
                               .setColor('BLUE')
                               .setDescription(`Account age: <t:${Number(moment(member.user.createdAt).unix())}:R>\nInvite link used: \`${usedinvite.code}\`,\nThis invite has been used ${usedinvite.uses} times.\nThis invite was created by ${usedinvite.inviter.tag} (${usedinvite.inviter.id})`)
-                        verchannel.send(verembed)
+                        verchannel.send({ embeds: [verembed] })
                   }
                   query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
                   data = [usedinvite.code, member.guild.id]
@@ -425,7 +421,7 @@ client.on('guildMemberUpdate', async (oldmember, newmember) => {
                   const welcomeembed = new Discord.MessageEmbed()
                         .setTitle('We are glad to have you here!')
                         .addField('Important Information:', '\n\nCheck out this link to vote for our server!\nhttps://top.gg/servers/806532573042966528\n\nCheck out <#906751907597525062> and <#850549971081625640> to get started.')
-                        .setFooter('We hope you enjoy your time here!')
+                        .setFooter({ text: 'We hope you enjoy your time here!' })
                   await webhookclient.send(`Hey <@${newmember.id}>! Welcome. <@&933185109094465547>`, { embeds: [welcomeembed] })
                   console.log('welcome message sent')
                   await webhookclient.delete()
@@ -476,6 +472,8 @@ client.on('messageReactionAdd', async (react, author) => {
                   let prorole = react.message.guild.roles.cache.get('942758598533083157')
                   member.roles.add(prorole).catch(err => { console.log(err) })
                   author.send('Gave you the he/they role.').catch(err => { console.log('could not message user to conf adding role') })
+            } else {
+                  react.remove().catch(err => { console.log(err) })
             }
       } if (react.message.id == '959716895672659998') {
             let member = react.message.guild.members.cache.get(author.id)
@@ -518,23 +516,25 @@ client.on('messageReactionRemove', async (react, author) => {
             }
       }
 });
-client.on('onVoiceStateUpdate', async (Oldstate, Newstate) => {
-      console.log(Oldstate)
-      console.log(Newstate)
-})
+
 client.login(process.env.DISCORD_TOKEN);
 
 player.on('trackStart', (queue, track) => {
       if (!client.musicConfig.opt.loopMessage && queue.repeatMode !== 0) return;
       queue.metadata.send({ content: `**Playing** :notes: \`${track.title}\` - Now!` }).catch(e => { })
 });
+player.on('trackAdd', (queue, track) => {
+      queue.metadata.send({ content: `\`${track.title}\` added to playlist. ✅` }).catch(e => { })
+});
+
+player.on('tracksAdd', (queue) => {
+      queue.metadata.send({ content: `Added playlist. ✅` }).catch(e => { })
+});
 player.on('queueEnd', (queue) => {
       if (client.musicConfig.opt.voiceConfig.leaveOnTimer.status === true) {
             setTimeout(() => {
                   if (queue.connection) queue.connection.disconnect();
-            }, 8 * 60 * 1000);
+            }, client.musicConfig.opt.voiceConfig.leaveOnTimer.time);
       }
+      queue.metadata.send({ content: 'Queue finished!' }).catch(e => { })
 });
-player.on('tracksAdd', (queue) => {
-      queue.metadata.send({ content: `Added playlist. ✅` }).catch(e => { })
-})

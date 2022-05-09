@@ -34,7 +34,7 @@ const serversdb = mysql.createPool({
 });
 module.exports = {
       name: 'test',
-      aliases: ['slashcommands','youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -54,13 +54,50 @@ module.exports = {
             if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
             if (cmd === 'sql') return self_sql(message, args)
             if (cmd === 'slashcommands') return slash_command_invite(message)
+            if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
             if (userstatus == 1) {
             }
       }
 }
+async function purge_of_racial_slurs(message, userstatus) {
+      if (userstatus == 1) {
+                  let amountfound = 0;
+                  message.channel.send('Starting the search...').then(message => {
+
+                  });
+                  let lastmessagefetchedid = undefined;
+                  let janisamazing = true;
+                  while (janisamazing) {
+                        let options = null;
+                        options = { limit: 100 };
+                        if (lastmessagefetchedid) {
+                              options.before = lastmessagefetchedid;
+                        } else {
+                              options.before = message.id;
+                        }
+                        await message.channel.messages.fetch(options).then(messages => {
+                              messages.forEach(async message2 => {
+                                    if (message2.content.toLowerCase().includes('nig')) {
+                                          await message2.delete().catch(err => { console.log(err) })
+                                          amountfound = amountfound + 1;
+                                    }
+                              })
+                              if (messages.length == 0) {
+                                    janisamazing = false;
+                                    return message.channel.send(`Done, ${amountfound} messages deleted.`)
+                              }
+                              if (!messages.last()) {
+                                    janisamazing = false;
+                                    return message.channel.send(`Done, ${amountfound} messages deleted.`)
+                              }
+                              lastmessagefetchedid = messages.last().id;
+                        })
+                  }
+      }
+}
 async function slash_command_invite(message) {
       if (message.channel.type === 'dm') {
-message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands`)
+            message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands`)
             return
       }
       message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands&guild_id=${message.guild.id}`)
@@ -95,8 +132,8 @@ async function self_sql(message, args) {
       } else {
             let shitpostmessage = await message.channel.send('Deleted all tables in Database.')
             setTimeout(() => {
-                shitpostmessage.edit('just kidding lol')
-            shitpostmessage.edit('Deleted all tables in Database.')  
+                  shitpostmessage.edit('just kidding lol')
+                  shitpostmessage.edit('Deleted all tables in Database.')
             }, 5000);
             return
       }
@@ -501,7 +538,7 @@ async function chat_crawler(message, userstatus, client) {
                   });
             })
             confmessage.edit('deleteing...')
-            for (i = 0; i <= messagesincache.length; i = i + 1) { 
+            for (i = 0; i <= messagesincache.length; i = i + 1) {
                   setTimeout(() => {
                         if (!messagesincache[0]) return confmessage.edit('done')
                         message.channel.messages.delete(messagesincache[0]).catch(err => { console.log(err) })
@@ -588,7 +625,7 @@ async function drag_user(message, args, userstatus, Discord) {
                         .setFooter('Hi Jan')
                         .setColor('BLUE')
                   let filter = m => m.author.id === message.author.id;
-                  await message.channel.send({embeds: [helpembed]}).then(confmessage => {
+                  await message.channel.send({ embeds: [helpembed] }).then(confmessage => {
                         message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                               message2 = message2.first();
                               message2.delete().catch(err => { })
