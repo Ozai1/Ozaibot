@@ -2,6 +2,7 @@ console.log('Stwarting Ozwaibot!!!')
 const fs = require('fs')
 const { unix } = require('moment');
 console.log("Stwarting Ozwaibot!!!")
+const { joinVoiceChannel } = require('@discordjs/voice');
 const { Player } = require('discord-player');
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { REST } = require("@discordjs/rest");
@@ -36,8 +37,7 @@ const serversdb = mysql.createPool({
 });
 const guildinvites = new Map();
 require('dotenv').config();
-allIntents = new Intents(98047);
-
+allIntents = new Intents(98047); // doesnt include status intents
 
 const client = new Discord.Client({
       intents: allIntents, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
@@ -183,7 +183,6 @@ client.on('ready', async () => {
       let alllogs = client.channels.cache.get('882845463647256637');
       alllogs.send(`Bot started up <@!508847949413875712>`)
       console.log(`Signed into ${client.user.tag}`)
-
 });
 
 client.on('guildMemberAdd', async member => {
@@ -256,7 +255,7 @@ client.on('guildMemberAdd', async member => {
                               .setThumbnail(member.user.avatarURL())
                               .setDescription(`Please bare with us while we get someone to verify you and give you access to the rest of the server!\n\nWe apologise for any inconvenience.`)
                         await webhookclient.send(`<@&806533084442263552> <@&933455230950080642> ${member} <@508847949413875712>`).then(message => { message.delete() })
-                        await webhookclient.send(welcomeembed)
+                        await webhookclient.send({ embeds: [welcomeembed] })
                         webhookclient.delete()
                   } else {
                         return
@@ -519,23 +518,22 @@ client.on('messageReactionRemove', async (react, author) => {
             }
       }
 });
-
+client.on('onVoiceStateUpdate', async (Oldstate, Newstate) => {
+      console.log(Oldstate)
+      console.log(Newstate)
+})
 client.login(process.env.DISCORD_TOKEN);
 
 player.on('trackStart', (queue, track) => {
       if (!client.musicConfig.opt.loopMessage && queue.repeatMode !== 0) return;
-      queue.metadata.send({ content: `🎵 Music started playing: **${track.title}**.` }).catch(e => { })
-});
-player.on('trackAdd', (queue, track) => {
-      queue.metadata.send({ content: `**${track.title}** added to playlist. ✅` }).catch(e => { })
+      queue.metadata.send({ content: `**Playing** :notes: \`${track.title}\` - Now!` }).catch(e => { })
 });
 player.on('queueEnd', (queue) => {
       if (client.musicConfig.opt.voiceConfig.leaveOnTimer.status === true) {
             setTimeout(() => {
                   if (queue.connection) queue.connection.disconnect();
-            }, client.musicConfig.opt.voiceConfig.leaveOnTimer.time);
+            }, 8 * 60 * 1000);
       }
-      queue.metadata.send({ content: 'All play queue finished, I think you can listen to some more music. ✅' }).catch(e => { })
 });
 player.on('tracksAdd', (queue) => {
       queue.metadata.send({ content: `Added playlist. ✅` }).catch(e => { })

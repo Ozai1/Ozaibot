@@ -214,7 +214,7 @@ return
             if (cmd === 'invite') {
                 const helpembed = new Discord.MessageEmbed()
                     .setTitle('Click here to add Ozaibot to a new server.')
-                    .setURL('https://discord.com/oauth2/authorize?client_id=862247858740789269&scope=bot&permissions=4260490367')
+                    .setURL('https://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands')
                     .setColor('BLUE')
                 message.channel.send({ embeds: [helpembed] });
                 return

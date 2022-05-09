@@ -44,7 +44,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(member.displayHexColor);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             } else {
                   let user = client.users.cache.get(message.author.id)
                   const createdatunix = Number(moment(user.createdAt).unix())
@@ -59,7 +59,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(240116);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             }
       } else {
             let membertype = 'member'
@@ -88,7 +88,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(member.displayHexColor);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             } else {
                   const createdatunix = Number(moment(user.createdAt).unix())
                   const uiembed = new Discord.MessageEmbed()
@@ -102,7 +102,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(240116);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             }
       }
 }
