@@ -54,7 +54,7 @@ module.exports = {
             }
             if (cmd === 'whojoined') {
                 if (!args[0]) return message.channel.send('Please give an invite for the bot to use.')
-                let query = `SELECT * FROM invites WHERE invitecode = ? && serverid = ?`;
+                let query = `SELECT * FROM usedinvites WHERE invitecode = ? && serverid = ?`;
                 let data = [args[0], message.guild.id]
                 connection.query(query, data, function (error, results, fields) {
                     if (error) {
@@ -113,14 +113,14 @@ module.exports = {
                     if (!args[0]) return message.channel.send('Please give a user.')
                     let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                     if (!member) return message.channel.send('Please give a valid user.')
-                    let query = `SELECT * FROM invites WHERE serverid = ? && userid = ?`;
+                    let query = `SELECT * FROM usedinvites WHERE serverid = ? && userid = ?`;
                     let data = [message.guild.id, member.id]
                     connection.query(query, data, function (error, results, fields) {
                         if (error) {
                             console.log('backend error for whoinvited')
                             return console.log(error)
                         }
-                        if (results !== `` || results === undefined) {
+                        if (results !== `` || !results === undefined) {
                             let printstring = [];
                             for (row of results) {
                                 let inviterid = row["inviterid"]
@@ -301,7 +301,7 @@ module.exports = {
                     if (!args[1]) return message.channel.send('Usage: `sm_purgeinvite <invite> <punishment>`')
                     let action = args[1].toLowerCase()
                     if (action !== 'mute' && action !== 'kick' && action !== 'ban') return message.channel.send('The punishment must be either `mute`/`kick`/`ban`.')
-                    let query = `SELECT * FROM invites WHERE invitecode = ? && serverid = ? && time > ?`;
+                    let query = `SELECT * FROM usedinvites WHERE invitecode = ? && serverid = ? && time > ?`;
                     let data = [args[0], message.guild.id, currenttime - 86400]
                     connection.query(query, data, function (error, results, fields) {
                         if (error) {

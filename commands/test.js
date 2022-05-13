@@ -111,13 +111,15 @@ async function self_sql(message, args) {
             chercordcount
             chercordrole
             chercordver
-            invites
+            usedinvites
             lockdownlinks
             prefixes
             privservers
             totalcmds
             userstatus
-            whitelist`)
+            whitelist
+            activeinvites
+            `)
             } else if (!args[0]) return message.channel.send('Add an arg')
             query = args.slice(0).join(" ");
             data = []

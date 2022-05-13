@@ -29,7 +29,7 @@ module.exports = {
             if (cmd === 'muterole') return mute_role(message, cmd, args, userstatus, Discord)
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
             let data = ['muterole']
-            serversdb.query(query, data,async function (error, results, fields) {
+            serversdb.query(query, data, async function (error, results, fields) {
                   if (error) return console.log(error)
                   if (results == ``) {
                         return message.channel.send('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
@@ -37,10 +37,7 @@ module.exports = {
                   for (row of results) {
                         let muteroleid = row["details"];
                         const muterole = message.guild.roles.cache.get(muteroleid)
-                        let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-                        if (!member) {
-                              member = await GetMember(message, args[0], Discord, false);
-                        }
+                        member = await GetMember(message, args[0], Discord, false);
                         if (!userstatus == 1) {
                               if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You don't have the permissions.");
                               if (message.guild.ownerID !== message.author.id) {
@@ -100,7 +97,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                               .setAuthor(message.author.tag, message.author.avatarURL())
                               .setColor('BLUE')
                               .setDescription(`This server's mute role is currently ${muterole}.\n\nYou may stop the bot using this role with \n\`sm_muterole remove\`.\n\nIf you would like to set a new mute role you can do so using\n\`sm_muterole set [@role/role_id]\`.\n\nIf you remove the mute role and do not set another the mute command will stop working.`);
-                        return message.channel.send({embeds: [embed]});
+                        return message.channel.send({ embeds: [embed] });
 
                   }
             });
@@ -138,22 +135,20 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
 
       } else if (args[0].toLowerCase() === 'create') {
             let muterole = await message.guild.roles.create({
-                  data: {
-                        name: "Muted",
-                        permissions: [],
-                  },
+                  name: "Muted",
+                  permissions: [],
             }).catch(err => {
                   console.log(err);
                   message.channel.send('Failed to create a muted role.');
             });
-            await message.guild.channels.cache.forEach(async (channel, id) => {
+            await message.guild.channels.fetch()
+            await message.guild.channels.cache.forEach(async (channel) => {
                   if (channel.permissionsFor(message.guild.me).has('MANAGE_CHANNELS')) {
-                        await channel.updateOverwrite(muterole, {
-                              SEND_MESSAGES: false,
-                              ADD_REACTIONS: false,
-                              CONNECT: false,
-                              SEND_MESSAGES_IN_THREADS: false,
-                        });
+                        if (channel) {
+                              if (channel.permissionOverwrites) {
+                                    await channel.permissionOverwrites.edit(muterole.id, { SEND_MESSAGES: false, ADD_REACTIONS: false, CONNECT: false, SEND_MESSAGES_IN_THREADS: false }).catch(err => {console.log(err)})
+                              }
+                        }
                   }
             });
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
@@ -177,7 +172,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                         });
                   }
             });
-            message.channel.send('Created the muted role and set permissions in all channels *that ozaibot has access to editing*. This is now the mute role for Ozaibot.');
+            message.channel.send(`Created the <@&${muterole.id}> role and set permissions in all channels *that ozaibot has access to editing*. This is now the mute role for Ozaibot.`);
       } else if (args[0].toLowerCase() === 'remove') {
             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
             let data = ['muterole'];

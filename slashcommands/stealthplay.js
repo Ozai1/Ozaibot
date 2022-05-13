@@ -21,12 +21,12 @@ module.exports = {
     }],
     voiceChannel: true,
 
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
         if (interaction.member.permissions.has('ADMINISTRATOR')) {
             return justfuckingrunit(client, interaction)
         }
         query = "SELECT * FROM userstatus WHERE userid = ?";
-        data = [message.author.id]
+        data = [interaction.member.id]
         connection.query(query, data, function (error, results, fields) {
             if (error) return console.log(error)
             if (results == '' || results === undefined) {
@@ -56,19 +56,33 @@ async function justfuckingrunit(client, interaction) {
         searchEngine: QueryType.AUTO
     });
 
-    if (!res || !res.tracks.length) return interaction.editReply({ content: `No results found! ❌`, ephemeral: true}).catch(e => { })
+    if (!res || !res.tracks.length) return interaction.editReply({ content: `No results found! ❌`, ephemeral: true }).catch(e => { })
 
     const queue = await client.player.createQueue(interaction.guild, {
         leaveOnEnd: client.musicConfig.opt.voiceConfig.leaveOnEnd,
         autoSelfDeaf: client.musicConfig.opt.voiceConfig.autoSelfDeaf,
         metadata: interaction.channel
     });
-    await interaction.editReply({ content: `Your ${res.playlist ? 'Playlist' : 'Track'} has been found!` , ephemeral: true});
+    await interaction.editReply({ content: `Your ${res.playlist ? 'Playlist' : 'Track'} has been found!`, ephemeral: true });
+
+    let didjoinchannel = null;
+    if (!interaction.guild.me.voice.channel) {
+        didjoinchannel = false;
+    }
+
     try {
         if (!queue.connection) await queue.connect(interaction.member.voice.channel)
+        if (didjoinchannel === false) {
+            didjoinchannel = true
+        }
     } catch {
         await client.player.deleteQueue(interaction.guild.id);
         return interaction.editReply({ content: `I can't join audio channel. ❌`, ephemeral: true });
+    }
+
+    if (didjoinchannel === true) {
+        queue.setVolume(80);
+        await interaction.channel.send(`:thumbsup: **Joined** \`${interaction.member.voice.channel.name}\` **and bound to** <#${interaction.channel.id}>`)
     }
     res.playlist ? queue.addTracks(res.tracks) : queue.addTrack(res.tracks[0]);
     if (!queue.playing) await queue.play();

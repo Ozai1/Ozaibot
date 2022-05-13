@@ -12,7 +12,7 @@ module.exports = {
             console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
             return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
         }
-        member = await GetMember(message, args[0], Discord, false);
+        let member = await GetMember(message, args[0], Discord, false);
         if (userstatus == 1) {
             if (!message.member.permissions.has('BAN_MEMBERS')) {
                 if (!member) {
@@ -132,7 +132,7 @@ module.exports = {
                 member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
                 console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
             }
-            await message.guild.members.ban(member, { days: days, reason: `"${reason}" - ${message.author.tag} (${message.author.id})`, }).catch(err => {
+            await message.guild.members.ban(member, { days: days, reason: `${reason} - ${message.author.tag} (${message.author.id})`, }).catch(err => {
                 console.log(err)
                 message.channel.send('Failed to ban.')
                 return
@@ -151,7 +151,7 @@ module.exports = {
             member.send({embeds: [bannedembed]}).catch(err => { })
             console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
         }
-        await message.guild.members.ban(member, { reason: `"${reason}" - ${message.author.tag} (${message.author.id})` }).catch(err => {
+        await message.guild.members.ban(member, { reason: `${reason} - ${message.author.tag} (${message.author.id})` }).catch(err => {
             console.log(err)
             message.channel.send('Failed to ban.')
             return

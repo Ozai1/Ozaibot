@@ -2,9 +2,9 @@ module.exports = {
     description: "Music stops playing.",
     name: 'stop',
     options: [],
-    voiceChannel: true,
+    voiceChannel: false,
 
-    async execute (client, interaction) {
+    run: async (client, interaction, userstatus) => {
         const queue = client.player.getQueue(interaction.guild.id);
 
         if (!queue || !queue.playing) return interaction.reply({ content: `There is no music currently playing!. ❌`, ephemeral: true }).catch(e => { })

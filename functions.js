@@ -81,10 +81,7 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
             member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(4, -1));
             return member
         }
-        if (MustNotHaveMultiResults == 1 || MustNotHaveMultiResults === true) return undefined
-        if (possibleusers.length > 9) {
-            return undefined
-        }
+        if (MustNotHaveMultiResults == 1 || MustNotHaveMultiResults === true || possibleusers.length > 9) return undefined
         const helpembed = new Discord.MessageEmbed()
             .setTitle('Which of these members did you mean? Please type out the corrosponding number.')
             .setFooter('Type cancel to cancel the search.')

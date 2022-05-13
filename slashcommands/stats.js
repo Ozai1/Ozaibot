@@ -3,7 +3,7 @@ module.exports = {
     description: "Provides information about the bot's statistics.",
     name: 'stats',
     options: [],
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
 
         let button = new MessageActionRow().addComponents(
             new MessageButton()

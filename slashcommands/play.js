@@ -11,7 +11,7 @@ module.exports = {
     }],
     voiceChannel: false,
 
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
         if (!interaction.member.voice.channel) return interaction.reply({ content: `You must be in a voice channel to use this command.`, ephemeral: true })
         const music = interaction.options.getString('music')
         await interaction.reply({ content: `**Searching** :mag_right: \`${music}\``, ephemeral: false }).catch(e => { })
@@ -46,7 +46,7 @@ module.exports = {
         }
 
         if (didjoinchannel === true) {
-            queue.setVolume(80);
+            queue.setVolume(50);
             await interaction.channel.send(`:thumbsup: **Joined** \`${interaction.member.voice.channel.name}\` **and bound to** <#${interaction.channel.id}>`)
         } 
         res.playlist ? queue.addTracks(res.tracks) : queue.addTrack(res.tracks[0]);

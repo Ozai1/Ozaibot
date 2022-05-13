@@ -1,3 +1,4 @@
+const { GetMember } = require("../functions")
 module.exports = {
       name: 'rename',
       aliases: ['nickname', 'setnickname'],
@@ -15,16 +16,8 @@ module.exports = {
                   if (!isNaN(args[0]) || args[0].startsWith('<@')) {
                         name = args.slice(1).join(" ");
                         if (name.length > 32) return message.reply(`Nicknames must be less than 32 characters long, this name is ${name.length} characters long.`)
-                        member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-                        if (!member) {
-                              if (args[0].length == 18 || args[0].length == 17) {
-                                    if (!isNaN(args[0])) {
-                                          member = await message.guild.members.fetch(args[0]).catch(err => { console.log(err) })
-                                          if (!member) return message.channel.send('Invalid id / Member is not in this server')
-                                    }
-                              }
-                        }
-                        if (!member) return message.channel.send('Invalid member."');
+                        member = await GetMember(message, args[0], Discord, false);
+                        if (!member) return message.channel.send('Invalid member.');
                         userpinged = true
                   }
             } if (userpinged === false) {
@@ -34,9 +27,9 @@ module.exports = {
                   name = args.slice(0).join(" ");
             } else {
                   if (member.id == message.guild.ownerID) return message.channel.send('Cant rename a server owner, only the server owner themselves can do that.');
-                        if (message.guild.ownerID !== message.author.id && message.author.id !== member.id) {
-                              if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot rename someone someone with higher or the same roles as your own.');
-                        }
+                  if (message.guild.ownerID !== message.author.id && message.author.id !== member.id) {
+                        if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot rename someone someone with higher or the same roles as your own.');
+                  }
                   if (member.id !== client.user.id) {
                         if (message.guild.me.roles.highest.position <= member.roles.highest.position) return message.channel.send('I do not have high enough permissions to rename this user.');
                   }
@@ -56,6 +49,6 @@ const botrename = async (message, userstatus, name) => {
       if (!userstatus == 1) {
             if (!message.member.permissions.has('MANAGE_NICKNAMES')) return message.reply('You do not have permissions to do this.');
       } if (!message.guild.me.permissions.has('CHANGE_NICKNAME')) return message.channel.send('I do not have permissions to change my own nickname.');
-     await  message.guild.me.setNickname(name).catch(err => {console.log(err)})
-     message.channel.send('Set own nickname.')
+      await message.guild.me.setNickname(name).catch(err => { console.log(err) })
+      message.channel.send('Set own nickname.')
 }

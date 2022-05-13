@@ -1,23 +1,38 @@
 const { MessageEmbed } = require('discord.js');
+const mysql = require('mysql2');
+const connection = mysql.createPool({
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: 'P0V6g5',
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 module.exports = (Discord, client, interaction) => {
 
     if (!interaction.guild) return
 
     if (interaction.isCommand()) {
-
-        const cmd = client.slashcommands.get(interaction.commandName);
-
-        if (cmd && cmd.voiceChannel) {
-            if (!interaction.member.voice.channel) return interaction.reply({ content: `You are not connected to an audio channel. ❌`, ephemeral: true });
-            if (interaction.guild.me.voice.channel && interaction.member.voice.channel.id !== interaction.guild.me.voice.channel.id) return interaction.reply({ content: `You are not on the same audio channel as me. ❌`, ephemeral: true });
-        }
-
-        cmd.run(client, interaction)
-        let alllogs = client.channels.cache.get('882845463647256637');
-        const commandembed = new Discord.MessageEmbed()
-            .setDescription(`**${interaction.guild}** (${interaction.guild.id})\n ${interaction.channel} (${interaction.channel.name} | ${interaction.channel.id})\n**${interaction.member.user.tag}** (${interaction.member.id})\n"${interaction.commandName}".`)
-            .setTimestamp()
-        alllogs.send({ embeds: [commandembed] });
+        query = "SELECT * FROM userstatus WHERE userid = ?";
+        data = [interaction.member.id]
+        connection.query(query, data, function (error, results, fields) {
+            if (error) return console.log(error)
+            if (results == '' || results === undefined) { // User does not have a row.
+                var userstatus = false;
+                launchslashcommand(client, interaction, userstatus)
+                return
+            } for (row of results) {
+                var userstatus = row["status"];
+            } if (userstatus == 0) {
+                return interaction.reply({ content: `You have been blacklisted from bot use.`, ephemeral: true }).catch(e => { })
+            } else if (userstatus == 1) {
+                launchslashcommand(client, interaction, userstatus)
+            } else {
+                launchslashcommand(client, interaction, userstatus)
+            }
+        });
     }
     if (interaction.isButton()) {
         const queue = client.player.getQueue(interaction.guildId);
@@ -67,3 +82,19 @@ module.exports = (Discord, client, interaction) => {
         }
     }
 };
+
+async function launchslashcommand(client, interaction, userstatus) {
+    const cmd = client.slashcommands.get(interaction.commandName);
+
+    if (cmd && cmd.voiceChannel) {
+        if (!interaction.member.voice.channel) return interaction.reply({ content: `You are not connected to an audio channel. ❌`, ephemeral: true });
+        if (interaction.guild.me.voice.channel && interaction.member.voice.channel.id !== interaction.guild.me.voice.channel.id) return interaction.reply({ content: `You are not on the same audio channel as me. ❌`, ephemeral: true });
+    }
+
+    cmd.run(client, interaction, userstatus)
+    let alllogs = client.channels.cache.get('882845463647256637');
+    const commandembed = new MessageEmbed()
+        .setDescription(`**${interaction.guild}** (${interaction.guild.id})\n ${interaction.channel} (${interaction.channel.name} | ${interaction.channel.id})\n**${interaction.member.user.tag}** (${interaction.member.id})\n"${interaction.commandName}".`)
+        .setTimestamp()
+    alllogs.send({ embeds: [commandembed] });
+}

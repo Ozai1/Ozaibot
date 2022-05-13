@@ -3,7 +3,7 @@ module.exports = {
     name: 'lastsong',
     options: [],
     voiceChannel: true,
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
         const queue = client.player.getQueue(interaction.guild.id);
 
         if (!queue || !queue.playing) return interaction.reply({ content: `No music currently playing! ❌`, ephemeral: true }).catch(e => { })

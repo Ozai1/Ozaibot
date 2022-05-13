@@ -4,7 +4,7 @@ module.exports = {
     name: 'help',
     options: [],
 
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
         interaction.reply({ content: `I am way to lazy to code this ngl`, ephemeral: true })
     },
 };
