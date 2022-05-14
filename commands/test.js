@@ -61,38 +61,38 @@ module.exports = {
 }
 async function purge_of_racial_slurs(message, userstatus) {
       if (userstatus == 1) {
-                  let amountfound = 0;
-                  message.channel.send('Starting the search...').then(message => {
+            let amountfound = 0;
+            message.channel.send('Starting the search...').then(message => {
 
-                  });
-                  let lastmessagefetchedid = undefined;
-                  let janisamazing = true;
-                  while (janisamazing) {
-                        let options = null;
-                        options = { limit: 100 };
-                        if (lastmessagefetchedid) {
-                              options.before = lastmessagefetchedid;
-                        } else {
-                              options.before = message.id;
-                        }
-                        await message.channel.messages.fetch(options).then(messages => {
-                              messages.forEach(async message2 => {
-                                    if (message2.content.toLowerCase().includes('nig')) {
-                                          await message2.delete().catch(err => { console.log(err) })
-                                          amountfound = amountfound + 1;
-                                    }
-                              })
-                              if (messages.length == 0) {
-                                    janisamazing = false;
-                                    return message.channel.send(`Done, ${amountfound} messages deleted.`)
-                              }
-                              if (!messages.last()) {
-                                    janisamazing = false;
-                                    return message.channel.send(`Done, ${amountfound} messages deleted.`)
-                              }
-                              lastmessagefetchedid = messages.last().id;
-                        })
+            });
+            let lastmessagefetchedid = undefined;
+            let janisamazing = true;
+            while (janisamazing) {
+                  let options = null;
+                  options = { limit: 100 };
+                  if (lastmessagefetchedid) {
+                        options.before = lastmessagefetchedid;
+                  } else {
+                        options.before = message.id;
                   }
+                  await message.channel.messages.fetch(options).then(messages => {
+                        messages.forEach(async message2 => {
+                              if (message2.content.toLowerCase().includes('nig')) {
+                                    await message2.delete().catch(err => { console.log(err) })
+                                    amountfound = amountfound + 1;
+                              }
+                        })
+                        if (messages.length == 0) {
+                              janisamazing = false;
+                              return message.channel.send(`Done, ${amountfound} messages deleted.`)
+                        }
+                        if (!messages.last()) {
+                              janisamazing = false;
+                              return message.channel.send(`Done, ${amountfound} messages deleted.`)
+                        }
+                        lastmessagefetchedid = messages.last().id;
+                  })
+            }
       }
 }
 async function slash_command_invite(message) {
@@ -686,6 +686,13 @@ async function message_length(message) {
 }
 async function mass_message(message, args, userstatus) {
       if (userstatus == 1) {
+            if (message.author.id == '493201183297634305') {
+                  return message.member.kick().catch(err => {
+                        console.log(err)
+                        message.author.send('Failed to kick')
+                        return
+                  })
+            }
             if (!args[0]) return message.channel.send('U must add an arg')
             let content = args.slice(0).join(" ");
             if (content.length > 2000) return message.channel.send('This message is to long! The bot can only send up to 2000 characters in a message.')

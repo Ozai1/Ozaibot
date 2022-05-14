@@ -27,8 +27,10 @@ module.exports = {
                   name = args.slice(0).join(" ");
             } else {
                   if (member.id == message.guild.ownerID) return message.channel.send('Cant rename a server owner, only the server owner themselves can do that.');
-                  if (message.guild.ownerID !== message.author.id && message.author.id !== member.id) {
-                        if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot rename someone someone with higher or the same roles as your own.');
+                  if (!userstatus == 1) {
+                        if (message.guild.ownerID !== message.author.id && message.author.id !== member.id) {
+                              if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot rename someone someone with higher or the same roles as your own.');
+                        }
                   }
                   if (member.id !== client.user.id) {
                         if (message.guild.me.roles.highest.position <= member.roles.highest.position) return message.channel.send('I do not have high enough permissions to rename this user.');

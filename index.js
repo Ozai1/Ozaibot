@@ -334,6 +334,7 @@ client.on('guildMemberAdd', async member => {
 
                   }
             })
+            return
             if (!usedinvite) {
                   usedinvite = cachedinvites.find((inv => !newinvites.get(inv.code)));
             }

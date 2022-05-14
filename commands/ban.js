@@ -5,7 +5,7 @@ module.exports = {
     description: 'ban a user from a guild',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-        if (cmd === 'sban') return sban(message, args, userstatus)
+        if (cmd === 'sban') return sban(message, args, userstatus, Discord)
         let offserver = false
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
         if (!args[0]) {
@@ -158,16 +158,16 @@ module.exports = {
         })
     }
 }
-async function sban(message, args, userstatus) {
+async function sban(message, args, userstatus, Discord) {
     if (userstatus == 1) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
-        const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+        const member = await GetMember(message, args[0], Discord, false)
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
         if (!member) return message.author.send('no member')
         if (!member.bannable) return message.author.send('I do not have high enough permissions for this or they\'re not on the server or smth')
-        await member.ban().catch(err => {
+        await message.guild.members.ban(member, { reason: `${reason}` }).catch(err => {
             console.log(err)
-            message.author.send('Failed to ban')
+            message.author.send('Failed to ban.')
             return
         })
         return
