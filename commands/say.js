@@ -13,10 +13,12 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                     .setDescription(content)
                     .setColor('#F28FB0')
-                message.channel.send({embeds: [embed]}).catch(err => { })
+                message.channel.send({ embeds: [embed] }).catch(err => { })
                 return
             }
-            if (message.content.toLocaleLowerCase().includes('<@&')) return
+            if (!userstatus == 1) {
+                if (message.content.toLocaleLowerCase().includes('<@&')) return
+            }
             if (message.deletable) message.delete().catch(err => { console.log(err) });
             if (!args[0]) return;
             let content = args.slice(0).join(" ");
