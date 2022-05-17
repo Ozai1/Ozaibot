@@ -91,11 +91,11 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;
         return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
-            return await message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+            return await message.channel.awaitMessages( {filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                 message2 = message2.first();
                 message2.delete().catch(err => { });
                 confmessage.delete().catch(err => { });
-                if (message.content.toLowerCase.startsWith("cancel")) {
+                if (message2.content.startsWith('cancel')) {
                     message.channel.send('Cancelled.')
                     return
                 }
@@ -115,7 +115,7 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
                 return member;
             }).catch(collected => {
                 console.log(collected);
-                message.channel.send('Timed out ' + message.author).catch(err => { console.log(err) });
+                message.channel.send('Timed out.').catch(err => { console.log(err) });
                 return
             });
         });

@@ -74,7 +74,7 @@ module.exports = {
                         if (!member) {
                               console.log('invalid member')
                               const errorembed = new Discord.MessageEmbed()
-                                    .setAuthor(message.author.tag, message.author.avatarURL())
+                                    .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                                     .setColor(15684432)
                                     .setDescription(`Invalid member.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
                               return message.channel.send({embeds: [errorembed]})

@@ -147,6 +147,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                         if (channel) {
                               if (channel.permissionOverwrites) {
                                     await channel.permissionOverwrites.edit(muterole.id, { SEND_MESSAGES: false, ADD_REACTIONS: false, CONNECT: false, SEND_MESSAGES_IN_THREADS: false }).catch(err => {console.log(err)})
+
                               }
                         }
                   }

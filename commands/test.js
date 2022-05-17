@@ -596,6 +596,9 @@ async function drag_user(message, args, userstatus, Discord) {
                               }
                         }
                   })
+                  if (!possiblechannels[0]) {
+                        return message.author.send('Could not find a channel with that name or a channel that has that in its name.')
+                  }
                   if (!possiblechannels[1]) {
                         let channel2 = message.guild.channels.cache.find(channel => channel.name === possiblechannels[0].slice(3));
                         if (!channel2 || channel2.type === 'text' || channel2.type === 'category' || channel2.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
@@ -617,8 +620,6 @@ async function drag_user(message, args, userstatus, Discord) {
                               })
                         }
                         return
-                  } else if (!possiblechannels[0]) {
-                        return message.author.send('Could not find a channel with that name or a channel that has that in its name.')
                   }
                   if (possiblechannels.length > 9) message.channel.send('To many possible channels from that name, use a more definitive string.')
                   const helpembed = new Discord.MessageEmbed()

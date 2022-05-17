@@ -1,3 +1,4 @@
+const { GetMember } = require("../functions")
 module.exports = {
       name: 'addtochannel',
       description: 'adds a user to a channel',
@@ -16,7 +17,7 @@ module.exports = {
                               if (!channelselected) return message.reply('Invalid channel or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                         } else return message.reply('Invalid channel id or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                   }
-                  let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+                  let member = await GetMember(message, args[0], Discord, false)
                   if (!member) return message.reply('Invalid user.');
                   channelselected.permissionOverwrites.edit(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true, ADD_REACTIONS: true }).catch(err => {
                         message.channel.send('failed')
