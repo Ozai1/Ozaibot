@@ -66,7 +66,7 @@ client.on('ready', async () => {
       let data = [];
       connection.query(query, data, function (error, results, fields) {
             if (error) return console.log(error);
-      })
+      });
       data = []
       client.guilds.cache.forEach(async guild => {
             query = `CREATE TABLE IF NOT EXISTS ${guild.id}config(id INT(12) AUTO_INCREMENT PRIMARY KEY, type VARCHAR(255) COLLATE utf8mb4_unicode_ci, details VARCHAR(255) COLLATE utf8mb4_unicode_ci, details2 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details3 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details4 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details5 VARCHAR(255) COLLATE utf8mb4_unicode_ci);`;
@@ -442,6 +442,7 @@ client.on('guildMemberAdd', async member => {
             })
       })
 });
+
 async function invfound(member, invite) {
       const guild = member.guild
       console.log(invite)
@@ -510,6 +511,7 @@ async function invfound(member, invite) {
             }
       })
 }
+
 client.on('inviteCreate', async invite => {
       query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
       data = [invite.guild.id, invite.inviter.id, invite.code, invite.uses];
