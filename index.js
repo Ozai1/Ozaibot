@@ -535,7 +535,6 @@ player.on('queueEnd', (queue) => {
                   if (queue.connection) queue.connection.disconnect();
             }, client.musicConfig.opt.voiceConfig.leaveOnTimer.time);
       }
-      queue.metadata.send({ content: 'All play queue finished, I think you can listen to some more music. ✅' }).catch(e => { })
 });
 player.on('tracksAdd', (queue) => {
       queue.metadata.send({ content: `Added playlist. ✅` }).catch(e => { })
