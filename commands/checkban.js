@@ -8,12 +8,12 @@ module.exports = {
             if (cmd === 'user' || cmd === 'userinfo' || cmd === 'who' || cmd === 'whois' || cmd === 'ui') return user_command(message, args, Discord, client)
             if (cmd === 'totalbans' || cmd === 'bancount') return total_bans(message, client, userstatus)
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
+            if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
             if (!userstatus == 1) {
-                  if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('Missing permissions.')
+                  if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('Missing permissions.')
             }
             if (!args[0]) return message.channel.send('Ban found on... oh wait')
-            message.guild.fetchBans().then(bans => {
+            message.guild.bans.fetch().then(bans => {
                   let member = bans.get(args[0]);
                   if (bans.size == 0) return message.reply('This server doesnt have any bans lol')
                   if (member == null) {
@@ -44,7 +44,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(member.displayHexColor);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             } else {
                   let user = client.users.cache.get(message.author.id)
                   const createdatunix = Number(moment(user.createdAt).unix())
@@ -59,7 +59,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(240116);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             }
       } else {
             let membertype = 'member'
@@ -88,7 +88,7 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(member.displayHexColor);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             } else {
                   const createdatunix = Number(moment(user.createdAt).unix())
                   const uiembed = new Discord.MessageEmbed()
@@ -102,14 +102,14 @@ async function user_command(message, args, Discord, client) {
                         .setFooter(`requested by ${message.author.tag}`)
                         .setTimestamp()
                         .setColor(240116);
-                  message.channel.send(uiembed)
+                  message.channel.send({embeds: [uiembed]})
             }
       }
 }
 async function total_bans(message, client, userstatus) {
       if (userstatus == 1) {
-            if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')
-            await message.guild.fetchBans().then(bans => {
+            if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')
+            await message.guild.bans.fetch().then(bans => {
                   let bancount = 0;
                   bans.forEach(ban => {
                         bancount = bancount + 1;

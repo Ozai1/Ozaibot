@@ -14,7 +14,7 @@ module.exports = {
       aliases: ['rba'],
       description: 'removes a user from the botadmin status',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id == '753454519937007696') {
+            if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id == '254223729091936256') { // includes sun tzu
                   if (!args[0]) return message.channel.send('Please give a member to have their botadmin removed')
                   if (args[0].toLowerCase() === '@!me') {
                         let query = "DELETE FROM userstatus WHERE status='1'";

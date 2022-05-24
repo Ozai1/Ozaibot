@@ -1,3 +1,4 @@
+const { GetMember } = require("../functions")
 module.exports = {
       name: 'rename',
       aliases: ['nickname', 'setnickname'],
@@ -5,8 +6,8 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!userstatus == 1) {
-                  if (!message.member.hasPermission('MANAGE_NICKNAMES')) return message.reply('You do not have permissions to do this.');
-            } if (!message.guild.me.hasPermission('MANAGE_NICKNAMES')) return message.channel.send('Ozaibot does not have permissions to change nicknames in this server.');
+                  if (!message.member.permissions.has('MANAGE_NICKNAMES')) return message.reply('You do not have permissions to do this.');
+            } if (!message.guild.me.permissions.has('MANAGE_NICKNAMES')) return message.channel.send('Ozaibot does not have permissions to change nicknames in this server.');
             if (!args[0]) return message.channel.send('Usage is `sm_rename <@user> <new_name>`');
             let member = null;
             let userpinged = false;
@@ -15,16 +16,8 @@ module.exports = {
                   if (!isNaN(args[0]) || args[0].startsWith('<@')) {
                         name = args.slice(1).join(" ");
                         if (name.length > 32) return message.reply(`Nicknames must be less than 32 characters long, this name is ${name.length} characters long.`)
-                        member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-                        if (!member) {
-                              if (args[0].length == 18 || args[0].length == 17) {
-                                    if (!isNaN(args[0])) {
-                                          member = await message.guild.members.fetch(args[0]).catch(err => { console.log(err) })
-                                          if (!member) return message.channel.send('Invalid id / Member is not in this server')
-                                    }
-                              }
-                        }
-                        if (!member) return message.channel.send('Invalid member."');
+                        member = await GetMember(message, args[0], Discord, false);
+                        if (!member) return message.channel.send('Invalid member.');
                         userpinged = true
                   }
             } if (userpinged === false) {
@@ -56,8 +49,8 @@ module.exports = {
 }
 const botrename = async (message, userstatus, name) => {
       if (!userstatus == 1) {
-            if (!message.member.hasPermission('MANAGE_NICKNAMES')) return message.reply('You do not have permissions to do this.');
-      } if (!message.guild.me.hasPermission('CHANGE_NICKNAME')) return message.channel.send('I do not have permissions to change my own nickname.');
-     await  message.guild.me.setNickname(name).catch(err => {console.log(err)})
-     message.channel.send('Set own nickname.')
+            if (!message.member.permissions.has('MANAGE_NICKNAMES')) return message.reply('You do not have permissions to do this.');
+      } if (!message.guild.me.permissions.has('CHANGE_NICKNAME')) return message.channel.send('I do not have permissions to change my own nickname.');
+      await message.guild.me.setNickname(name).catch(err => { console.log(err) })
+      message.channel.send('Set own nickname.')
 }

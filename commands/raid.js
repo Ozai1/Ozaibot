@@ -54,7 +54,7 @@ module.exports = {
             }
             if (cmd === 'whojoined') {
                 if (!args[0]) return message.channel.send('Please give an invite for the bot to use.')
-                let query = `SELECT * FROM invites WHERE invitecode = ? && serverid = ?`;
+                let query = `SELECT * FROM usedinvites WHERE invitecode = ? && serverid = ?`;
                 let data = [args[0], message.guild.id]
                 connection.query(query, data, function (error, results, fields) {
                     if (error) {
@@ -68,7 +68,7 @@ module.exports = {
                             let time = row["time"]
                             printstring.push(userid + time)
                         }
-                        for (i = 0; i <= printstring.length; i = i + 1) { // loop 100 times
+                        for (i = 0; i <= printstring.length; i = i + 1) { 
                             let entry = printstring[i]
                             if (entry) {
                                 printstring.forEach(entry2 => {
@@ -105,7 +105,7 @@ module.exports = {
                             .setDescription(printmessage)
                         if (!extra === '') { helpembed.setFooter(extra) }
                         helpembed.setColor('BLUE')
-                        message.channel.send(helpembed)
+                        message.channel.send({embeds: [helpembed]})
                     }
                 })
             } else if (cmd === 'whoinvited') {
@@ -113,14 +113,14 @@ module.exports = {
                     if (!args[0]) return message.channel.send('Please give a user.')
                     let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                     if (!member) return message.channel.send('Please give a valid user.')
-                    let query = `SELECT * FROM invites WHERE serverid = ? && userid = ?`;
+                    let query = `SELECT * FROM usedinvites WHERE serverid = ? && userid = ?`;
                     let data = [message.guild.id, member.id]
                     connection.query(query, data, function (error, results, fields) {
                         if (error) {
                             console.log('backend error for whoinvited')
                             return console.log(error)
                         }
-                        if (results !== `` || results === undefined) {
+                        if (results !== `` || !results === undefined) {
                             let printstring = [];
                             for (row of results) {
                                 let inviterid = row["inviterid"]
@@ -266,7 +266,7 @@ module.exports = {
                     .setTimestamp()
                     .setFooter('Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.')
                     .setColor('BLUE')
-                message.channel.send(helpembed);
+                message.channel.send({embeds: [helpembed]});
                 return
             } else if (cmd === 'unblacklistinvite') {
                 if (userstatus == 1 || userstatus == 3) {
@@ -301,7 +301,7 @@ module.exports = {
                     if (!args[1]) return message.channel.send('Usage: `sm_purgeinvite <invite> <punishment>`')
                     let action = args[1].toLowerCase()
                     if (action !== 'mute' && action !== 'kick' && action !== 'ban') return message.channel.send('The punishment must be either `mute`/`kick`/`ban`.')
-                    let query = `SELECT * FROM invites WHERE invitecode = ? && serverid = ? && time > ?`;
+                    let query = `SELECT * FROM usedinvites WHERE invitecode = ? && serverid = ? && time > ?`;
                     let data = [args[0], message.guild.id, currenttime - 86400]
                     connection.query(query, data, function (error, results, fields) {
                         if (error) {
@@ -351,7 +351,7 @@ module.exports = {
                                 .setFooter('Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N')
                                 .setColor('ORANGE')
                             let filter = m => m.author.id === message.author.id;
-                            message.channel.send(helpembed).then(() => {
+                            message.channel.send({embeds: [helpembed]}).then(() => {
                                 message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message => {
                                     message = message.first();
                                     if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
@@ -385,10 +385,10 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:', { embed: helpembed })
+                                            conformationmessage.edit('Done:',  {embeds: [ helpembed ]})
                                         } else if (action === 'kick') {
                                             let finalarr2 = []
-                                            for (i = 0; i <= finalarr.length; i = i + 1) { // loop 100 times
+                                            for (i = 0; i <= finalarr.length; i = i + 1) { 
                                                 let entry = finalarr[i]
                                                 if (entry) {
                                                     let successful = true
@@ -414,7 +414,7 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:', { embed: helpembed })
+                                            conformationmessage.edit('Done:',{  embeds: [ helpembed ]})
                                         } else if (action === 'mute') {
                                             let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
                                             let data = ['muterole']
@@ -433,7 +433,7 @@ module.exports = {
                                                         return conformationmessage.edit(`I do not have high enough permissions to add the muterole to people.`)
                                                     }
                                                     let finalarr2 = []
-                                                    for (i = 0; i <= finalarr.length; i = i + 1) { // loop 100 times
+                                                    for (i = 0; i <= finalarr.length; i = i + 1) { 
                                                         let entry = finalarr[i]
                                                         if (entry) {
                                                             let successful = true
@@ -509,7 +509,7 @@ module.exports = {
                                     .setDescription(`**Message**:\n${args.slice(0).join(" ")}`)
                                     .setFooter(`application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>`)
                                     .setColor('BLUE')
-                                appchannel.send(helpembed).catch(err => { console.log(err) })
+                                appchannel.send({embeds: [helpembed]}).catch(err => { console.log(err) })
                             }
                         })
                     } else return message.channel.send('You already have a raid app in.')
@@ -602,3 +602,4 @@ module.exports = {
         });
     }
 }
+//MAKE THIS FUCKING SSHHIITT into functions

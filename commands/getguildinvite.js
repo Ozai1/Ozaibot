@@ -6,7 +6,7 @@ module.exports = {
                   if (!args[0]) return
                   let selectedguild = client.guilds.cache.get(args[0])
                   if (!selectedguild) return message.channel.send('Invalid server id')
-                  if (!selectedguild.me.hasPermission('CREATE_INSTANT_INVITE')) return message.channel.send('cannot create invite for this server due to low perms');
+                  if (!selectedguild.me.permissions.has('CREATE_INSTANT_INVITE')) return message.channel.send('cannot create invite for this server due to low perms');
                   let channelsarr = [];
                   selectedguild.channels.cache.forEach(async (channel, id) => {
                         if (!channelsarr[0]) {

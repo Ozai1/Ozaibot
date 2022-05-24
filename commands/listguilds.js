@@ -8,9 +8,9 @@ module.exports = {
                         channels2.push(`**${guild.name}**(${guild.id}) ${guild.ownerID}\n`)
                   })
                   const commandembed = new Discord.MessageEmbed()
-                        .setDescription(channels2)
+                        .setDescription(`${channels2}`)
                         .setTimestamp()
-                  message.channel.send(commandembed).catch(err => { console.log(err) })
+                  message.channel.send({embeds: [commandembed]}).catch(err => { console.log(err) })
             }
       }
 }

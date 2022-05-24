@@ -3,12 +3,12 @@ module.exports = {
       description: 'unbans a user from a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server! (This also means i cannot unban!)')
+            if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server! (This also means i cannot unban!)')
             if (!userstatus == 1) {
-                  if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('You do not have permissions to use this command.')
+                  if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to use this command.')
             }
             if (!args[0]) return message.channel.send('Please a user\s id to unban.')
-            message.guild.fetchBans().then(bans => {
+            message.guild.bans.fetch().then(bans => {
                   let member = bans.get(args[0]);
                   if (bans.size == 0) return message.channel.send('This server does not have any bans.');
                   if (!member) return message.reply('Cannot find a ban for the given user.');

@@ -9,21 +9,21 @@ module.exports = {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
             let hasperms = true;
-            if (!message.member.hasPermission('MANAGE_CHANNELS')) { hasperms = 'server'; }
-            if (message.member.hasPermission('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 'channel'; }
+            if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 'server'; }
+            if (message.member.permissions.has('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 'channel'; }
             if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = true; }
             if (userstatus == 1) { hasperms = true; }
             if (hasperms === true) {
                   let ozaibotperms = false;
-                  if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                  if (message.guild.me.permissions.has('MANAGE_MESSAGES')) {
                         if (!message.channel.permissionsFor(message.guild.me).has('MANAGE_MESSAGES')) { ozaibotperms = 'channel'; }
-                  } if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) { ozaibotperms = 'server'; }
-                  if (!message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+                  } if (!message.guild.me.permissions.has('MANAGE_MESSAGES')) { ozaibotperms = 'server'; }
+                  if (!message.guild.me.permissions.has('MANAGE_MESSAGES')) {
                         if (message.channel.permissionsFor(message.guild.me).has('MANAGE_MESSAGES')) { ozaibotperms = true; }
-                  } if (message.guild.me.hasPermission('MANAGE_MESSAGES')) { ozaibotperms = true; }
+                  } if (message.guild.me.permissions.has('MANAGE_MESSAGES')) { ozaibotperms = true; }
                   if (ozaibotperms === true) {
                         let amount = Number(args[0]);
-                        if (amount < 101) {
+                        if (amount <= 100) {
                               let amountcached = 0;
                               const options = { limit: amount };
                               options.before = message.id;
@@ -63,8 +63,11 @@ module.exports = {
                                                             return conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`).catch(err => { console.log(err) });
                                                       }
                                                       if (args[1].toLowerCase() === 'silent') {
-                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`).catch(err => { console.log(err) }).then(message => { message.delete({ timeout: 4000 }).catch(err => { console.log(err) }) });
-                                                            return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`)
+                                                            setTimeout(() => {
+                                                                  conformationmessage.delete()
+                                                                  return message.delete()
+                                                            }, 5000);
                                                       }
                                                 }
                                                 if (amountgreaterthan14days !== 0) {
@@ -75,8 +78,11 @@ module.exports = {
                                                             return conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted and ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).catch(err => { console.log(err) });
                                                       }
                                                       if (args[1].toLowerCase() === 'silent') {
-                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted and ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).then(message => { message.delete({ timeout: 4000 }).catch(err => { console.log(err) }) });
-                                                            return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                            conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted and ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`)
+                                                            setTimeout(() => {
+                                                                  conformationmessage.delete()
+                                                                  return message.delete()
+                                                            }, 5000);
                                                       }
                                                 }
                                           }
@@ -88,8 +94,11 @@ module.exports = {
                                                       return conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages.`).catch(err => { console.log(err) });
                                                 }
                                                 if (args[1].toLowerCase() === 'silent') {
-                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages.`).then(message => { message.delete({ timeout: 2000 }).catch(err => { console.log(err) }) });
-                                                      return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages.`)
+                                                      setTimeout(() => {
+                                                            conformationmessage.delete()
+                                                            return message.delete()
+                                                      }, 5000);
                                                 }
                                           } if (amountgreaterthan14days !== 0) {
                                                 if (!args[1]) {
@@ -99,8 +108,11 @@ module.exports = {
                                                       return conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages, ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).catch(err => { console.log(err) });
                                                 }
                                                 if (args[1].toLowerCase() === 'silent') {
-                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages, ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`).then(message => { message.delete({ timeout: 2000 }).catch(err => { console.log(err) }) });
-                                                      return message.delete({ timeout: 2000 }).catch(err => { console.log(err) });
+                                                      conformationmessage.edit(`${message.author}, Deleted ${amountcached} messages, ${amountgreaterthan14days} messages were older than 14 days and could not be deleted.`)
+                                                      setTimeout(() => {
+                                                            conformationmessage.delete()
+                                                            return message.delete()
+                                                      }, 5000);
                                                 }
                                           }
                                     });
@@ -161,7 +173,7 @@ async function bulkdelete(message, conformationmessage, amount, args) {
       conformationmessage.edit('Fetching....')
       while (janisamazing) {
             let options = null;
-            if (totalleft > 101) {
+            if (totalleft >= 100) {
                   options = { limit: 100 };
             } else {
                   options = { limit: totalleft };

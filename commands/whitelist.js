@@ -22,12 +22,12 @@ const connection = mysql.createPool({
 
 module.exports = {
     name: 'whitelist',
-    aliases: ['unwhitelist', 'enablewhitelist', 'disablewhitelist', 'whitelistinfo'],
+    aliases: ['unwhitelist', 'enablewhitelist', 'disablewhitelist'],
     description: 'whitelist functionality',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DM\'s')
         if (cmd === 'whitelist') {
-            if (userstatus == 1 || message.member.hasPermission('MANAGE_GUILD')) {
+            if (userstatus == 1 || message.member.permissions.has('MANAGE_GUILD')) {
                 if (!args[0]) return message.channel.send('You must add a memeber to whitelist.')
                 let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                 if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
@@ -47,8 +47,8 @@ module.exports = {
                                 console.log('backend error for checking active bans')
                                 return console.log(error)
                             }
-                            message.channel.send(`${member} has been added to this servers whitelist. They will be automatically unbanned.`)
-                            message.guild.fetchBans().then(bans => {
+                            message.channel.send(`${member} has been added to this server's whitelist. They will be automatically unbanned if they have a current ban.`)
+                            message.guild.bans.fetch().then(bans => {
                                 let member2 = bans.get(member.id);
                                 if (bans.size == 0) return;
                                 if (member2 == null) return;
@@ -63,7 +63,7 @@ module.exports = {
                 })
             } else return message.channel.send('you do not have permissions to interact with this server\'s whitelist')
         } else if (cmd === 'unwhitelist') {
-            if (userstatus == 1 || message.member.hasPermission('MANAGE_GUILD')) {
+            if (userstatus == 1 || message.member.permissions.has('MANAGE_GUILD')) {
                 let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                 if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
                 if (!member) return message.channel.send('Invalid member') // still no member
@@ -99,7 +99,7 @@ module.exports = {
                         return console.log(error)
                     }
                     if (results == `` || results === undefined) {
-                        if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions, please grant me these permissions before activiating the server-wide whitelist.')
+                        if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions, please grant me these permissions before activiating the server-wide whitelist.')
                         let query = `INSERT INTO ${message.guild.id}config (type) VALUES (?)`;
                         let data = ['whitelist']
                         serversdb.query(query, data, function (error, results, fields) {
@@ -156,8 +156,6 @@ module.exports = {
                     })
                 })
             } else return message.channel.send('Only the server owner may turn the whitelist on and off, anyone with manage server permissions can add people to the whitelist though.')
-        } else {
-
         }
     }
 }

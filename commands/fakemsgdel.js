@@ -10,12 +10,12 @@ module.exports = {
             let content = args.slice(1).join(" ");
             const lolembed = new Discord.MessageEmbed()
                 .setTitle('Message deleted!')
-                .addField('Message author:', member)
-                .addField('Message content:', content)
+                .addField('Message author:', `${member}`)
+                .addField('Message content:', `${content}`)
                 .setFooter('Anti Message Delete!', client.user.displayAvatarURL())
                 .setColor('RED')
                 .setTimestamp()
-            message.channel.send(lolembed).catch(err => { console.log(err) })
+            message.channel.send({embeds: [lolembed]}).catch(err => { console.log(err) })
             return
         }
     }

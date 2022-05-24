@@ -30,7 +30,7 @@ module.exports = {
                               .addField(`Command recorder thing.`, `** **                     \n**${message.author.username}'s** command count is: **${usercmdcount}**.\nThe total command count for all users is: **${totalcmdcount}**.`)
                               .setFooter(`This counter started on the 30/10/2021`)
                               .setColor('GREEN')
-                        message.channel.send(cmdembed)
+                        message.channel.send({embeds: [cmdembed]})
                   });
             });
 

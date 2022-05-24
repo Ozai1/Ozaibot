@@ -3,7 +3,6 @@ const { unix } = require("moment");
 const DISCORD_EPOCH = 1420070400000
 let nextbumptime = '';
 let lastbumptime = '';
-const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
 const imissjansomuchithurts = 1420070400000
 const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
       nextbumptime = (`${snowflake / 4194304 + epoch}`).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1).slice(0, -1)
@@ -34,7 +33,7 @@ const serversdb = mysql.createPool({
 });
 module.exports = {
       name: 'test',
-      aliases: ['youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -53,15 +52,54 @@ module.exports = {
             if (cmd === 'myperms') return my_perms(message, userstatus, Discord)
             if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
             if (cmd === 'sql') return self_sql(message, args)
+            if (cmd === 'slashcommands') return slash_command_invite(message)
+            if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
             if (userstatus == 1) {
-                  await message.channel.updateOverwrite('922514880102277161', { VIEW_CHANNEL: false }).catch(err => {
-                        console.log(err)
-                        message.channel.send('Failed to add to channel')
-                        return
-                  })
-                  message.channel.send('cnmf')
             }
       }
+}
+async function purge_of_racial_slurs(message, userstatus) {
+      if (userstatus == 1) {
+            let amountfound = 0;
+            message.channel.send('Starting the search...').then(message => {
+
+            });
+            let lastmessagefetchedid = undefined;
+            let janisamazing = true;
+            while (janisamazing) {
+                  let options = null;
+                  options = { limit: 100 };
+                  if (lastmessagefetchedid) {
+                        options.before = lastmessagefetchedid;
+                  } else {
+                        options.before = message.id;
+                  }
+                  await message.channel.messages.fetch(options).then(messages => {
+                        messages.forEach(async message2 => {
+                              if (message2.content.toLowerCase().includes('nig')) {
+                                    await message2.delete().catch(err => { console.log(err) })
+                                    amountfound = amountfound + 1;
+                              }
+                        })
+                        if (messages.length == 0) {
+                              janisamazing = false;
+                              return message.channel.send(`Done, ${amountfound} messages deleted.`)
+                        }
+                        if (!messages.last()) {
+                              janisamazing = false;
+                              return message.channel.send(`Done, ${amountfound} messages deleted.`)
+                        }
+                        lastmessagefetchedid = messages.last().id;
+                  })
+            }
+      }
+}
+async function slash_command_invite(message) {
+      if (message.channel.type === 'dm') {
+            message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands`)
+            return
+      }
+      message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands&guild_id=${message.guild.id}`)
 }
 async function self_sql(message, args) {
       if (message.author.id == '508847949413875712') {
@@ -72,13 +110,15 @@ async function self_sql(message, args) {
             chercordcount
             chercordrole
             chercordver
-            invites
+            usedinvites
             lockdownlinks
             prefixes
             privservers
             totalcmds
             userstatus
-            whitelist`)
+            whitelist
+            activeinvites
+            `)
             } else if (!args[0]) return message.channel.send('Add an arg')
             query = args.slice(0).join(" ");
             data = []
@@ -93,8 +133,8 @@ async function self_sql(message, args) {
       } else {
             let shitpostmessage = await message.channel.send('Deleted all tables in Database.')
             setTimeout(() => {
-                shitpostmessage.edit('just kidding lol')
-            shitpostmessage.edit('Deleted all tables in Database.')  
+                  shitpostmessage.edit('just kidding lol')
+                  shitpostmessage.edit('Deleted all tables in Database.')
             }, 5000);
             return
       }
@@ -102,79 +142,79 @@ async function self_sql(message, args) {
 async function my_perms(message, userstatus, Discord) {
       if (userstatus == 1) {
             let printtext = '';
-            if (message.member.hasPermission('ADMINISTRATOR')) {
+            if (message.member.permissions.has('ADMINISTRATOR')) {
                   return message.channel.send('You have administrator permissions.')
             }
-            if (message.member.hasPermission('BAN_MEMBERS')) {
+            if (message.member.permissions.has('BAN_MEMBERS')) {
                   printtext = printtext + 'Ban\n';
             }
-            if (message.member.hasPermission('KICK_MEMBERS')) {
+            if (message.member.permissions.has('KICK_MEMBERS')) {
                   printtext = printtext + 'Kick\n';
             }
-            if (message.member.hasPermission('MANAGE_CHANNELS')) {
+            if (message.member.permissions.has('MANAGE_CHANNELS')) {
                   printtext = printtext + 'Manage Channels\n';
             }
-            if (message.member.hasPermission('MANAGE_GUILD')) {
+            if (message.member.permissions.has('MANAGE_GUILD')) {
                   printtext = printtext + 'Manage Server\n';
             }
-            if (message.member.hasPermission('MANAGE_MESSAGES')) {
+            if (message.member.permissions.has('MANAGE_MESSAGES')) {
                   printtext = printtext + 'Manage Messages\n';
             }
-            if (message.member.hasPermission('MANAGE_ROLES')) {
+            if (message.member.permissions.has('MANAGE_ROLES')) {
                   printtext = printtext + 'Manage Roles\n';
             }
-            if (message.member.hasPermission('CREATE_INSTANT_INVITE')) {
+            if (message.member.permissions.has('CREATE_INSTANT_INVITE')) {
                   printtext = printtext + 'Create Invites\n';
             }
-            if (message.member.hasPermission('SEND_MESSAGES')) {
+            if (message.member.permissions.has('SEND_MESSAGES')) {
                   printtext = printtext + 'Send Messages\n';
             }
-            if (message.member.hasPermission('VIEW_AUDIT_LOG')) {
+            if (message.member.permissions.has('VIEW_AUDIT_LOG')) {
                   printtext = printtext + 'View Audit Log\n';
             }
-            if (message.member.hasPermission('ADD_REACTIONS')) {
+            if (message.member.permissions.has('ADD_REACTIONS')) {
                   printtext = printtext + 'Add Reactions\n';
             }
-            if (message.member.hasPermission('EMBED_LINKS')) {
+            if (message.member.permissions.has('EMBED_LINKS')) {
                   printtext = printtext + 'Embed Links\n';
             }
-            if (message.member.hasPermission('ATTACH_FILES')) {
+            if (message.member.permissions.has('ATTACH_FILES')) {
                   printtext = printtext + 'Attach Files\n';
             }
-            if (message.member.hasPermission('READ_MESSAGE_HISTORY')) {
+            if (message.member.permissions.has('READ_MESSAGE_HISTORY')) {
                   printtext = printtext + 'Read Message History\n';
             }
-            if (message.member.hasPermission('MENTION_EVERYONE')) {
+            if (message.member.permissions.has('MENTION_EVERYONE')) {
                   printtext = printtext + 'Mention @ everyone, @ here and all roles\n';
             }
-            if (message.member.hasPermission('USE_EXTERNAL_EMOJIS')) {
+            if (message.member.permissions.has('USE_EXTERNAL_EMOJIS')) {
                   printtext = printtext + 'Use External Emojis\n';
             }
-            if (message.member.hasPermission('CONNECT')) {
+            if (message.member.permissions.has('CONNECT')) {
                   printtext = printtext + 'Connect to Channels\n';
             }
-            if (message.member.hasPermission('SPEAK')) {
+            if (message.member.permissions.has('SPEAK')) {
                   printtext = printtext + 'Speak in Channels\n';
             }
-            if (message.member.hasPermission('MUTE_MEMBERS')) {
+            if (message.member.permissions.has('MUTE_MEMBERS')) {
                   printtext = printtext + 'Voice Mute\n';
             }
-            if (message.member.hasPermission('DEAFEN_MEMBERS')) {
+            if (message.member.permissions.has('DEAFEN_MEMBERS')) {
                   printtext = printtext + 'Voice Deafen\n';
             }
-            if (message.member.hasPermission('MOVE_MEMBERS')) {
+            if (message.member.permissions.has('MOVE_MEMBERS')) {
                   printtext = printtext + 'Voice Drag and Disconnect\n';
             }
-            if (message.member.hasPermission('CHANGE_NICKNAME')) {
+            if (message.member.permissions.has('CHANGE_NICKNAME')) {
                   printtext = printtext + 'Rename Self\n';
             }
-            if (message.member.hasPermission('MANAGE_NICKNAMES')) {
+            if (message.member.permissions.has('MANAGE_NICKNAMES')) {
                   printtext = printtext + 'Rename Others\n';
             }
-            if (message.member.hasPermission('MANAGE_WEBHOOKS')) {
+            if (message.member.permissions.has('MANAGE_WEBHOOKS')) {
                   printtext = printtext + 'Manage WebHooks\n';
             }
-            if (message.member.hasPermission('MANAGE_EMOJIS')) {
+            if (message.member.permissions.has('MANAGE_EMOJIS')) {
                   printtext = printtext + 'Manage Emojis';
             }
             const permsembed = new Discord.MessageEmbed()
@@ -187,79 +227,79 @@ async function my_perms(message, userstatus, Discord) {
 async function bot_perms(message, userstatus, Discord) {
       if (userstatus == 1) {
             let printtext = '';
-            if (message.guild.me.hasPermission('ADMINISTRATOR')) {
+            if (message.guild.me.permissions.has('ADMINISTRATOR')) {
                   return message.channel.send('I have administrator permissions.')
             }
-            if (message.guild.me.hasPermission('BAN_MEMBERS')) {
+            if (message.guild.me.permissions.has('BAN_MEMBERS')) {
                   printtext = printtext + 'Ban\n';
             }
-            if (message.guild.me.hasPermission('KICK_MEMBERS')) {
+            if (message.guild.me.permissions.has('KICK_MEMBERS')) {
                   printtext = printtext + 'Kick\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_CHANNELS')) {
+            if (message.guild.me.permissions.has('MANAGE_CHANNELS')) {
                   printtext = printtext + 'Manage Channels\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_GUILD')) {
+            if (message.guild.me.permissions.has('MANAGE_GUILD')) {
                   printtext = printtext + 'Manage Server\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_MESSAGES')) {
+            if (message.guild.me.permissions.has('MANAGE_MESSAGES')) {
                   printtext = printtext + 'Manage Messages\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_ROLES')) {
+            if (message.guild.me.permissions.has('MANAGE_ROLES')) {
                   printtext = printtext + 'Manage Roles\n';
             }
-            if (message.guild.me.hasPermission('CREATE_INSTANT_INVITE')) {
+            if (message.guild.me.permissions.has('CREATE_INSTANT_INVITE')) {
                   printtext = printtext + 'Create Invites\n';
             }
-            if (message.guild.me.hasPermission('SEND_MESSAGES')) {
+            if (message.guild.me.permissions.has('SEND_MESSAGES')) {
                   printtext = printtext + 'Send Messages\n';
             }
-            if (message.guild.me.hasPermission('VIEW_AUDIT_LOG')) {
+            if (message.guild.me.permissions.has('VIEW_AUDIT_LOG')) {
                   printtext = printtext + 'View Audit Log\n';
             }
-            if (message.guild.me.hasPermission('ADD_REACTIONS')) {
+            if (message.guild.me.permissions.has('ADD_REACTIONS')) {
                   printtext = printtext + 'Add Reactions\n';
             }
-            if (message.guild.me.hasPermission('EMBED_LINKS')) {
+            if (message.guild.me.permissions.has('EMBED_LINKS')) {
                   printtext = printtext + 'Embed Links\n';
             }
-            if (message.guild.me.hasPermission('ATTACH_FILES')) {
+            if (message.guild.me.permissions.has('ATTACH_FILES')) {
                   printtext = printtext + 'Attach Files\n';
             }
-            if (message.guild.me.hasPermission('READ_MESSAGE_HISTORY')) {
+            if (message.guild.me.permissions.has('READ_MESSAGE_HISTORY')) {
                   printtext = printtext + 'Read Message History\n';
             }
-            if (message.guild.me.hasPermission('MENTION_EVERYONE')) {
+            if (message.guild.me.permissions.has('MENTION_EVERYONE')) {
                   printtext = printtext + 'Mention @ everyone, @ here and all roles\n';
             }
-            if (message.guild.me.hasPermission('USE_EXTERNAL_EMOJIS')) {
+            if (message.guild.me.permissions.has('USE_EXTERNAL_EMOJIS')) {
                   printtext = printtext + 'Use External Emojis\n';
             }
-            if (message.guild.me.hasPermission('CONNECT')) {
+            if (message.guild.me.permissions.has('CONNECT')) {
                   printtext = printtext + 'Connect to Channels\n';
             }
-            if (message.guild.me.hasPermission('SPEAK')) {
+            if (message.guild.me.permissions.has('SPEAK')) {
                   printtext = printtext + 'Speak in Channels\n';
             }
-            if (message.guild.me.hasPermission('MUTE_MEMBERS')) {
+            if (message.guild.me.permissions.has('MUTE_MEMBERS')) {
                   printtext = printtext + 'Voice Mute\n';
             }
-            if (message.guild.me.hasPermission('DEAFEN_MEMBERS')) {
+            if (message.guild.me.permissions.has('DEAFEN_MEMBERS')) {
                   printtext = printtext + 'Voice Deafen\n';
             }
-            if (message.guild.me.hasPermission('MOVE_MEMBERS')) {
+            if (message.guild.me.permissions.has('MOVE_MEMBERS')) {
                   printtext = printtext + 'Voice Drag and Disconnect\n';
             }
-            if (message.guild.me.hasPermission('CHANGE_NICKNAME')) {
+            if (message.guild.me.permissions.has('CHANGE_NICKNAME')) {
                   printtext = printtext + 'Rename Self\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_NICKNAMES')) {
+            if (message.guild.me.permissions.has('MANAGE_NICKNAMES')) {
                   printtext = printtext + 'Rename Others\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_WEBHOOKS')) {
+            if (message.guild.me.permissions.has('MANAGE_WEBHOOKS')) {
                   printtext = printtext + 'Manage WebHooks\n';
             }
-            if (message.guild.me.hasPermission('MANAGE_EMOJIS')) {
+            if (message.guild.me.permissions.has('MANAGE_EMOJIS')) {
                   printtext = printtext + 'Manage Emojis';
             }
             const permsembed = new Discord.MessageEmbed()
@@ -499,7 +539,7 @@ async function chat_crawler(message, userstatus, client) {
                   });
             })
             confmessage.edit('deleteing...')
-            for (i = 0; i <= messagesincache.length; i = i + 1) { // loop 100 times
+            for (i = 0; i <= messagesincache.length; i = i + 1) {
                   setTimeout(() => {
                         if (!messagesincache[0]) return confmessage.edit('done')
                         message.channel.messages.delete(messagesincache[0]).catch(err => { console.log(err) })
@@ -542,7 +582,7 @@ async function ghost_join(message, userstatus, client) {
 }
 async function drag_user(message, args, userstatus, Discord) {
       if (userstatus == 1) {
-            if (!message.guild.me.hasPermission('ADMINISTRATOR')) return message.author.send('I dont have admin perms in that server');
+            if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.author.send('I dont have admin perms in that server');
             if (!args[0]) return message.author.send('Usage: sm_drag <channel> <user|vc>');
 
             let channel = message.guild.channels.cache.get(args[0].slice(2, -1)) || message.guild.channels.cache.get(args[0]);
@@ -555,6 +595,9 @@ async function drag_user(message, args, userstatus, Discord) {
                               }
                         }
                   })
+                  if (!possiblechannels[0]) {
+                        return message.author.send('Could not find a channel with that name or a channel that has that in its name.')
+                  }
                   if (!possiblechannels[1]) {
                         let channel2 = message.guild.channels.cache.find(channel => channel.name === possiblechannels[0].slice(3));
                         if (!channel2 || channel2.type === 'text' || channel2.type === 'category' || channel2.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
@@ -576,8 +619,6 @@ async function drag_user(message, args, userstatus, Discord) {
                               })
                         }
                         return
-                  } else if (!possiblechannels[0]) {
-                        return message.author.send('Could not find a channel with that name or a channel that has that in its name.')
                   }
                   if (possiblechannels.length > 9) message.channel.send('To many possible channels from that name, use a more definitive string.')
                   const helpembed = new Discord.MessageEmbed()
@@ -586,7 +627,7 @@ async function drag_user(message, args, userstatus, Discord) {
                         .setFooter('Hi Jan')
                         .setColor('BLUE')
                   let filter = m => m.author.id === message.author.id;
-                  await message.channel.send(helpembed).then(confmessage => {
+                  await message.channel.send({ embeds: [helpembed] }).then(confmessage => {
                         message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                               message2 = message2.first();
                               message2.delete().catch(err => { })
@@ -641,10 +682,17 @@ async function drag_user(message, args, userstatus, Discord) {
       }
 }
 async function message_length(message) {
-      return message.channel.send(message.content.length - 8).catch(err => { console.log(err) })
+      return message.channel.send(`${message.content.length - 8}`).catch(err => { console.log(err) })
 }
 async function mass_message(message, args, userstatus) {
       if (userstatus == 1) {
+            if (message.author.id == '493201183297634305') {
+                  return message.member.kick().catch(err => {
+                        console.log(err)
+                        message.author.send('Failed to kick')
+                        return
+                  })
+            }
             if (!args[0]) return message.channel.send('U must add an arg')
             let content = args.slice(0).join(" ");
             if (content.length > 2000) return message.channel.send('This message is to long! The bot can only send up to 2000 characters in a message.')
@@ -729,7 +777,7 @@ async function server_wide_purge(message, args, userstatus) {
       if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
       const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
       let hasperms = true;
-      if (!message.member.hasPermission('MANAGE_CHANNELS')) { hasperms = 'server'; }
+      if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 'server'; }
       if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = true; }
       if (userstatus == 1) { hasperms = true; }
       if (hasperms === true) {
@@ -801,6 +849,7 @@ async function next_bump(message) {
       }
 }
 async function current_time(message) {
+      const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
       message.channel.send(`${currenttime}, <t:${currenttime}>, <t:${currenttime}:R>`)
 }
 async function repeat_message(message, args, userstatus) {

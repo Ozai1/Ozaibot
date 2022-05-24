@@ -3,8 +3,8 @@ module.exports = {
       description: 'changes the @ everyone permission for VIEW_CHANNEL to the opposet of its current state',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (message.member.hasPermission('MANAGE_CHANNELS') || userstatus == 1) {
-                  if (!message.guild.me.hasPermission('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
+            if (message.member.permissions.has('MANAGE_CHANNELS') || userstatus == 1) {
+                  if (!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
                   message.delete().catch(err => { console.log(err) });
                   if (!message.channel.permissionsFor(message.guild.roles.everyone).has('VIEW_CHANNEL')) {
                         let filter = m => m.author.id === message.author.id;

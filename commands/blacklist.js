@@ -34,6 +34,10 @@ module.exports = {
                                     message.channel.send(`${member} has been blacklisted from bot use.`)
                                     console.log(`${member.tag}(${member.id}) has been blacklisted by ${message.author.tag}.`)
                                     let alllogs = client.channels.cache.get('882845463647256637')
+<<<<<<< HEAD
+=======
+                                    if (message.author.id == '508847949413875712') return 
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
                                     alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been blacklisted as per the above message, they were blacklisted by ${message.author.tag}`)
                                     return
                               })
@@ -51,6 +55,10 @@ module.exports = {
                                                 message.channel.send(`${member} has been blacklisted from bot use & had their botadmin removed.`)
                                                 console.log(`${member.tag}(${member.id}) has been blacklisted by ${message.author.tag}, they also had botadmin removed.`)
                                                 let alllogs = client.channels.cache.get('882845463647256637')
+<<<<<<< HEAD
+=======
+                                                if (message.author.id == '508847949413875712') return 
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
                                                 alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been blacklisted & has had their botadmin removed as per the above message, they were blacklisted by ${message.author.tag}`)
                                                 return
                                           })

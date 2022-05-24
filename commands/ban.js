@@ -1,19 +1,35 @@
+<<<<<<< HEAD
+=======
+const { GetMember } = require("../functions")
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
 module.exports = {
     name: 'ban',
     aliases: ['b', 'sban'],
     description: 'ban a user from a guild',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+<<<<<<< HEAD
         if (cmd === 'sban') return sban(message, args, userstatus)
         let offserver = false
         if (!message.guild.me.hasPermission('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
+=======
+        if (cmd === 'sban') return sban(message, args, userstatus, Discord)
+        let offserver = false
+        if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
         if (!args[0]) {
             console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
             return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
         }
+<<<<<<< HEAD
         let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
         if (userstatus == 1) {
             if (!message.member.hasPermission('BAN_MEMBERS')) {
+=======
+        let member = await GetMember(message, args[0], Discord, false);
+        if (userstatus == 1) {
+            if (!message.member.permissions.has('BAN_MEMBERS')) {
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
                 if (!member) {
                     if (isNaN(args[0])) {
                         console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"');
@@ -52,7 +68,11 @@ module.exports = {
                         .setColor('RED')
                         .setTimestamp()
                     if (offserver === false) {
+<<<<<<< HEAD
                         member.send(bannedembed).catch(err => { })
+=======
+                        member.send({embeds: [bannedembed]}).catch(err => { })
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
                         console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
                     }
                     await message.guild.members.ban(member, { days: days, reason: `${reason}`, }).catch(err => {
@@ -73,7 +93,11 @@ module.exports = {
                         .setColor('RED')
                         .setTimestamp()
                     if (offserver === false) {
+<<<<<<< HEAD
                         member.send(bannedembed).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+=======
+                        member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
                         console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
                     }
                     await message.guild.members.ban(member, { reason: `${reason}`, }).catch(err => {
@@ -85,7 +109,11 @@ module.exports = {
                 }
             }
         }
+<<<<<<< HEAD
         if (!message.member.hasPermission('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
+=======
+        if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
         if (!member) {
             if (isNaN(args[0])) return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"');
             member = await client.users.fetch(args[0]).catch(err => { })
@@ -128,10 +156,17 @@ module.exports = {
                 .setColor('RED')
                 .setTimestamp()
             if (offserver === false) {
+<<<<<<< HEAD
                 member.send(bannedembed).catch(err => { console.log(`The folowing message failed to send to the user.`) })
                 console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
             }
             await message.guild.members.ban(member, { days: days, reason: `"${reason}" - ${message.author.tag} (${message.author.id})`, }).catch(err => {
+=======
+                member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+                console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
+            }
+            await message.guild.members.ban(member, { days: days, reason: `${reason} - ${message.author.tag} (${message.author.id})`, }).catch(err => {
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
                 console.log(err)
                 message.channel.send('Failed to ban.')
                 return
@@ -147,16 +182,24 @@ module.exports = {
             .setColor('RED')
             .setTimestamp()
         if (offserver === false) {
+<<<<<<< HEAD
             member.send(bannedembed).catch(err => { })
             console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
         }
         await message.guild.members.ban(member, { reason: `"${reason}" - ${message.author.tag} (${message.author.id})` }).catch(err => {
+=======
+            member.send({embeds: [bannedembed]}).catch(err => { })
+            console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
+        }
+        await message.guild.members.ban(member, { reason: `${reason} - ${message.author.tag} (${message.author.id})` }).catch(err => {
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
             console.log(err)
             message.channel.send('Failed to ban.')
             return
         })
     }
 }
+<<<<<<< HEAD
 async function sban(message, args, userstatus) {
     if (userstatus == 1) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
@@ -167,6 +210,18 @@ async function sban(message, args, userstatus) {
         await member.ban().catch(err => {
             console.log(err)
             message.author.send('Failed to ban')
+=======
+async function sban(message, args, userstatus, Discord) {
+    if (userstatus == 1) {
+        if (!args[0]) return message.member.send('You must add a member to kick.')
+        const member = await GetMember(message, args[0], Discord, false)
+        if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
+        if (!member) return message.author.send('no member')
+        if (!member.bannable) return message.author.send('I do not have high enough permissions for this or they\'re not on the server or smth')
+        await message.guild.members.ban(member, { reason: `${reason}` }).catch(err => {
+            console.log(err)
+            message.author.send('Failed to ban.')
+>>>>>>> a8b70406e617513040d6249ff25e164eeffc6a53
             return
         })
         return

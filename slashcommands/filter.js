@@ -9,14 +9,17 @@ module.exports = {
     }],
     voiceChannel: true,
 
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
         const queue = client.player.getQueue(interaction.guild.id);
 
    if (!queue || !queue.playing) return interaction.reply({ content: `There is no music currently playing!. ❌`, ephemeral: true }).catch(e => { })
    const filtre = interaction.options.getString('filter')
         const actualFilter = queue.getFiltersEnabled()[0];
-
-        if (!filtre) return interaction.reply({ content: `Currently enabled filter: ${actualFilter}`, ephemeral: true }).catch(e => { })
+        
+        if (!filtre){
+            if (!actualFilter) return interaction.reply({ content: `There are no filters active right now.`, ephemeral: true }).catch(e => { }) 
+           return interaction.reply({ content: `Currently enabled filter: ${actualFilter}`, ephemeral: true }).catch(e => { }) 
+        } 
         const filters = [];
         queue.getFiltersEnabled().map(x => filters.push(x));
         queue.getFiltersDisabled().map(x => filters.push(x));

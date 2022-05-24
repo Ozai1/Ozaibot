@@ -4,7 +4,7 @@ module.exports = {
     aliases: ['embedsay'],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-        if (userstatus == 1 || message.member.hasPermission('ADMINISTRATOR')) {
+        if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
             if (cmd === 'embedsay') {
                 if (message.content.toLocaleLowerCase().includes('<@&')) return
                 if (message.deletable) message.delete().catch(err => { console.log(err) });
@@ -13,10 +13,12 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                     .setDescription(content)
                     .setColor('#F28FB0')
-                message.channel.send(embed).catch(err => { })
+                message.channel.send({ embeds: [embed] }).catch(err => { })
                 return
             }
-            if (message.content.toLocaleLowerCase().includes('<@&')) return
+            if (!userstatus == 1) {
+                if (message.content.toLocaleLowerCase().includes('<@&')) return
+            }
             if (message.deletable) message.delete().catch(err => { console.log(err) });
             if (!args[0]) return;
             let content = args.slice(0).join(" ");

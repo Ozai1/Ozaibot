@@ -4,7 +4,7 @@ module.exports = {
     name: 'ping',
     options: [],
 
-    run: async (client, interaction) => {
+    run: async (client, interaction, userstatus) => {
         const start = Date.now();
         interaction.reply('Pong!').then(async() => {
         let last = Date.now();
@@ -16,7 +16,7 @@ module.exports = {
                 .addField(`Message Latency`, `\`${last - start}ms\` 🛰️`)
                 .addField(`API Latency`, `\`${Math.round(client.ws.ping)}ms\` 🛰️`)
                 .setTimestamp()
-            interaction.editReply({ embeds: [embed] }).catch(e => { });
+            interaction.editReply({ embeds: [embed], ephemeral: false }).catch(e => { });
         })
     },
 };

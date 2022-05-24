@@ -32,7 +32,7 @@ module.exports = {
                 let pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}\n🇪 ${args[11]}\n🇫 ${args[13]}\n🇬 ${args[15]}\n🇭 ${args[17]}\n🇮 ${args[19]}\n🇯 ${args[21]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -52,7 +52,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}\n🇪 ${args[11]}\n🇫 ${args[13]}\n🇬 ${args[15]}\n🇭 ${args[17]}\n🇮 ${args[19]}`)
                     .setColor('BLUE')
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -71,7 +71,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}\n🇪 ${args[11]}\n🇫 ${args[13]}\n🇬 ${args[15]}\n🇭 ${args[17]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -89,7 +89,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}\n🇪 ${args[11]}\n🇫 ${args[13]}\n🇬 ${args[15]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -106,7 +106,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}\n🇪 ${args[11]}\n🇫 ${args[13]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -122,7 +122,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}\n🇪 ${args[11]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -137,7 +137,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}\n🇩 ${args[9]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -151,7 +151,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧 ${args[5]}\n🇨 ${args[7]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     message.react('🇨').catch(err => { console.log(err) });
@@ -164,7 +164,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}\n🇧`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     message.react('🇧').catch(err => { console.log(err) });
                     return
@@ -176,7 +176,7 @@ module.exports = {
                 pollembed = new Discord.MessageEmbed()
                     .setDescription(`**${args[1]}**\n🇦 ${args[3]}`)
                     .setColor('BLUE');
-                message.channel.send({ embed: pollembed, }).then(message => {
+                message.channel.send({ embeds: [ pollembed], }).then(message => {
                     message.react('🇦').catch(err => { console.log(err) });
                     return
                 }).catch(err => {

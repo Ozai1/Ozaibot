@@ -41,14 +41,15 @@ module.exports.getTime = (key) => {
 }
 module.exports.aliases = times;
 
-    /**
-     * Retreves a member from the guild of message object
-     * @param {Object} message Message object
-     * @param {string} string The string that is used to find a member
-     * @param {Object} Discord Used for embeds
-     * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
-     * @returns {Object} member on success or undefined on fail
-     */
+/**
+ * Retreves a member from the guild of message object
+ * @param {Object} message Message object
+ * @param {string} string The string that is used to find a member
+ * @param {Object} Discord Used for embeds
+ * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
+ * @returns {Object} member on success or undefined on fail
+ */
+
 module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults) => {
     try {
         let member = undefined;
@@ -81,46 +82,46 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
             member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(4, -1));
             return member
         }
-        if (MustNotHaveMultiResults == 1 || MustNotHaveMultiResults === true) return undefined
-        if (possibleusers.length > 9) {
-            return undefined
-        }
+        if (MustNotHaveMultiResults === true || possibleusers.length > 9) return undefined
+        let printmessage = possibleusers.filter((a) => a).toString()
+        printmessage = printmessage.replace(/,/g, '\n')
         const helpembed = new Discord.MessageEmbed()
             .setTitle('Which of these members did you mean? Please type out the corrosponding number.')
             .setFooter('Type cancel to cancel the search.')
-            .setDescription(possibleusers)
+            .setDescription(`${printmessage}`)
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;
-        return await message.channel.send({embeds: [helpembed]}).then(async confmessage => {
-            return await message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+        return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
+            return await message.channel.awaitMessages( {filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                 message2 = message2.first();
                 message2.delete().catch(err => { });
                 confmessage.delete().catch(err => { });
-                if (message.content.toLowerCase.startsWith("cancel")) {
+                if (message2.content.startsWith('cancel')) {
                     message.channel.send('Cancelled.')
-                    return undefined
+                    return
                 }
                 if (isNaN(message2.content)) {
                     message2.channel.send('Failed, you are supposed to pick one of the #-numbers.')
-                    return undefined
+                    return
                 }
                 if (message2.content >= possibleusers.length + 1) {
                     message2.channel.send('Failed, that number isnt on the list.')
-                    return undefined
+                    return
                 }
                 member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(4, -1));
                 if (!member) {
                     message.channel.send('failed for whatever reason')
-                    return undefined
+                    return
                 }
                 return member;
             }).catch(collected => {
                 console.log(collected);
-                message.channel.send('Timed out ' + message.author).catch(err => { console.log(err) });
-                return undefined
+                message.channel.send('Timed out.').catch(err => { console.log(err) });
+                return
             });
         });
     } catch (err) {
         console.log(err)
+        return;
     }
 }
