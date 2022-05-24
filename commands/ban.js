@@ -34,17 +34,29 @@ module.exports = {
                 if (!isNaN(args[1]) && args[1].length == 1) {
                     let days = Number(args[1]);
                     if (days > 7) {
-                        console.log('The days of messages to be deleted cannot be more than 7.')
-                        return message.channel.send('The days of messages to be deleted cannot be more than 7.');
+                        console.log('attempted ban while requesting more than 7 days worth of messages be deleted, canceling')
+                        const errorembed = new Discord.MessageEmbed()
+                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                              .setColor(15684432)
+                              .setDescription(`You cannot delete more than 7 days worth of messages.`)
+                        return message.channel.send({embeds: [errorembed]})
                     }
                     if (days < 1) {
-                        console.log('You cannot delete 0 or less days of messages.');
-                        return message.channel.send('You cannot delete 0 or less days of messages.');
+                        console.log('attempted ban while requesting less than 1 days worth of messages be deleted, canceling')
+                        const errorembed = new Discord.MessageEmbed()
+                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                              .setColor(15684432)
+                              .setDescription(`You cannot delete less than 1 day of messages.`)
+                        return message.channel.send({embeds: [errorembed]})
                     }
                     let reason = args.slice(2).join(" ");
                     if (reason.length > 400) {
-                        console.log('Reason must be less than 400 characters long.')
-                        return message.channel.send('Reason must be less than 400 characters long.')
+                        console.log('ban reason to long, canceling')
+                        const errorembed = new Discord.MessageEmbed()
+                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                              .setColor(15684432)
+                              .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
+                        return message.channel.send({embeds: [errorembed]})
                     }
                     if (!reason) reason = 'No reason provided';
                     message.channel.send(`${member} has been banned and has had ${days} days of they're messages deleted.`)
@@ -66,7 +78,14 @@ module.exports = {
                     return
                 } else {
                     let reason = args.slice(1).join(" ");
-                    if (reason.length > 512) return message.channel.send('Reason must be less than 512 characters long.')
+                    if (reason.length > 400){
+                        console.log('ban reason to long, canceling')
+                        const errorembed = new Discord.MessageEmbed()
+                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                              .setColor(15684432)
+                              .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
+                        return message.channel.send({embeds: [errorembed]})
+                    } 
                     if (!reason) reason = 'No reason given';
                     message.channel.send(`${member} has been banned.`)
                     const bannedembed = new Discord.MessageEmbed()

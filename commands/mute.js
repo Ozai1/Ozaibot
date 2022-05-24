@@ -80,28 +80,45 @@ module.exports = {
                               return message.channel.send({embeds: [errorembed]})
                         }
                         if (member.id === message.author.id) {
-                              console.log('You can\'t mute yourself.')
-                              return message.channel.send('You can\'t mute yourself.');
+                              console.log('attempted self mute, canceling')
+                              const errorembed = new Discord.MessageEmbed()
+                                    .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                    .setColor(15684432)
+                                    .setDescription(`You cannot mute yourself.`)
+                              return message.channel.send({embeds: [errorembed]})
                         }
                         if (message.guild.ownerID !== message.author.id) {
                               if (member.id == message.guild.ownerID || member.permissions.has('ADMINISTRATOR')) {
-                                    console.log('You cannot mute a member with administrator permissions')
-                                    return message.channel.send('You cannot mute a member with administrator permissions')
+                                    console.log('attempted mute against administrator, canceling')
+                                    const errorembed = new Discord.MessageEmbed()
+                                          .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                          .setColor(15684432)
+                                          .setDescription(`You cannot mute members with Administrator Permissions.`)
+                                    return message.channel.send({embeds: [errorembed]})
                               }
                               if (message.author.id !== '508847949413875712') {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) {
-                                          console.log('You cannot mute someone with higher or the same roles as your own.')
-                                          return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
+                                          console.log('attempted mute against someone of higher rank, canceling')
+                                          const errorembed = new Discord.MessageEmbed()
+                                                .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                                .setColor(15684432)
+                                                .setDescription(`You cannot mute members with higher or the same permissions as your own.`)
+                                          return message.channel.send({embeds: [errorembed]})
                                     }
                               }
                         }
                         if (member.roles.cache.some(role => role.id == muterole.id)){
-                              console.log('This member is already muted.')
-                              return message.channel.send('This member is already muted.')
+                              console.log('attempted mute against someone already muted, canceling')
+                              const errorembed = new Discord.MessageEmbed()
+                                    .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                    .setColor(15684432)
+                                    .setDescription(`This member is already muted.`)
+                              return message.channel.send({embeds: [errorembed]})
                         }
                         member.roles.add(muterole).catch(err => {
                               console.log(err)
-                              message.channel.send('Failed.')
+                              console.log('Failed; unable to add muterole to member')
+                              return message.channel.send('Failed; unable to add muterole to member')
                         })
                         const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
                         let timeunban = 9999999999;
