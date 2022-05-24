@@ -640,37 +640,23 @@ client.on('messageReactionRemove', async (react, author) => {
 });
 
 client.on("voiceStateUpdate", function (oldstate, newstate) {
-      return
       if (oldstate.member.user.bot) return;
       let oldmember = oldstate.member
       let newmember = newstate.member
-      if (oldmember.voice.channelId === null && newmember.voice.channel) { // USER JOINED CHANNEL
-            if (newmember.voice.channel.id == '964544014584016956') {
-                  newmember.voice.setChannel(null)
+      if (oldmember.voice.channelId !== null) { // USER JOINED CHANNEL
+            
+            if (!newmember.voice === oldmember.voice) {
+                  console.log(`${oldmember.user.tag} joined a voice channel`)
+                  if (newmember.voice.channelId == '964544014584016956') {
+                        newmember.voice.setChannel(null)
+                  }
             }
-            console.log(`${oldmember.user.tag} joined a voice channel`)
+
       }
-      else if (!newmember.voice.channel) { // USER LEFT CHANNEL
+      if (!newmember.voice.channel) { // USER LEFT CHANNEL
             console.log(`${oldmember.user.tag} left a voice channel`)
       }
-      else if (newmember.voice.selfMute) { // USER MUTED
-            console.log(`${oldmember.user.tag} muted`)
-      }
-      else if (!newmember.voice.selfMute) { // USER UNMUTED
-            console.log(`${oldmember.user.tag} ummuted`)
-      }
-      else if (newmember.voice.selfDeaf) { // USER DEAFENED
-            console.log(`${oldmember.user.tag} deafened`)
-      }
-      else if (!newmember.voice.selfDeaf) { // USER UNDEAFEMED
-            console.log(`${oldmember.user.tag} undeafened`)
-      }
-      else if (newmember.voice.selfVideo) { // USER STARTED STREAMING
-            console.log(`${oldmember.user.tag} started streaming`)
-      }
-      else if (!newmember.voice.selfVideo) { // USER STOPPED STREAMING
-            console.log(`${oldmember.user.tag} stopped streaming`)
-      }
+
       //console.log(`${oldmember.user.tag} changed voice channel state`)
 
 });

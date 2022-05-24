@@ -49,6 +49,7 @@ module.exports.aliases = times;
  * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
  * @returns {Object} member on success or undefined on fail
  */
+
 module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults) => {
     try {
         let member = undefined;
