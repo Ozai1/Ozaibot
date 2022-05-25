@@ -9,8 +9,12 @@ module.exports = {
         let offserver = false
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
         if (!args[0]) {
-            console.log('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
-            return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"')
+            console.log('stopped, no member arg')
+            const errorembed = new Discord.MessageEmbed()
+                .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                .setColor(15684432)
+                .setDescription(`Invalid member arguement.\nProper usage: \`sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>\``)
+            return message.channel.send({ embeds: [errorembed] })
         }
         let member = await GetMember(message, args[0], Discord, false);
         if (userstatus == 1) {
@@ -36,27 +40,27 @@ module.exports = {
                     if (days > 7) {
                         console.log('attempted ban while requesting more than 7 days worth of messages be deleted, canceling')
                         const errorembed = new Discord.MessageEmbed()
-                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
-                              .setColor(15684432)
-                              .setDescription(`You cannot delete more than 7 days worth of messages.`)
-                        return message.channel.send({embeds: [errorembed]})
+                            .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                            .setColor(15684432)
+                            .setDescription(`You cannot delete more than 7 days worth of messages.`)
+                        return message.channel.send({ embeds: [errorembed] })
                     }
                     if (days < 1) {
                         console.log('attempted ban while requesting less than 1 days worth of messages be deleted, canceling')
                         const errorembed = new Discord.MessageEmbed()
-                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
-                              .setColor(15684432)
-                              .setDescription(`You cannot delete less than 1 day of messages.`)
-                        return message.channel.send({embeds: [errorembed]})
+                            .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                            .setColor(15684432)
+                            .setDescription(`You cannot delete less than 1 day of messages.`)
+                        return message.channel.send({ embeds: [errorembed] })
                     }
                     let reason = args.slice(2).join(" ");
                     if (reason.length > 400) {
                         console.log('ban reason to long, canceling')
                         const errorembed = new Discord.MessageEmbed()
-                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
-                              .setColor(15684432)
-                              .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
-                        return message.channel.send({embeds: [errorembed]})
+                            .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                            .setColor(15684432)
+                            .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
+                        return message.channel.send({ embeds: [errorembed] })
                     }
                     if (!reason) reason = 'No reason provided';
                     message.channel.send(`${member} has been banned and has had ${days} days of they're messages deleted.`)
@@ -65,7 +69,7 @@ module.exports = {
                         .setColor('RED')
                         .setTimestamp()
                     if (offserver === false) {
-                        member.send({embeds: [bannedembed]}).catch(err => { })
+                        member.send({ embeds: [bannedembed] }).catch(err => { })
                         console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
                     }
                     await message.guild.members.ban(member, { days: days, reason: `${reason}`, }).catch(err => {
@@ -78,14 +82,14 @@ module.exports = {
                     return
                 } else {
                     let reason = args.slice(1).join(" ");
-                    if (reason.length > 400){
+                    if (reason.length > 400) {
                         console.log('ban reason to long, canceling')
                         const errorembed = new Discord.MessageEmbed()
-                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
-                              .setColor(15684432)
-                              .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
-                        return message.channel.send({embeds: [errorembed]})
-                    } 
+                            .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                            .setColor(15684432)
+                            .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
+                        return message.channel.send({ embeds: [errorembed] })
+                    }
                     if (!reason) reason = 'no reason provided';
                     message.channel.send(`${member} has been banned.`)
                     const bannedembed = new Discord.MessageEmbed()
@@ -93,7 +97,7 @@ module.exports = {
                         .setColor('RED')
                         .setTimestamp()
                     if (offserver === false) {
-                        member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+                        member.send({ embeds: [bannedembed] }).catch(err => { console.log(`The folowing message failed to send to the user.`) })
                         console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
                     }
                     await message.guild.members.ban(member, { reason: `${reason}`, }).catch(err => {
@@ -148,7 +152,7 @@ module.exports = {
                 .setColor('RED')
                 .setTimestamp()
             if (offserver === false) {
-                member.send({embeds: [bannedembed]}).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+                member.send({ embeds: [bannedembed] }).catch(err => { console.log(`The folowing message failed to send to the user.`) })
                 console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
             }
             await message.guild.members.ban(member, { days: days, reason: `${reason} - ${message.author.tag} (${message.author.id})`, }).catch(err => {
@@ -167,7 +171,7 @@ module.exports = {
             .setColor('RED')
             .setTimestamp()
         if (offserver === false) {
-            member.send({embeds: [bannedembed]}).catch(err => { })
+            member.send({ embeds: [bannedembed] }).catch(err => { })
             console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
         }
         await message.guild.members.ban(member, { reason: `${reason} - ${message.author.tag} (${message.author.id})` }).catch(err => {

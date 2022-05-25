@@ -3,15 +3,42 @@ module.exports = {
       description: 'unbans a user from a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server! (This also means i cannot unban!)')
-            if (!userstatus == 1) {
-                  if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to use this command.')
+            if (!message.guild.me.permissions.has('BAN_MEMBERS')) {
+                  console.log('attempted to unban while ozaibot does not have unban perms')
+                  const errorembed = new Discord.MessageEmbed()
+                        .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                        .setColor(15684432)
+                        .setDescription(`Ozaibot Does not have permissions to unban in this server.`)
+                  return message.channel.send({ embeds: [errorembed] })
             }
-            if (!args[0]) return message.channel.send('Please a user\s id to unban.')
+            if (!userstatus == 1) {
+                  if (!message.member.permissions.has('BAN_MEMBERS')) {
+                        console.log('attempted to mute while not having enough permissions')
+                        const errorembed = new Discord.MessageEmbed()
+                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                              .setColor(15684432)
+                              .setDescription(`You do not have permissions to use this command.`)
+                        return message.channel.send({ embeds: [errorembed] })
+                  }
+            }
+            if (!args[0]) {
+                  console.log('stopped, no member arg')
+                  const errorembed = new Discord.MessageEmbed()
+                        .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                        .setColor(15684432)
+                        .setDescription(`Invalid member.\n\nProper useage is:\n\`unban <member_id>\``)
+                  return message.channel.send({ embeds: [errorembed] })
+            }
             message.guild.bans.fetch().then(bans => {
                   let member = bans.get(args[0]);
-                  if (bans.size == 0) return message.channel.send('This server does not have any bans.');
-                  if (!member) return message.reply('Cannot find a ban for the given user.');
+                  if (!member) {
+                        console.log('attempted to mute while not having enough permissions')
+                        const errorembed = new Discord.MessageEmbed()
+                              .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                              .setColor("GREEN")
+                              .setDescription(`This member is not currently banned.`)
+                        return message.channel.send({ embeds: [errorembed] })
+                  }
                   message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
                         message.channel.send('Unbanned <@' + args[0] + '>.');
                   }).catch(err => { console.log(err) });
