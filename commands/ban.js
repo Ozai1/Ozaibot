@@ -86,7 +86,7 @@ module.exports = {
                               .setDescription(`Invalid Reason arguement:\nReason must be less than 400 characters long.\nYour current reason length is: ${reason.length} characters long.`)
                         return message.channel.send({embeds: [errorembed]})
                     } 
-                    if (!reason) reason = 'No reason given';
+                    if (!reason) reason = 'no reason provided';
                     message.channel.send(`${member} has been banned.`)
                     const bannedembed = new Discord.MessageEmbed()
                         .addField(`**You have been banned from** ${message.guild}.`, `**For**: ${reason}`)
@@ -160,7 +160,7 @@ module.exports = {
         }
         let reason = args.slice(1).join(" ");
         if (reason.length > 512) return message.channel.send('Reason must be less than 512 characters long.')
-        if (!reason) reason = 'No reason given';
+        if (!reason) reason = 'no reason provided';
         message.channel.send(`${member} has been banned.`);
         const bannedembed = new Discord.MessageEmbed()
             .addField(`**You have been banned from**: ${message.guild}.`, `**Banned by**: ${message.author} \n **For**: "${reason}".`)

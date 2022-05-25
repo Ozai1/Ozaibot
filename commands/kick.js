@@ -14,7 +14,7 @@ module.exports = {
                         if (!member) return message.author.send('no member')
                         if (!member.kickable) return message.author.send('I do not have high enough permissions for this or theyre not on the server or smth')
                         let reason = args.slice(1).join(" ");
-                        if (!reason) reason = 'No reason given';
+                        if (!reason) reason = 'no reason provided';
                         message.channel.send(`Kicked ${member}.`)
                         const kickedembed = new Discord.MessageEmbed()
                               .addField(`**You have been kicked from** ${message.guild}.`, `**For**: ${reason}`)
@@ -38,7 +38,7 @@ module.exports = {
             }
             if (!member.kickable) return message.reply("I do not have high enough permissions to kick this member.");
             let reason = args.slice(1).join(" ");
-            if (!reason) reason = 'No reason given';
+            if (!reason) reason = 'no reason provided';
             message.channel.send(`Kicked ${member}.`)
             const kickedembed = new Discord.MessageEmbed()
                   .addField(`**You have been kicked from**: ${message.guild}.`, `**Kicked by**: ${message.author} \n **For**: "${reason}".`)
