@@ -1,14 +1,4 @@
 const mysql = require('mysql2')
-const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: `P0V6g5`,
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-});
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -19,6 +9,18 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
+ 
+const serversdb = mysql.createPool({
+      host: 'vps01.tsict.com.au',
+      port: '3306',
+      user: 'root',
+      password: `P0V6g5`,
+      database: 'ozaibotservers',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+});
+ 
 const { GetMember } = require("../functions")
 module.exports = {
       name: 'unmute',

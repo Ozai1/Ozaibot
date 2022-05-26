@@ -1,5 +1,28 @@
 const { unix } = require('moment');
 const moment = require('moment');
+const mysql = require('mysql2');
+const connection = mysql.createPool({
+      host: 'vps01.tsict.com.au',
+      port: '3306',
+      user: 'root',
+      password: `P0V6g5`,
+      database: 'ozaibot',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+});
+ 
+const serversdb = mysql.createPool({
+      host: 'vps01.tsict.com.au',
+      port: '3306',
+      user: 'root',
+      password: `P0V6g5`,
+      database: 'ozaibotservers',
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+});
+ 
 module.exports = {
       name: 'checkban',
       aliases: ['checkbans', 'isbanned', 'user', 'userinfo', 'who', 'whois', 'ui', 'totalbans', 'bancount'],

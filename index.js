@@ -19,6 +19,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
+ 
 const serversdb = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -29,6 +30,7 @@ const serversdb = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
+ 
 require('dotenv').config();
 allIntents = new Intents(98047); // doesnt include status intents
 
@@ -67,6 +69,12 @@ client.on('ready', async () => {
       connection.query(query, data, function (error, results, fields) {
             if (error) return console.log(error);
       });
+      query = "DELETE FROM activeinvites";
+      data = [];
+      connection.query(query, data, function (error, results, fields) {
+            if (error) return console.log(error);
+      });
+      
       data = []
       client.guilds.cache.forEach(async guild => {
             query = `CREATE TABLE IF NOT EXISTS ${guild.id}config(id INT(12) AUTO_INCREMENT PRIMARY KEY, type VARCHAR(255) COLLATE utf8mb4_unicode_ci, details VARCHAR(255) COLLATE utf8mb4_unicode_ci, details2 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details3 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details4 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details5 VARCHAR(255) COLLATE utf8mb4_unicode_ci);`;
@@ -79,47 +87,12 @@ client.on('ready', async () => {
             })
             if (guild.me.permissions.has('MANAGE_GUILD')) {
                   const newinvites = await guild.invites.fetch();
-                  let currentinvites = [];
                   newinvites.forEach(async invite => {
-                        currentinvites.push(invite.code);
-                        query = `SELECT * FROM activeinvites WHERE invitecode = ?`;
-                        data = [invite.code];
+                        query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
+                        data = [guild.id, invite.inviter.id, invite.code, invite.uses];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) return console.log(error);
-                              if (results == ``) {
-                                    query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
-                                    data = [guild.id, invite.inviter.id, invite.code, invite.uses];
-                                    connection.query(query, data, function (error, results, fields) {
-                                          if (error) return console.log(error);
-                                    })
-                              } else {
-                                    query = `UPDATE activeinvites SET uses = ? WHERE invitecode = ?`;
-                                    data = [invite.uses, invite.code];
-                                    connection.query(query, data, function (error, results, fields) {
-                                          if (error) return console.log(error);
-                                    })
-                              }
                         })
-                  })
-                  query = `SELECT * FROM activeinvites WHERE serverid = ?`;
-                  data = [guild.id];
-                  connection.query(query, data, function (error, results, fields) {
-                        if (error) return console.log(error)
-                        if (results == ``) {
-                              return;
-                        } else {
-                              for (row of results) {
-                                    let invitecode77 = row["invitecode"];
-                                    if (!currentinvites.includes(invitecode77)) {
-                                          let theid = row["id"];
-                                          query = `DELETE FROM activeinvites WHERE id = ?`;
-                                          data = [theid];
-                                          connection.query(query, data, function (error, results, fields) {
-                                                if (error) return console.log(error);
-                                          })
-                                    }
-                              }
-                        }
                   })
             } guild.members.fetch();
       })

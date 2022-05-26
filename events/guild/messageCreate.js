@@ -4,22 +4,24 @@ const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: 'P0V6g5',
+    password: `P0V6g5`,
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
+
 const serversdb = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: 'P0V6g5',
+    password: `P0V6g5`,
     database: 'ozaibotservers',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
+
 module.exports = async (Discord, client, message) => {
     /*
     let prefixes = [`003750558849475280916sm_`,];
@@ -152,7 +154,7 @@ module.exports = async (Discord, client, message) => {
                 if (results == '' || results === undefined) { // User does not have a row.
                     let query = "INSERT INTO totalcmds (userid, username, cmdcount) VALUES (?, ?, ?)";
                     let data = [message.author.id, message.author.username, 1]
-                    connection.query(query, data, function (error, results, fields) {
+                    NoWaitConnection.query(query, data, function (error, results, fields) {
                         if (error) return console.log(error)
                     });
                 } else {
@@ -161,7 +163,7 @@ module.exports = async (Discord, client, message) => {
                     }
                     let query = "UPDATE totalcmds SET cmdcount = ? WHERE userid = ?";
                     let data = [cmdcount, message.author.id]
-                    connection.query(query, data, function (error, results, fields) {
+                    NoWaitConnection.query(query, data, function (error, results, fields) {
                         if (error) return console.log(error)
                     });
                 }
