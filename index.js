@@ -8,6 +8,7 @@ const Discord = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
+const { KeyObject } = require('crypto');
 
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -381,7 +382,7 @@ client.on('guildMemberAdd', async member => {
                                                 const rowid = row["id"]
                                                 const invcode = row["invitecode"]
                                                 const inviterid = row["inviterid"]
-                                                let invite2 = invcode
+                                                const invite2 = Object
                                                 invite2.code = invcode
                                                 invite2.uses = uses
                                                 invite2.inviter = await client.users.fetch(inviterid)
@@ -416,6 +417,7 @@ client.on('guildMemberAdd', async member => {
 async function invfound(member, invite) {
       const guild = member.guild
       console.log('Invite found')
+      console.log(invite)
       query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
       data = [member.id, member.guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];
       connection.query(query, data, function (error, results, fields) {
