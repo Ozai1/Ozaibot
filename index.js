@@ -256,6 +256,37 @@ client.on('guildMemberAdd', async member => {
                   })
             }
       })
+      query = `SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?`;
+      data = [member.id, member.guild.id, 'mute'];
+      connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                  return console.log(error);
+            }
+            if (results == `` || results === undefined) return;
+            let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
+            let data = ['muterole'];
+            serversdb.query(query, data, function (error, results, fields) {
+                  if (error) return console.log(error);
+                  if (results == `` || results === undefined) {
+                        return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was removed in db`);
+                  }
+                  for (row of results) {
+                        let muteroleid = row["details"];
+                        const muterole = guild.roles.cache.get(muteroleid);
+                        if (!muterole) {
+                              return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was not found`);
+                        }
+                        if (guild.me.roles.highest.position <= muterole.position) {
+                              console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but i have lower perms than muterole now`);
+                        }
+                        member.roles.add(muterole, { reason: `AUTOMUTE: user has left and rejoined while muted, mute role auto added. if this user is not meant to be muted please unmute them through ozaibot so they do not get automuted for mute evading again.` }).catch(err => {
+                              console.log(err);
+                        })
+                        console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, remuted`);
+                        member.send(`You have been auto muted from ${member.guild} due to a previous mute not expiring but you rejoining, you will still be unmuted when the mute expires or if you are manually unmuted.`);
+                  }
+            })
+      })
       if (guild.id == '942731536770428938') {
             let blossomrole = guild.roles.cache.get('942791591725252658');
             member.roles.add(blossomrole).catch(err => { console.log(err) });
@@ -353,14 +384,11 @@ client.on('guildMemberAdd', async member => {
                         newinvites.forEach(invite => {
                               invitesinfetch.push(invite.code)
                         });
-                        invitesinfetch.forEach(element => {
-                              invitesindb.forEach(element2 => {
-                                    if (element.content === element2.content) {
-                                          let idx = invitesindb.indexOf(element2)
-                                          invitesindb.splice(idx, 1);
-                                    }
-                              })
-                        })
+                        for (let i = 0; i < invitesindb.length; i++) {
+                              if (invitesinfetch.includes(invitesindb[0])) {
+                                    invitesindb.shift()
+                              }
+                        }
                         if (invitesindb[1]) {
                               console.log(invitesindb)
                               return console.log('More than one invite seen missing, stopping search through this method')
@@ -369,11 +397,11 @@ client.on('guildMemberAdd', async member => {
                         if (!invitesindb[0]) return console.log('could not find any missing invites, stopping search')
                         if (invitesindb[0]) {
                               query = `SELECT * FROM activeinvites WHERE serverid = ? && invitecode = ?`;
-                              data = [guild.id, invitesindb[0].content];
+                              data = [guild.id, invitesindb[0]];
                               connection.query(query, data, async function (error, results, fields) {
                                     if (error) return console.log(error)
                                     if (results == ``) { // no invites cached in the database
-                                          return
+                                          return console.log('Could not find the invite in the database for whatever reason, this is when it has already been found and selected as the correct one. this is under the search for deleted invites because they used a one use invite event')
                                     } else {
                                           for (row of results) {
                                                 const uses = row["uses"];
@@ -410,42 +438,11 @@ client.on('guildMemberAdd', async member => {
             //       return
             // }
       }
-      query = `SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?`;
-      data = [member.id, member.guild.id, 'mute'];
-      connection.query(query, data, function (error, results, fields) {
-            if (error) {
-                  return console.log(error);
-            }
-            if (results == `` || results === undefined) return;
-            let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-            let data = ['muterole'];
-            serversdb.query(query, data, function (error, results, fields) {
-                  if (error) return console.log(error);
-                  if (results == `` || results === undefined) {
-                        return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was removed in db`);
-                  }
-                  for (row of results) {
-                        let muteroleid = row["details"];
-                        const muterole = guild.roles.cache.get(muteroleid);
-                        if (!muterole) {
-                              return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was not found`);
-                        }
-                        if (guild.me.roles.highest.position <= muterole.position) {
-                              console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but i have lower perms than muterole now`);
-                        }
-                        member.roles.add(muterole, { reason: `AUTOMUTE: user has left and rejoined while muted, mute role auto added. if this user is not meant to be muted please unmute them through ozaibot so they do not get automuted for mute evading again.` }).catch(err => {
-                              console.log(err);
-                        })
-                        console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, remuted`);
-                        member.send(`You have been auto muted from ${member.guild} due to a previous mute not expiring but you rejoining, you will still be unmuted when the mute expires or if you are manually unmuted.`);
-                  }
-            })
-      })
 });
 
 async function invfound(member, invite) {
       const guild = member.guild
-      console.log(invite)
+      console.log('Invite found')
       query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
       data = [member.id, member.guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];
       connection.query(query, data, function (error, results, fields) {
@@ -644,7 +641,7 @@ client.on("voiceStateUpdate", function (oldstate, newstate) {
       let oldmember = oldstate.member
       let newmember = newstate.member
       if (oldmember.voice.channelId !== null) { // USER JOINED CHANNEL
-            
+
             if (!newmember.voice === oldmember.voice) {
                   console.log(`${oldmember.user.tag} joined a voice channel`)
                   if (newmember.voice.channelId == '964544014584016956') {
