@@ -57,7 +57,7 @@ module.exports = {
                               .setAuthor(message.author.tag, message.author.avatarURL())
                               .setColor(15684432)
                               .setDescription(`Add a member arguement.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
-                        return message.channel.send(errorembed)
+                        return message.channel.send({embeds: [errorembed]})
                   }
                   for (row of results) {
                         let muteroleid = row["details"];
