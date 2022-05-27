@@ -417,7 +417,6 @@ client.on('guildMemberAdd', async member => {
 async function invfound(member, invite) {
       const guild = member.guild
       console.log('Invite found')
-      console.log(invite)
       query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
       data = [member.id, member.guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];
       connection.query(query, data, function (error, results, fields) {

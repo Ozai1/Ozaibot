@@ -9,16 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-const NoWaitConnection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
-    port: '3306',
-    user: 'root',
-    password: `P0V6g5`,
-    database: 'ozaibot',
-    waitForConnections: false,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+ 
 const serversdb = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -29,16 +20,7 @@ const serversdb = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-const NoWaitServersDB = mysql.createPool({
-    host: 'vps01.tsict.com.au',
-    port: '3306',
-    user: 'root',
-    password: `P0V6g5`,
-    database: 'ozaibotservers',
-    waitForConnections: false,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+ 
 module.exports = {
     name: 'masssay',
     description: 'repeats your message 10 times',
