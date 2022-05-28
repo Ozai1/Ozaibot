@@ -1,6 +1,6 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
-const { GetMember } = require("../functions")
+const {GetTimeAndAlias, GetMember } = require("../functions")
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',

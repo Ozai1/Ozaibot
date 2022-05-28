@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const {GetTimeAndAlias, GetMember } = require("../functions")
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -27,9 +28,14 @@ module.exports = {
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!userstatus == 1) return
-await message.guild.members.fetch(args[0]).catch(err => 
-    {
-        message.channel.send(`Error: ${err}`)
-    })
+        if (!args[0]) return 
+        const timeandalias = GetTimeAndAlias(args[0])
+        if (timeandalias == -1) {
+            return message.channel.send('function failed')
+        }
+        const mutetimeinseconds = timeandalias.time
+        const unitoftimechosen = timeandalias.unitName
+        const amount = timeandalias.amount
+        message.channel.send(`${mutetimeinseconds}, ${unitoftimechosen}, ${amount}`)
     }
 }

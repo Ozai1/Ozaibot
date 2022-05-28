@@ -20,7 +20,7 @@ const times = {
     "week": {
         "time": 604800,
         "aliases": [
-            "d", "day", "days"
+            "w", "week", "weeks"
         ],
     },
     "month": {
@@ -30,10 +30,45 @@ const times = {
         ],
     }
 }
-module.exports.getAlias = (string) => {
+
+/**
+ * Gets time and alias from a string for timed punishments
+ * @param {string} string time unit / time unit alias
+ * @returns {Object} under object: unitName, time (how long the unit is in seconds), amount
+ * @error Returns -1 if a unit of time from the provided string can not be resolved
+ */
+module.exports.GetTimeAndAlias = (string) => {
+    const returnobject = Object
+    const unitoftime = string.replace(/[0-9]/g, '');
+    for (const key in times) {
+        if (times[key].aliases.includes(unitoftime)) returnobject.unitName = key;
+    }
+    if (times[unitoftime] && times[unitoftime].time) {
+        unitoftimeinseconds = times[key].time;
+        const amountofunits = string.replace(/\D/g,'');
+        returnobject.amount = amountofunits
+        returnobject.time = unitoftimeinseconds * Number(amountofunits)
+        return returnobject
+    }
+    return -1;
+}
+
+/**
+ * Returns the full name of a unit of time's alias
+ * @param {string} string time unit / time unit alias
+ * @returns {string} full name of time unit 
+ */
+module.exports.GetAlias = (string) => {
     for (const key in times) if (times[key].aliases.includes(string)) return key;
 }
-module.exports.getTime = (key) => {
+
+/**
+* Gets the amount of time for a unit of time
+* @param {string} string unit of time
+* @returns {integer} how many seconds makes up the unit of time inputed.
+* @error When no unit of time can be found from the supplied string, returns -1.
+*/
+module.exports.GetTime = (key) => {
     if (times[key] && times[key].time) {
         return times[key].time;
     }
@@ -92,7 +127,7 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;
         return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
-            return await message.channel.awaitMessages( {filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+            return await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                 message2 = message2.first();
                 message2.delete().catch(err => { });
                 confmessage.delete().catch(err => { });
