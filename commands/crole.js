@@ -37,26 +37,21 @@ module.exports = {
                   if (!args[0]) return message.reply('you must choose a role name for the command to work!');
                   if (!args[0].startsWith('#')) {
                         await message.guild.roles.create({
-                              data: {
-                                    name: args.slice(0).join(" "),
-                              }
+                              name: args.slice(0).join(" "),
+                              permissions: [],
                         }).catch(err => {
-                              console.log(err)
-                              message.channel.send('Failed to create the role, this is most likely due to ozaibot not having high enough permissions.');
-                              return
-                        })
+                              console.log(err);
+                              message.channel.send('Failed to create a muted role.');
+                        });
                         return
                   } if (args[0].startsWith('#')) {
                         await message.guild.roles.create({
-                              data: {
-                                    name: args.slice(1).join(" "),
-                                    color: args[0],
-                              }
+                              name: args.slice(0).join(" "),
+                              permissions: [],
                         }).catch(err => {
-                              console.log(err)
-                              message.channel.send('Failed to create the role, this is most likely due to ozaibot not having high enough permissions.');
-                              return
-                        })
+                              console.log(err);
+                              message.channel.send('Failed to create a muted role.');
+                        });
                         return
                   }
             }
