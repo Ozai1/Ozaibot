@@ -21,7 +21,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
+
 const serversdb = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -32,7 +32,7 @@ const serversdb = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
+
 module.exports = {
       name: 'test',
       aliases: ['lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
@@ -133,12 +133,7 @@ async function self_sql(message, args) {
                   }
             })
       } else {
-            let shitpostmessage = await message.channel.send('Deleted all tables in Database.')
-            setTimeout(() => {
-                  shitpostmessage.edit('just kidding lol')
-                  shitpostmessage.edit('Deleted all tables in Database.')
-            }, 5000);
-            return
+            let shitpostmessage = await message.channel.send('Successful: Dropped all tables in 0.030 seconds.')
       }
 }
 async function my_perms(message, userstatus, Discord) {
@@ -360,11 +355,12 @@ async function youare(message, args, userstatus) {
       }
 }
 async function chercord_role(message, args) {
-      if (message.guild.id !== '942731536770428938' && message.guild.id !== '806532573042966528') return message.channel.send('This command is intended for a private server only.')
+      if (message.guild.id !== '942731536770428938' && message.guild.id !== '806532573042966528' && message.guild.id !== '980786048210718770') return message.channel.send('This command is intended for a private server only.')
       if (message.guild.id == '806532573042966528') {
             let boosterrole = message.guild.roles.cache.get('907043792648032347')
             if (!boosterrole) return message.channel.send('Could not find booster role.')
-            if (!message.member.roles.cache.has('907043792648032347') && !message.member.roles.cache.has('933455230950080642') && !message.member.roles.cache.has('806533084442263552') && !userstatus == 1) return message.channel.send('The ability to edit & create your own role is for server boosters only.')
+            if (message.guild.id !== '980786048210718770')
+                  if (!message.member.roles.cache.has('907043792648032347') && !message.member.roles.cache.has('933455230950080642') && !message.member.roles.cache.has('806533084442263552') && !userstatus == 1) return message.channel.send('The ability to edit & create your own role is for server boosters only.')
       }
       if (!args[0]) {
             let query = `SELECT * FROM chercordrole WHERE userid = ? && serverid = ?`;
@@ -381,24 +377,43 @@ async function chercord_role(message, args) {
                         } else if (message.guild.id == '806532573042966528') {
                               blossomrole = message.guild.roles.cache.get('907043792648032347')
                         }
-                        if (!blossomrole) message.channel.send('Could not find the blossom role if this is cherry cord or the server booster role if this is rainy, this is fatal to the command.')
-                        let newrole = await message.guild.roles.create({
-                              data: {
+                        if (message.guild.id !== '980786048210718770') {
+                              if (!blossomrole) message.channel.send('Could not find the blossom role if this is cherry cord or the server booster role if this is rainy, this is fatal to the command.')
+                              let newrole = await message.guild.roles.create({
                                     name: message.author.tag,
-                                    position: blossomrole.position + 1,
-                              },
-                        })
-                        message.guild.members.cache.get(message.author.id).roles.add(newrole)
-                        query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
-                        data = [message.author.id, newrole.id, message.guild.id, message.author.username]
-                        connection.query(query, data, function (error, results, fields) {
-                              if (error) {
-                                    console.log('backend error for checking active bans')
-                                    return console.log(error)
-                              }
-                              message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
-                        })
-
+                                    position: blossomrole + 1,
+                              }).catch(err => {
+                                    console.log(err);
+                                    message.channel.send('Failed to create a role.');
+                              });
+                              message.guild.members.cache.get(message.author.id).roles.add(newrole)
+                              query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
+                              data = [message.author.id, newrole.id, message.guild.id, message.author.username]
+                              connection.query(query, data, function (error, results, fields) {
+                                    if (error) {
+                                          console.log('backend error for checking active bans')
+                                          return console.log(error)
+                                    }
+                                    message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
+                              })
+                        } else {
+                              let newrole = await message.guild.roles.create({
+                                    name: message.author.tag,
+                              }).catch(err => {
+                                    console.log(err);
+                                    message.channel.send('Failed to create a role.');
+                              });
+                              message.guild.members.cache.get(message.author.id).roles.add(newrole)
+                              query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
+                              data = [message.author.id, newrole.id, message.guild.id, message.author.username]
+                              connection.query(query, data, function (error, results, fields) {
+                                    if (error) {
+                                          console.log('backend error for checking active bans')
+                                          return console.log(error)
+                                    }
+                                    message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
+                              })
+                        }
                   } else {
                         for (row of results) {
                               let oldroleid = row["roleid"];
@@ -409,7 +424,7 @@ async function chercord_role(message, args) {
                               } else {
                                     let filter = m => m.author.id === message.author.id;
                                     message.channel.send(`Your role seems to have been deleted, would you like a new one to be made? \`y\`/\`n\``).then(() => {
-                                          message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message => {
+                                          message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message => {
                                                 message = message.first();
                                                 if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
                                                       query = `DELETE FROM chercordrole WHERE userid = ? && serverid = ?`;
@@ -420,28 +435,43 @@ async function chercord_role(message, args) {
                                                                   return console.log(error)
                                                             }
                                                       })
-                                                      let blossomrole = null;
-                                                      if (message.guild.id == '942731536770428938') {
-                                                            blossomrole = message.guild.roles.cache.get('942791591725252658')
-                                                      } else if (message.guild.id == '806532573042966528') {
-                                                            blossomrole = message.guild.roles.cache.get('907043792648032347')
-                                                      }
-                                                      let newrole = await message.guild.roles.create({
-                                                            data: {
+                                                      if (message.guild.id !== '980786048210718770') {
+                                                            if (!blossomrole) message.channel.send('Could not find the blossom role if this is cherry cord or the server booster role if this is rainy, this is fatal to the command.')
+                                                            let newrole = await message.guild.roles.create({
                                                                   name: message.author.tag,
-                                                                  position: blossomrole.position + 1,
-                                                            },
-                                                      }).catch(err => { console.log(err) })
-                                                      message.guild.members.cache.get(message.author.id).roles.add(newrole)
-                                                      query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
-                                                      data = [message.author.id, newrole.id, message.guild.id, message.author.username]
-                                                      connection.query(query, data, function (error, results, fields) {
-                                                            if (error) {
-                                                                  console.log('backend error for checking active bans')
-                                                                  return console.log(error)
-                                                            }
-                                                            message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
-                                                      })
+                                                                  position: blossomrole + 1,
+                                                            }).catch(err => {
+                                                                  console.log(err);
+                                                                  message.channel.send('Failed to create a role.');
+                                                            });
+                                                            message.guild.members.cache.get(message.author.id).roles.add(newrole)
+                                                            query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
+                                                            data = [message.author.id, newrole.id, message.guild.id, message.author.username]
+                                                            connection.query(query, data, function (error, results, fields) {
+                                                                  if (error) {
+                                                                        console.log('backend error for checking active bans')
+                                                                        return console.log(error)
+                                                                  }
+                                                                  message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
+                                                            })
+                                                      } else {
+                                                            let newrole = await message.guild.roles.create({
+                                                                  name: message.author.tag,
+                                                            }).catch(err => {
+                                                                  console.log(err);
+                                                                  message.channel.send('Failed to create a role.');
+                                                            });
+                                                            message.guild.members.cache.get(message.author.id).roles.add(newrole)
+                                                            query = `INSERT INTO chercordrole (userid, roleid, serverid, username) VALUES (?, ?, ?, ?)`;
+                                                            data = [message.author.id, newrole.id, message.guild.id, message.author.username]
+                                                            connection.query(query, data, function (error, results, fields) {
+                                                                  if (error) {
+                                                                        console.log('backend error for checking active bans')
+                                                                        return console.log(error)
+                                                                  }
+                                                                  message.channel.send('Created a role for you!! You now have it! You can name and color your role using `sm_role name <the roles name>` and `sm_role color <color>`')
+                                                            })
+                                                      }
                                                 } else if (message.content.toUpperCase() == 'NO' || message.content.toUpperCase() == 'N') {
                                                       message.channel.send('Ok')
                                                 } else {

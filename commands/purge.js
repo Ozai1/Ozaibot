@@ -381,3 +381,6 @@ async function bulkdelete(message, conformationmessage, amount, args) {
             }
       }
 }
+async function ExecuteBulkDeleteWithOptions(amount, conformationmessage, member = undefined, HasSilent = false, HasLinks=false, HasInvites=false, HasBots=false, HasEmbeds=false, HasFiles=false, HasUsers=false, HasImages=false, HasMentions=false, Includepins=false) {
+      
+}

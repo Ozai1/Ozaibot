@@ -255,20 +255,7 @@ return
                 return
             }
             if (!args[0]) {
-                message.channel.send({
-                    embeds: [{
-
-                        embed: {
-                            color: 3447003,
-                            title: ('Standard Commands.'),
-                            fields: [
-                                { name: `'**${prefix}help <commandname>**'`, value: "Ping\nHelp\nKick\nBan\nPurge\nRename\nAdd\nPoll\nThis is so outdated", inline: true },
-                                { name: "** **                    ", value: `Unmute\nPM\nLockdown\nMute\nTakeaway\nRandom\nSay\nMusic\nThere is far more now`, inline: true },
-                            ]
-                        }
-                    }
-                    ]
-                });
+                message.channel.send(`Uhm to lazy for embed just ping me`)
             } else {
                 let command_chosen = args[0].toLowerCase();
                 if (command_chosen === 'ping') {

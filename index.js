@@ -8,7 +8,6 @@ const Discord = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
-const { KeyObject } = require('crypto');
 
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -611,6 +610,7 @@ client.on('messageReactionRemove', async (react, author) => {
 });
 
 client.on("voiceStateUpdate", function (oldstate, newstate) {
+      return
       if (oldstate.member.user.bot) return;
       let oldmember = oldstate.member
       let newmember = newstate.member

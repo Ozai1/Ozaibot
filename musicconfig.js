@@ -6,7 +6,7 @@ module.exports = {
             autoSelfDeaf: false, //IF YOU WANT TO DEAF THE BOT, set false to true.
 
             leaveOnTimer: { //The leaveOnEnd variable must be "false" to use this system.
-                status: true, //If this variable is "true", the bot will leave the channel when the bot is offline.
+                status: false, //If this variable is "true", the bot will leave the channel when the bot is offline.
                 time: 480 * 1000, // 8 mins 
             }
         },

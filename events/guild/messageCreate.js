@@ -108,7 +108,7 @@ module.exports = async (Discord, client, message) => {
 
     }
     if (message.author.bot) return
-    if (message.channel.type === 'dm') {
+    if (message.channel.name === undefined) {
         if (message.author.id === '862247858740789269') return
         let dmlogs = client.channels.cache.get('900507984264847361');
         const commandembed = new Discord.MessageEmbed()
@@ -154,7 +154,7 @@ module.exports = async (Discord, client, message) => {
                 if (results == '' || results === undefined) { // User does not have a row.
                     let query = "INSERT INTO totalcmds (userid, username, cmdcount) VALUES (?, ?, ?)";
                     let data = [message.author.id, message.author.username, 1]
-                    NoWaitConnection.query(query, data, function (error, results, fields) {
+                    connection.query(query, data, function (error, results, fields) {
                         if (error) return console.log(error)
                     });
                 } else {
@@ -163,7 +163,7 @@ module.exports = async (Discord, client, message) => {
                     }
                     let query = "UPDATE totalcmds SET cmdcount = ? WHERE userid = ?";
                     let data = [cmdcount, message.author.id]
-                    NoWaitConnection.query(query, data, function (error, results, fields) {
+                    connection.query(query, data, function (error, results, fields) {
                         if (error) return console.log(error)
                     });
                 }
