@@ -50,6 +50,14 @@ module.exports.GetDisplay = (timelength) => {
     return display
 }
 
+/**
+ * Retreves a member from the guild of message object
+ * @param {Object} message Message object
+ * @param {string} string The string that is used to find a member
+ * @param {Object} Discord Used for embeds
+ * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
+ * @returns {Object} member on success or undefined on fail
+ */
 module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults) => {
     try {
         let member = undefined;
