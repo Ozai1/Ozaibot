@@ -1,5 +1,7 @@
+const { getPackedSettings } = require('http2');
 const mysql = require('mysql2');
-const {GetTimeAndAlias, GetMember } = require("../functions")
+const {GetDisplay, GetPunishmentDuration}=require('../moderationinc')
+
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -28,14 +30,8 @@ module.exports = {
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!userstatus == 1) return
-        if (!args[0]) return 
-        const timeandalias = GetTimeAndAlias(args[0])
-        if (timeandalias == -1) {
-            return message.channel.send('function failed')
-        }
-        const mutetimeinseconds = timeandalias.time
-        const unitoftimechosen = timeandalias.unitName
-        const amount = timeandalias.amount
-        message.channel.send(`${mutetimeinseconds}, ${unitoftimechosen}, ${amount}`)
+        const totaltimeinseconds = await GetPunishmentDuration(args[0])
+        if (isNaN(totaltimeinseconds)) return message.channel.send('Invalid time')
+        message.channel.send(`${totaltimeinseconds}\nresponse:\n<user> has been muted ${GetDisplay(totaltimeinseconds)}`)
     }
 }

@@ -92,9 +92,9 @@ async function launchslashcommand(client, interaction, userstatus) {
     }
 
     cmd.run(client, interaction, userstatus)
-    let alllogs = client.channels.cache.get('882845463647256637');
-    const commandembed = new MessageEmbed()
-        .setDescription(`**${interaction.guild}** (${interaction.guild.id})\n ${interaction.channel} (${interaction.channel.name} | ${interaction.channel.id})\n**${interaction.member.user.tag}** (${interaction.member.id})\n"${interaction.commandName}".`)
-        .setTimestamp()
-    alllogs.send({ embeds: [commandembed] });
+    // let alllogs = client.channels.cache.get('882845463647256637');
+    // const commandembed = new MessageEmbed()
+    //     .setDescription(`**${interaction.guild}** (${interaction.guild.id})\n ${interaction.channel} (${interaction.channel.name} | ${interaction.channel.id})\n**${interaction.member.user.tag}** (${interaction.member.id})\n"${interaction.commandName}".`)
+    //     .setTimestamp()
+    // alllogs.send({ embeds: [commandembed] });
 }

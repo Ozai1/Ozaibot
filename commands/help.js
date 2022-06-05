@@ -245,7 +245,7 @@ return
                 printarr.forEach(entry => {
                     descriptionlength = descriptionlength + entry.length
                 })
-                if (descriptionlength > 4000) return message.channel.send('To many ]}commands to say in one embed, make send in better way')
+                if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
                 const helpembed = new Discord.MessageEmbed()
                     .setTitle('Literally every command')
                     .setDescription(printarr)

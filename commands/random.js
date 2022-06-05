@@ -30,7 +30,7 @@ module.exports = {
             if (!isNaN(args[0]) && !args[1]) {
                   let prerating = Number(args[0]) + 1
                   rating = Math.floor(Math.random() * prerating);
-                  message.channel.send(rating)
+                  message.channel.send(`Number: ${rating}`)
             } else if (args[0] === 'no0' && !isNaN(args[1])) {
                   rating = Math.floor(Math.random() * args[1]) + 1;
                   message.channel.send(`your random number is ${rating}`)

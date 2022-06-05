@@ -30,7 +30,7 @@ const serversdb = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
+
 require('dotenv').config();
 allIntents = new Intents(98047); // doesnt include status intents
 
@@ -363,9 +363,8 @@ client.on('guildMemberAdd', async member => {
                               }
                         }
                         if (invitesindb[1]) {
-                              console.log(invitesindb)
-                              return console.log('More than one invite seen missing, stopping search through this method')
-
+                              //console.log(invitesindb)
+                              return //console.log('More than one invite seen missing, stopping search through this method')
                         }
                         if (!invitesindb[0]) return console.log('could not find any missing invites, stopping search')
                         if (invitesindb[0]) {

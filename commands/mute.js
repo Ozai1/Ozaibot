@@ -1,6 +1,6 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
-const {GetTimeAndAlias, GetMember } = require("../functions")
+const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -11,7 +11,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
+
 const serversdb = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -22,7 +22,7 @@ const serversdb = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
+
 module.exports = {
       name: 'mute',
       aliases: ['m'],
@@ -59,7 +59,7 @@ module.exports = {
                               .setAuthor(message.author.tag, message.author.avatarURL())
                               .setColor(15684432)
                               .setDescription(`Add a member arguement.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
-                        return message.channel.send({embeds: [errorembed]})
+                        return message.channel.send({ embeds: [errorembed] })
                   }
                   for (row of results) {
                         let muteroleid = row["details"];
@@ -79,7 +79,7 @@ module.exports = {
                                     .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                                     .setColor(15684432)
                                     .setDescription(`Invalid member.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
-                              return message.channel.send({embeds: [errorembed]})
+                              return message.channel.send({ embeds: [errorembed] })
                         }
                         if (member.id === message.author.id) {
                               console.log('attempted self mute, canceling')
@@ -87,7 +87,7 @@ module.exports = {
                                     .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                                     .setColor(15684432)
                                     .setDescription(`You cannot mute yourself.`)
-                              return message.channel.send({embeds: [errorembed]})
+                              return message.channel.send({ embeds: [errorembed] })
                         }
                         if (message.guild.ownerID !== message.author.id) {
                               if (member.id == message.guild.ownerID || member.permissions.has('ADMINISTRATOR')) {
@@ -96,7 +96,7 @@ module.exports = {
                                           .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                                           .setColor(15684432)
                                           .setDescription(`You cannot mute members with Administrator Permissions.`)
-                                    return message.channel.send({embeds: [errorembed]})
+                                    return message.channel.send({ embeds: [errorembed] })
                               }
                               if (message.author.id !== '508847949413875712') {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) {
@@ -105,17 +105,17 @@ module.exports = {
                                                 .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                                                 .setColor(15684432)
                                                 .setDescription(`You cannot mute members with higher or the same permissions as your own.`)
-                                          return message.channel.send({embeds: [errorembed]})
+                                          return message.channel.send({ embeds: [errorembed] })
                                     }
                               }
                         }
-                        if (member.roles.cache.some(role => role.id == muterole.id)){
+                        if (member.roles.cache.some(role => role.id == muterole.id)) {
                               console.log('attempted mute against someone already muted, canceling')
                               const errorembed = new Discord.MessageEmbed()
                                     .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                                     .setColor(15684432)
                                     .setDescription(`This member is already muted.`)
-                              return message.channel.send({embeds: [errorembed]})
+                              return message.channel.send({ embeds: [errorembed] })
                         }
                         member.roles.add(muterole).catch(err => {
                               console.log(err)
@@ -123,94 +123,15 @@ module.exports = {
                               return message.channel.send('Failed; unable to add muterole to member')
                         })
                         const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
+                        const muteduration = await GetPunishmentDuration(args[1])
+                        let reason = args.slice(1).join(" ");
+                        let display = ''
                         let timeunban = 9999999999;
-                        let reason = args.slice(2).join(" ")
-                        let display = '';
-                        let mutetimeseconds = null;
-                        if (args[1]) {
-                              const validtimes = ['s-sec', 'sec-sec', 'second-sec', 'secs-sec', 'seconds-sec', 'm-min', 'min-min', 'mins-min', 'minute-min', 'minutes-min', 'h-hou', 'hour-hou', 'hours-hou', 'd-day', 'day-day', 'days-day', 'w-wee', 'week-wee', 'weeks-wee', 'mon-mon', 'months-mon']
-                              let unitoftime = null;
-                              let unitchosenraw = null;
-                              const timechosen = args[1];
-                              let timechosenpostfixfound = false;
-                              validtimes.forEach((potentialtime2) => {
-                                    const potentialtime = potentialtime2.slice(0, -4)
-                                    if (timechosenpostfixfound === false) {
-                                          if (potentialtime === timechosen.slice(timechosen.length - 1)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 1)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 3)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 3)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 4)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 4)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 5)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 5)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 6)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 6)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                          } else if (potentialtime === timechosen.slice(timechosen.length - 7)) {
-                                                unitchosenraw = timechosen.slice(timechosen.length - 7)
-                                                timechosenpostfixfound = true
-                                                unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-
-                                          }
-                                    }
-                              })
-                              if (timechosenpostfixfound === true) {
-                                    if (unitoftime === 'min') {
-                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60;
-                                          timeunban = Number(mutetimeseconds + currenttime);
-                                    } else if (unitoftime === 'hou') {
-                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 3600;
-                                          timeunban = mutetimeseconds + currenttime;
-                                    } else if (unitoftime === 'day') {
-                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 86400;
-                                          timeunban = Number(mutetimeseconds + currenttime);
-                                    } else if (unitoftime === 'wee') {
-                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 604800;
-                                          timeunban = Number(mutetimeseconds + currenttime);
-                                    } else if (unitoftime === 'mon') {
-                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 2592000;
-                                          timeunban = Number(mutetimeseconds + currenttime);
-                                    } else if (unitoftime === 'sec') {
-                                          mutetimeseconds = timechosen.slice(0, -unitchosenraw.length);
-                                          timeunban = Number(mutetimeseconds) + currenttime;
-                                    }
-                                    let postfix = 's'; //60 3600 86400 604800 2592000
-                                    if (mutetimeseconds < 60) {
-                                          if (mutetimeseconds == 1) { postfix = '' }
-                                          display = ` for ${mutetimeseconds} second${postfix}`
-                                    } if (mutetimeseconds >= 60) {
-                                          if (mutetimeseconds == 60) { postfix = '' }
-                                          display = ` for ${mutetimeseconds / 60} minute${postfix}`
-                                    } if (mutetimeseconds >= 3600) {
-                                          if (mutetimeseconds == 3600) { postfix = '' }
-                                          display = ` for ${mutetimeseconds / 3600} hour${postfix}`
-                                    } if (mutetimeseconds >= 86400) {
-                                          if (mutetimeseconds == 86400) { postfix = '' }
-                                          display = ` for ${mutetimeseconds / 86400} day${postfix}`
-                                    } if (mutetimeseconds >= 604800) {
-                                          if (mutetimeseconds == 604800) { postfix = '' }
-                                          display = ` for ${mutetimeseconds / 604800} week${postfix}`
-                                    } if (mutetimeseconds >= 2592000) {
-                                          if (mutetimeseconds == 2592000) { postfix = '' }
-                                          display = ` for ${mutetimeseconds / 2592000} month${postfix}`
-                                    }
-                              } else {
-                                    reason = args.slice(1).join(" ")
-                                    display = '';
-                              }
+                        if (muteduration) {
+                              timeunban = muteduration + currenttime
+                              display = GetDisplay(muteduration)
                         } else {
-                              reason = args.slice(1).join(" ")
-                              display = '';
+                              reason = args.slice(2).join(" ");
                         }
                         message.channel.send(`${member} has been muted${display}.`)
                         query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
@@ -223,8 +144,8 @@ module.exports = {
                               return
                         })
                         console.log(`user has been muted${display}.`)
-                        if (mutetimeseconds === null) return
-                        if (mutetimeseconds < 86400) {
+                        if (!muteduration || muteduration == 0) return
+                        if (muteduration < 86400) {
                               setTimeout(() => {
                                     let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
                                     let data = ['muterole']
@@ -258,7 +179,7 @@ module.exports = {
                                                 })
                                           }
                                     })
-                              }, mutetimeseconds * 1000);
+                              }, muteduration * 1000);
                         }
                   }
             });

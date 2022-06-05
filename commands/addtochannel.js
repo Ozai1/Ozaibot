@@ -1,4 +1,4 @@
-const { GetMember } = require("../functions")
+const { GetMember } = require("../moderationinc")
 const mysql = require('mysql2');
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',

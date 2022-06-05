@@ -171,19 +171,19 @@ module.exports = async (Discord, client, message) => {
             let args = message.content.slice(prefix.length).split(" ");
             const cmd = args.shift().toLowerCase();
             const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
-            if (message.guild) {
-                let alllogs = client.channels.cache.get('882845463647256637');
-                const commandembed = new Discord.MessageEmbed()
-                    .setDescription(`**${message.guild}** (${message.guild.id})\n ${message.channel} (${message.channel.name} | ${message.channel.id})\n**${message.author.tag}** (${message.author.id})\n"${message.content}".`)
-                    .setTimestamp()
-                alllogs.send({ embeds: [commandembed] });
-            } else {
-                let alllogs = client.channels.cache.get('882845463647256637');
-                const commandembed = new Discord.MessageEmbed()
-                    .setDescription(`**${message.author.tag}** (${message.author.id}) IN DMS\n"${message.content}".`)
-                    .setTimestamp()
-                alllogs.send({ embeds: [commandembed] });
-            }
+            // if (message.guild) {
+            //     let alllogs = client.channels.cache.get('882845463647256637');
+            //     const commandembed = new Discord.MessageEmbed()
+            //         .setDescription(`**${message.guild}** (${message.guild.id})\n ${message.channel} (${message.channel.name} | ${message.channel.id})\n**${message.author.tag}** (${message.author.id})\n"${message.content}".`)
+            //         .setTimestamp()
+            //     alllogs.send({ embeds: [commandembed] });
+            // } else {
+            //     let alllogs = client.channels.cache.get('882845463647256637');
+            //     const commandembed = new Discord.MessageEmbed()
+            //         .setDescription(`**${message.author.tag}** (${message.author.id}) IN DMS\n"${message.content}".`)
+            //         .setTimestamp()
+            //     alllogs.send({ embeds: [commandembed] });
+            // }
             query = "SELECT * FROM userstatus WHERE userid = ?";
             data = [message.author.id]
             connection.query(query, data, function (error, results, fields) {

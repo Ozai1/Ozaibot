@@ -35,7 +35,7 @@ const serversdb = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['steamid','lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -56,9 +56,14 @@ module.exports = {
             if (cmd === 'sql') return self_sql(message, args)
             if (cmd === 'slashcommands') return slash_command_invite(message)
             if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
+            if (cmd === 'steamid') return convert_steam_id(message, args);
             if (userstatus == 1) {
             }
       }
+}
+async function convert_steam_id(message, args) {
+      if (!args[0]) return message.channel.send('U needa add the steamid');
+      message.channel.send(`#${args[0].replace(/:/g, '_')}`)
 }
 async function purge_of_racial_slurs(message, userstatus) {
       if (userstatus == 1) {

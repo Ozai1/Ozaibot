@@ -21,7 +21,7 @@ const serversdb = mysql.createPool({
     queueLimit: 0
 });
  
-const { GetMember } = require("../functions")
+const { GetMember } = require("../moderationinc")
 module.exports = {
     name: 'slap',
     aliases: [],
