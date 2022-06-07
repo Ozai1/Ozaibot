@@ -10,16 +10,7 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
  
-const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: `P0V6g5`,
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-});
+ 
  
 module.exports = {
       name: 'join',

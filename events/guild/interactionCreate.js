@@ -21,16 +21,16 @@ module.exports = (Discord, client, interaction) => {
             if (error) return console.log(error)
             if (results == '' || results === undefined) { // User does not have a row.
                 var userstatus = false;
-                launchslashcommand(client, interaction, userstatus)
+                launchslashcommand(client, interaction, Discord, userstatus)
                 return
             } for (row of results) {
                 var userstatus = row["status"];
             } if (userstatus == 0) {
                 return interaction.reply({ content: `You have been blacklisted from bot use.`, ephemeral: true }).catch(e => { })
             } else if (userstatus == 1) {
-                launchslashcommand(client, interaction, userstatus)
+                launchslashcommand(client, interaction, Discord, userstatus)
             } else {
-                launchslashcommand(client, interaction, userstatus)
+                launchslashcommand(client, interaction, Discord, userstatus)
             }
         });
     }
@@ -83,7 +83,7 @@ module.exports = (Discord, client, interaction) => {
     }
 };
 
-async function launchslashcommand(client, interaction, userstatus) {
+async function launchslashcommand(client, interaction, Discord, userstatus) {
     const cmd = client.slashcommands.get(interaction.commandName);
 
     if (cmd && cmd.voiceChannel) {
@@ -91,7 +91,7 @@ async function launchslashcommand(client, interaction, userstatus) {
         if (interaction.guild.me.voice.channel && interaction.member.voice.channel.id !== interaction.guild.me.voice.channel.id) return interaction.reply({ content: `You are not on the same audio channel as me. ❌`, ephemeral: true });
     }
 
-    cmd.run(client, interaction, userstatus)
+    cmd.run(client, interaction, Discord, userstatus)
     // let alllogs = client.channels.cache.get('882845463647256637');
     // const commandembed = new MessageEmbed()
     //     .setDescription(`**${interaction.guild}** (${interaction.guild.id})\n ${interaction.channel} (${interaction.channel.name} | ${interaction.channel.id})\n**${interaction.member.user.tag}** (${interaction.member.id})\n"${interaction.commandName}".`)

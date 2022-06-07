@@ -9,18 +9,9 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
-const serversdb = mysql.createPool({
-    host: 'vps01.tsict.com.au',
-    port: '3306',
-    user: 'root',
-    password: `P0V6g5`,
-    database: 'ozaibotservers',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
- 
+
+
+
 const { unix } = require('moment');
 
 module.exports = {
@@ -70,7 +61,7 @@ module.exports = {
                             let time = row["time"]
                             printstring.push(userid + time)
                         }
-                        for (i = 0; i <= printstring.length; i = i + 1) { 
+                        for (i = 0; i <= printstring.length; i = i + 1) {
                             let entry = printstring[i]
                             if (entry) {
                                 printstring.forEach(entry2 => {
@@ -107,7 +98,7 @@ module.exports = {
                             .setDescription(printmessage)
                         if (!extra === '') { helpembed.setFooter(extra) }
                         helpembed.setColor('BLUE')
-                        message.channel.send({embeds: [helpembed]})
+                        message.channel.send({ embeds: [helpembed] })
                     }
                 })
             } else if (cmd === 'whoinvited') {
@@ -268,7 +259,7 @@ module.exports = {
                     .setTimestamp()
                     .setFooter('Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.')
                     .setColor('BLUE')
-                message.channel.send({embeds: [helpembed]});
+                message.channel.send({ embeds: [helpembed] });
                 return
             } else if (cmd === 'unblacklistinvite') {
                 if (userstatus == 1 || userstatus == 3) {
@@ -353,7 +344,7 @@ module.exports = {
                                 .setFooter('Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N')
                                 .setColor('ORANGE')
                             let filter = m => m.author.id === message.author.id;
-                            message.channel.send({embeds: [helpembed]}).then(() => {
+                            message.channel.send({ embeds: [helpembed] }).then(() => {
                                 message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message => {
                                     message = message.first();
                                     if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
@@ -365,19 +356,20 @@ module.exports = {
                                                 if (entry) {
                                                     let successful = true
                                                     let member = message.guild.members.cache.get(finalarrid[i])
-                                                        await message.guild.members.ban(finalarrid[i], { reason: `${message.author.tag} has purged an invite, this is one of the members that was included in the purge.` })
+                                                    await message.guild.members.ban(finalarrid[i], { reason: `${message.author.tag} has purged an invite, this is one of the members that was included in the purge.` })
                                                         .catch(err => {
                                                             console.log(err)
-                                                            successful = false })
-                                                        if (successful) {
-                                                            if (member) {
-                                                                finalarr2.push(entry + ': Banned.')
-                                                            } else {
-                                                                finalarr2.push(entry + ': Off server banned.')
-                                                            }
+                                                            successful = false
+                                                        })
+                                                    if (successful) {
+                                                        if (member) {
+                                                            finalarr2.push(entry + ': Banned.')
                                                         } else {
-                                                            finalarr2.push(entry + ': Failed to ban.')
+                                                            finalarr2.push(entry + ': Off server banned.')
                                                         }
+                                                    } else {
+                                                        finalarr2.push(entry + ': Failed to ban.')
+                                                    }
 
                                                 }
                                             }
@@ -387,10 +379,10 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:',  {embeds: [ helpembed ]})
+                                            conformationmessage.edit('Done:', { embeds: [helpembed] })
                                         } else if (action === 'kick') {
                                             let finalarr2 = []
-                                            for (i = 0; i <= finalarr.length; i = i + 1) { 
+                                            for (i = 0; i <= finalarr.length; i = i + 1) {
                                                 let entry = finalarr[i]
                                                 if (entry) {
                                                     let successful = true
@@ -416,11 +408,11 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:',{  embeds: [ helpembed ]})
+                                            conformationmessage.edit('Done:', { embeds: [helpembed] })
                                         } else if (action === 'mute') {
-                                            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                                            let data = ['muterole']
-                                            serversdb.query(query, data, function (error, results, fields) {
+                                            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+                                            let data = ['muterole', message.guild.id]
+                                            connection.query(query, data, function (error, results, fields) {
                                                 if (error) return console.log(error)
                                                 if (results == `` || results === undefined) {
                                                     return conformationmessage.edit('There is no mute role for this server, unable to mute. Use `sm_muterole set @role` or `sm_muterole create` to set a muterole.')
@@ -435,7 +427,7 @@ module.exports = {
                                                         return conformationmessage.edit(`I do not have high enough permissions to add the muterole to people.`)
                                                     }
                                                     let finalarr2 = []
-                                                    for (i = 0; i <= finalarr.length; i = i + 1) { 
+                                                    for (i = 0; i <= finalarr.length; i = i + 1) {
                                                         let entry = finalarr[i]
                                                         if (entry) {
                                                             let successful = true
@@ -511,7 +503,7 @@ module.exports = {
                                     .setDescription(`**Message**:\n${args.slice(0).join(" ")}`)
                                     .setFooter(`application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>`)
                                     .setColor('BLUE')
-                                appchannel.send({embeds: [helpembed]}).catch(err => { console.log(err) })
+                                appchannel.send({ embeds: [helpembed] }).catch(err => { console.log(err) })
                             }
                         })
                     } else return message.channel.send('You already have a raid app in.')

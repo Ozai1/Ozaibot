@@ -4,8 +4,9 @@ const { GetAlias, GetTime } = require('./functions')
 * use GetDisplay for the response message, this function is only used for getting the length of the puinishment
 * @param {string} usersarg the whole duration arg for the command, the function handles getting the unit and the amount. 
 * @returns {integer} duration of the punishment in seconds
-* @error if bad argumanet paramiters
+* @error if bad argument paramiters
 */
+
 module.exports.GetPunishmentDuration = async (string) => {
     if (!string) return
     let unitstring = string.replace(/[0-9]/g, '')
@@ -21,10 +22,12 @@ module.exports.GetPunishmentDuration = async (string) => {
 /**
 * Generates a response messages for returning the amount of time a punishment was executed for
 * @param {integer} timeinseconds the length of the punish, in seconds 
-* @returns {string} what actual length of time the user has selected. formated like: "for [amount] [unit]", space before "for" and no full stop
-* @error if negative time
+* @returns {string} what actual length of time the user has selected. formated like: "for [amount] [unit]", space before "for" and no full stop at the end
+* @error if some dumb shit is inputed
 */
+
 module.exports.GetDisplay = (timelength) => {
+    if (isNaN(timelength)) return
     if (timelength < 0) return
     let display = ''
     let postfix = 's'; //60 3600 86400 604800 2592000
@@ -51,7 +54,7 @@ module.exports.GetDisplay = (timelength) => {
 }
 
 /**
- * Retreves a member from the guild of message object
+ * Retreves a member from the guild of command origin
  * @param {Object} message Message object
  * @param {string} string The string that is used to find a member
  * @param {Object} Discord Used for embeds

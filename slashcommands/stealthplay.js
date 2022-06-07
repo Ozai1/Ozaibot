@@ -21,7 +21,7 @@ module.exports = {
     }],
     voiceChannel: true,
 
-    run: async (client, interaction, userstatus) => {
+    run: async (client, interaction, Discord, userstatus) => {
         if (interaction.member.permissions.has('ADMINISTRATOR')) {
             return justfuckingrunit(client, interaction)
         }

@@ -12,17 +12,6 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
 
-const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: `P0V6g5`,
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-});
-
 module.exports = {
       name: 'mute',
       aliases: ['m'],
@@ -43,11 +32,10 @@ module.exports = {
             } if (!message.guild.me.permissions.has('MANAGE_ROLES')) {
                   console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.')
                   return message.channel.send('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
-
             }
-            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-            let data = ['muterole']
-            serversdb.query(query, data, async function (error, results, fields) {
+            let query = `SELECT * FROM serverconfigs WHERE serverid = ? && type = ?`;
+            let data = [message.guild.id, 'muterole']
+            connection.query(query, data, async function (error, results, fields) {
                   if (error) return console.log(error)
                   if (results == ``) {
                         console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
@@ -147,9 +135,9 @@ module.exports = {
                         if (!muteduration || muteduration == 0) return
                         if (muteduration < 86400) {
                               setTimeout(() => {
-                                    let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                                    let data = ['muterole']
-                                    serversdb.query(query, data, function (error, results, fields) {
+                                    let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+                                    let data = ['muterole', message.guild.id]
+                                    connection.query(query, data, function (error, results, fields) {
                                           if (error) return console.log(error)
                                           if (results == ``) {
                                                 return console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')

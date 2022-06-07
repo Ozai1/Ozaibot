@@ -10,16 +10,7 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
  
-const serversdb = mysql.createPool({
-    host: 'vps01.tsict.com.au',
-    port: '3306',
-    user: 'root',
-    password: `P0V6g5`,
-    database: 'ozaibotservers',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+ 
  
 
 module.exports = {
@@ -93,18 +84,18 @@ module.exports = {
             } else return message.channel.send('you do not have permissions to interact with this server\'s whitelist')
         } else if (cmd === 'enablewhitelist') {
             if (userstatus == 1 || message.author.id == message.guild.ownerID) {
-                let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                let data = ['whitelist']
-                serversdb.query(query, data, function (error, results, fields) {
+                let query = `SELECT * FROM ${message.guild.id}config WHERE type = ? && serverid = ?`;
+                let data = ['whitelist', message.guild.id]
+                connection.query(query, data, function (error, results, fields) {
                     if (error) {
                         console.log('backend error for checking active bans')
                         return console.log(error)
                     }
                     if (results == `` || results === undefined) {
                         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions, please grant me these permissions before activiating the server-wide whitelist.')
-                        let query = `INSERT INTO ${message.guild.id}config (type) VALUES (?)`;
-                        let data = ['whitelist']
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `INSERT INTO serverconfigs (serverid, type) VALUES (?, ?)`;
+                        let data = [message.guild.id, 'whitelist']
+                        connection.query(query, data, function (error, results, fields) {
                             if (error) {
                                 console.log('backend error for checking active bans')
                                 return console.log(error)
@@ -139,17 +130,17 @@ module.exports = {
             } else return message.channel.send('Only the server owner may turn the whitelist on and off, anyone with manage server permissions can add people to the whitelist though.')
         } else if (cmd === 'disablewhitelist') {
             if (userstatus == 1 || message.author.id == message.guild.ownerID) {
-                let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-                let data = ['whitelist']
-                serversdb.query(query, data, function (error, results, fields) {
+                let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+                let data = ['whitelist', message.guild.id]
+                connection.query(query, data, function (error, results, fields) {
                     if (error) {
                         console.log('backend error for checking active bans')
                         return console.log(error)
                     }
                     if (results == `` || results === undefined) return message.channel.send('This servers does not have its whitelist active as of current.')
-                    query = `DELETE FROM ${message.guild.id}config WHERE type = ?`;
-                    data = ['whitelist']
-                    serversdb.query(query, data, function (error, results, fields) {
+                    query = `DELETE FROM serverconfigs WHERE type = ? && serverid = ?`;
+                    data = ['whitelist', message.guild.id]
+                    connection.query(query, data, function (error, results, fields) {
                         if (error) {
                             console.log('backend error for checking active bans')
                             return console.log(error)

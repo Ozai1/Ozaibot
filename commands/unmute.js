@@ -10,16 +10,6 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
  
-const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: `P0V6g5`,
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-});
  
 const { GetMember } = require("../moderationinc")
 module.exports = {
@@ -29,9 +19,9 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (cmd === 'muterole') return mute_role(message, cmd, args, userstatus, Discord)
-            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
+            let query = `SELECT * FROM serverconfigs WHERE type = ?`;
             let data = ['muterole']
-            serversdb.query(query, data, async function (error, results, fields) {
+            connection.query(query, data, async function (error, results, fields) {
                   if (error) return console.log(error)
                   if (results == ``) {
                         return message.channel.send('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
@@ -80,9 +70,9 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
             if (!message.member.permissions.has("ADMINISTRATOR")) return message.channel.send("You do not have enough permissions to use this command.");
       }
       if (!args[0]) {
-            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-            let data = ['muterole'];
-            serversdb.query(query, data, function (error, results, fields) {
+            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+            let data = ['muterole', message.guild.id];
+            connection.query(query, data, function (error, results, fields) {
                   if (error)
                         return console.log(error);
                   if (results == ``) {
@@ -110,23 +100,23 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
             let role = message.guild.roles.cache.get(args[1].slice(3, -1)) || message.guild.roles.cache.get(args[1]);
             if (!role)
                   return message.channel.send('Invalid role.');
-            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
+            let query = `SELECT * FROM serverconfigs WHERE type = ?`;
             let data = ['muterole'];
-            serversdb.query(query, data, function (error, results, fields) {
+            connection.query(query, data, function (error, results, fields) {
                   if (error)
                         return console.log(error);
                   if (results == ``) {
-                        let query = `INSERT INTO ${message.guild.id}config (type, details) VALUES (?, ?)`;
-                        let data = ['muterole', role.id];
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `INSERT INTO serverconfigs (type, details, serverid) VALUES (?, ?, ?)`;
+                        let data = ['muterole', role.id, message.guild.id];
+                        connection.query(query, data, function (error, results, fields) {
                               if (error)
                                     return console.log(error);
                               message.channel.send('Set mute role.');
                         });
                   } else {
-                        let query = `UPDATE ${message.guild.id}config SET details = ? WHERE type = ?`;
-                        let data = [role.id, 'muterole'];
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `UPDATE serverconfigs SET details = ? WHERE type = ? && serverid = ?`;
+                        let data = [role.id, 'muterole', message.guild.id];
+                        connection.query(query, data, function (error, results, fields) {
                               if (error)
                                     return console.log(error);
                               message.channel.send('Set mute role.');
@@ -154,22 +144,22 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                         }
                   }
             });
-            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
-            let data = ['muterole'];
-            serversdb.query(query, data, function (error, results, fields) {
+            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+            let data = ['muterole', message.guild.id];
+            connection.query(query, data, function (error, results, fields) {
                   if (error)
                         return console.log(error);
                   if (results == ``) {
-                        let query = `INSERT INTO ${message.guild.id}config (type, details) VALUES (?, ?)`;
-                        let data = ['muterole', muterole.id];
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `INSERT INTO serverconfigs (type, details, serverid) VALUES (?, ?, ?)`;
+                        let data = ['muterole', muterole.id, message.guild.id];
+                        connection.query(query, data, function (error, results, fields) {
                               if (error)
                                     return console.log(error);
                         });
                   } else {
-                        let query = `UPDATE ${message.guild.id}config SET details = ? WHERE type = ?`;
-                        let data = [muterole.id, 'muterole'];
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `UPDATE serverconfigs SET details = ? WHERE type = ? && serverid = ?`;
+                        let data = [muterole.id, 'muterole', message.guild.id];
+                        connection.query(query, data, function (error, results, fields) {
                               if (error)
                                     return console.log(error);
                         });
@@ -177,17 +167,17 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
             });
             message.channel.send(`Created the <@&${muterole.id}> role and set permissions in all channels *that ozaibot has access to editing*. This is now the mute role for Ozaibot.`);
       } else if (args[0].toLowerCase() === 'remove') {
-            let query = `SELECT * FROM ${message.guild.id}config WHERE type = ?`;
+            let query = `SELECT * FROM serverconfigs WHERE type = ?`;
             let data = ['muterole'];
-            serversdb.query(query, data, function (error, results, fields) {
+            connection.query(query, data, function (error, results, fields) {
                   if (error)
                         return console.log(error);
                   if (results == ``) {
                         message.channel.send('There is currently no mute role for this server.');
                   } else {
-                        let query = `DELETE FROM ${message.guild.id}config WHERE type = ?`;
-                        let data = ['muterole'];
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `DELETE FROM serverconfigs WHERE type = ? && serverid = ?`;
+                        let data = ['muterole', message.guild.id];
+                        connection.query(query, data, function (error, results, fields) {
                               if (error)
                                     return console.log(error);
                               message.channel.send('Removed the mute role for this server, the role still exists but Ozaibot will no longer use it for the mute command. You will need to set a new mute role in order to be able to mute again.');

@@ -6,7 +6,7 @@ module.exports = {
     options: [],
     voiceChannel: true,
 
-    run: async (client, interaction, userstatus) => {
+    run: async (client, interaction, Discord, userstatus) => {
         const queue = client.player.getQueue(interaction.guild.id);
 
  

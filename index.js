@@ -8,6 +8,7 @@ const Discord = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
+const { Help_INIT } = require('./slashcommands/help')
 
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -19,17 +20,8 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
-const serversdb = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: `P0V6g5`,
-      database: 'ozaibotservers',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
-});
+
+
 
 require('dotenv').config();
 allIntents = new Intents(98047); // doesnt include status intents
@@ -74,17 +66,9 @@ client.on('ready', async () => {
       connection.query(query, data, function (error, results, fields) {
             if (error) return console.log(error);
       });
-      
+
       data = []
       client.guilds.cache.forEach(async guild => {
-            query = `CREATE TABLE IF NOT EXISTS ${guild.id}config(id INT(12) AUTO_INCREMENT PRIMARY KEY, type VARCHAR(255) COLLATE utf8mb4_unicode_ci, details VARCHAR(255) COLLATE utf8mb4_unicode_ci, details2 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details3 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details4 VARCHAR(255) COLLATE utf8mb4_unicode_ci, details5 VARCHAR(255) COLLATE utf8mb4_unicode_ci);`;
-            serversdb.query(query, data, function (error, results, fields) {
-                  if (error) return console.log(error);
-            })
-            query = `CREATE TABLE IF NOT EXISTS ${guild.id}punishments(id INT(12) AUTO_INCREMENT PRIMARY KEY, userid VARCHAR(32), serverid VARCHAR(32), adminid VARCHAR(32), timeexecuted VARCHAR(32), timeunban VARCHAR(32), reason VARCHAR(255) COLLATE utf8mb4_unicode_ci);`;
-            serversdb.query(query, data, function (error, results, fields) {
-                  if (error) return console.log(error);
-            })
             if (guild.me.permissions.has('MANAGE_GUILD')) {
                   const newinvites = await guild.invites.fetch();
                   newinvites.forEach(async invite => {
@@ -118,9 +102,9 @@ client.on('ready', async () => {
                               if (!member) { member = searchmember(userid, guild) }
                               if (!guild) return console.log(`Attempted to unmute ${userid} in guild ${serverid} but the server was not found`)
                               if (!member) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the user was not found in the server`)
-                              query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-                              data = ['muterole']
-                              serversdb.query(query, data, function (error, results, fields) {
+                              query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+                              data = ['muterole', guild.id]
+                              connection.query(query, data, function (error, results, fields) {
                                     if (error) return console.log(error)
                                     if (results == ``) {
                                           return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the mute role was not found in db.`)
@@ -188,6 +172,7 @@ client.on('ready', async () => {
                   }
             })
       }, 60000);
+      Help_INIT()
       let alllogs = client.channels.cache.get('882845463647256637');
       alllogs.send(`Bot started up <@!508847949413875712>`);
       console.log(`Finished caching and updating`);
@@ -197,9 +182,9 @@ client.on('guildMemberAdd', async member => {
       const guild = member.guild;
       console.log(`${member.user.tag} joined ${guild}`);
       if (!guild.me.permissions.has('MANAGE_GUILD')) return;
-      let query = `SELECT * FROM ${member.guild.id}config WHERE type = ?`;
-      let data = ['whitelist'];
-      serversdb.query(query, data, async function (error, results, fields) {
+      let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+      let data = ['whitelist', guild.id];
+      connection.query(query, data, async function (error, results, fields) {
             if (error) {
                   console.log('backend error for checking active bans');
                   return console.log(error);
@@ -236,9 +221,9 @@ client.on('guildMemberAdd', async member => {
                   return console.log(error);
             }
             if (results == `` || results === undefined) return;
-            let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-            let data = ['muterole'];
-            serversdb.query(query, data, function (error, results, fields) {
+            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+            let data = ['muterole', guild.id];
+            connection.query(query, data, function (error, results, fields) {
                   if (error) return console.log(error);
                   if (results == `` || results === undefined) {
                         return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was removed in db`);
@@ -365,6 +350,7 @@ client.on('guildMemberAdd', async member => {
                         if (invitesindb[1]) {
                               //console.log(invitesindb)
                               return //console.log('More than one invite seen missing, stopping search through this method')
+
                         }
                         if (!invitesindb[0]) return console.log('could not find any missing invites, stopping search')
                         if (invitesindb[0]) {
@@ -442,10 +428,11 @@ async function invfound(member, invite) {
             for (row of results) {
                   let action = row["action"];
                   let adminid = row["adminid"];
+                  let guildid = row["serverid"]
                   if (action === 'mute') {
-                        let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-                        let data = ['muterole'];
-                        serversdb.query(query, data, function (error, results, fields) {
+                        let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+                        let data = ['muterole', guildid];
+                        connection.query(query, data, function (error, results, fields) {
                               if (error) return console.log(error);
                               if (results == `` || results === undefined) {
                                     return console.log(`${guild} (${guild.id}) has set up a link to automute but there is no mute role for this server`);
@@ -480,6 +467,61 @@ async function invfound(member, invite) {
             }
       })
 }
+const badwords = [
+      'cunt',
+      'shit',
+      'retard',
+      'fuck',
+      'bitch',
+      'twat',
+      'pussy',
+      'cock',
+      'dick',
+      'bastard',
+      'penis',
+      'sex'
+]
+let isenabled = false;
+client.on("messageCreate", async message => {
+      if (message.guild.id == '917964629089591337') {
+            if (isenabled) {
+                  let badwordfound = false;
+                  badwords.forEach(word => {
+                        if (badwordfound === false) {
+                              if (message.content.toLowerCase().includes(word)) {
+                                    if (message.content.toLowerCase().includes('<@&') || message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here')) return message.channel.send('Reminder must not contain any role, everyone or here pings.');
+                                    badwordfound = true
+                                    message.delete()
+                                    let newmessage = message.content.toLowerCase()
+                                    newmessage = newmessage.replace(/cunt/g, '\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/shit/g, '\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/retard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/fuck/g, '\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/bitch/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/twat/g, '\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/pussy/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/cock/g, '\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/dick/g, '\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/bastard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/penis/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                    newmessage = newmessage.replace(/sex/g, '\:heart:\:heart:\:heart:')
+                                    message.channel.send(`${message.member} says:\n${newmessage}`)
+                              }
+                        }
+                  })
+            }
+            if (message.content.toLocaleLowerCase().startsWith('sm_togglebadwordfilter')) {
+                  if (isenabled == 0) {
+                        isenabled = 1
+                        message.channel.send(`Bad word filter set to: ${isenabled}`)
+                  } else {
+                        isenabled = 0
+                        message.channel.send(`Bad word filter set to: ${isenabled}`)
+                  }
+
+            }
+      }
+})
 
 client.on('inviteCreate', async invite => {
       query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;

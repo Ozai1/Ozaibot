@@ -10,16 +10,7 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
  
-const serversdb = mysql.createPool({
-    host: 'vps01.tsict.com.au',
-    port: '3306',
-    user: 'root',
-    password: `P0V6g5`,
-    database: 'ozaibotservers',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
+ 
  
 const { exec } = require("child_process")
 module.exports = {
@@ -29,7 +20,7 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id == '174095706653458432') {
             if (cmd === 'shutdown') {
-                message.react('☑️')
+                await message.react('☑️')
                 console.log('Shut down by command')
                 exec(`forever stopall`)
                 justincasethatdoesntworkthisisafunctionthatwillmakethebotcrash

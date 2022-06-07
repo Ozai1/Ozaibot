@@ -12,7 +12,7 @@ module.exports = {
     }],
     voiceChannel: true,
 
-    run: async (client, interaction, userstatus) => {
+    run: async (client, interaction, Discord, userstatus) => {
         const name = interaction.options.getString('name')
 if (!name) return interaction.reply({ content: `Please enter a valid song name. ❌`, ephemeral: true }).catch(e => { })
 

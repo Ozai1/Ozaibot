@@ -11,7 +11,7 @@ module.exports = {
     }],
     voiceChannel: false,
 
-    run: async (client, interaction, userstatus) => {
+    run: async (client, interaction, Discord, userstatus) => {
         if (!interaction.member.voice.channel) return interaction.reply({ content: `You must be in a voice channel to use this command.`, ephemeral: true })
         const music = interaction.options.getString('music')
         await interaction.reply({ content: `**Searching** :mag_right: \`${music}\``, ephemeral: false }).catch(e => { })
