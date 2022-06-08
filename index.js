@@ -3,13 +3,12 @@ const fs = require('fs');
 const { unix } = require('moment');
 console.log("Stwarting Ozwaibot!!!");
 const { Player } = require('discord-player');
-const Intents = require("discord.js/src/util/Intents");
 const Discord = require('discord.js');
 const moment = require('moment');
 const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
 const { Help_INIT } = require('./slashcommands/help')
-
+const util = require('minecraft-server-util')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -24,10 +23,9 @@ const connection = mysql.createPool({
 
 
 require('dotenv').config();
-allIntents = new Intents(98047); // doesnt include status intents
 
 const client = new Discord.Client({
-      intents: allIntents, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
+      intents: 98047/* doesnt include status intents*/, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
 });
 client.musicConfig = require('./musicconfig');
 client.player = new Player(client, client.musicConfig.opt.discordPlayer);
@@ -41,6 +39,30 @@ client.events = new Discord.Collection();
 });
 
 client.on('ready', async () => {
+      setInterval(async () => {
+            util.status('112.213.34.137').then(async (response) => {
+                  let onlineplayers = []
+                  response.players.sample.forEach(player => {
+                      onlineplayers.push(`${player.name}`)
+                  })
+                  if (!onlineplayers[0]) {
+                      onlineplayers[0] = 'No one :('
+                  }
+                  onlineplayers = onlineplayers.toString()
+                  onlineplayers = onlineplayers.replace(/,/g, '\n')
+                  const embed77 = new Discord.MessageEmbed()
+                      .setTitle('MC Server Status')
+                      .setColor('BLUE')
+                      .setDescription(`**Currently ${response.players.online} players online:**\n${onlineplayers}`)
+                      .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+                  const statuschannel = client.channels.cache.get('984030657078513714')
+                  const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
+                  messagetoedit.edit({embeds: [embed77] })
+              }).catch(err => {
+                  console.log(err)
+              })
+      }, 120000);
+
       console.log(`Signed into ${client.user.tag}`);
       fs.readdir("./slashcommands/", (_err, files) => {
             synchronizeSlashCommands(client, client.slashcommands.map((c) => ({

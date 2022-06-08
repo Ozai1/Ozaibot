@@ -1,7 +1,7 @@
 const { getPackedSettings } = require('http2');
 const mysql = require('mysql2');
 const { GetDisplay, GetPunishmentDuration } = require('../moderationinc')
-
+const util = require('minecraft-server-util')
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -29,23 +29,15 @@ module.exports = {
     description: 'whatever i make at the time',
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (!userstatus == 1) return
-        // client.guilds.cache.forEach(guild => {
-        //     let query = `SELECT * FROM ${guild.id}config WHERE type = ?`;
-        //     let data = ['muterole']
-        //     serversdb.query(query, data, async function (error, results, fields) {
-        //         if (error) return console.log(error)
-        //         let muteroleid = row["details"]
-        //         for (row of results) {
-        //             let query = `INSERT INTO serverconfigs (serverid, type, details) VALUES (?, ?, ?)`;
-        //             let data = [ guild.id, 'muterole', muteroleid];
-        //             connection.query(query, data, function (error, results, fields) {
-        //                 if (error)
-        //                     return console.log(error);
-        //                 console.log('query')
-        //             });
-        //         }
-        //     })
-        // })
+        //if (!userstatus == 1) return
+        const embed77 = new Discord.MessageEmbed()
+            .setTitle('MC Server Status')
+            .setColor('BLUE')
+            .setDescription(`${args.slice(0).join(" ")}`)
+            .setFooter(`Server IP: 112.213.34.137`)
+        const statuschannel = client.channels.cache.get('984030657078513714')
+        const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
+        messagetoedit.edit({ embeds: [embed77] })
+
     }
 }
