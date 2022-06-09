@@ -9,9 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
     name: 'masssay',
     description: 'repeats your message 10 times',

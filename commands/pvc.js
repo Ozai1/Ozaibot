@@ -10,9 +10,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'pvc',
       description: 'creates a private voice call',

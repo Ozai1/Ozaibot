@@ -11,9 +11,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'checkban',
       aliases: ['checkbans', 'isbanned', 'user', 'userinfo', 'who', 'whois', 'ui', 'totalbans', 'bancount'],

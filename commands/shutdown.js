@@ -9,9 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
- 
- 
+
 const { exec } = require("child_process")
 module.exports = {
     name: 'shutdown',

@@ -9,9 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
     name: 'report',
     description: 'allerts me of an issue with ozaibot',

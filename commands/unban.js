@@ -9,9 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'unban',
       description: 'unbans a user from a guild',

@@ -9,9 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'getguildinvite',
       description: 'grabs an invite for the server id given',

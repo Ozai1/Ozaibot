@@ -9,9 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
     name: 'kickallvc',
     description: 'kicks all members of a voice call',

@@ -9,9 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'join',
       description: 'makes the bot join a channel',

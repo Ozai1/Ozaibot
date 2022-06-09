@@ -9,9 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
     name: 'getchannelinvite',
     description: 'gets an invite on a channel id',

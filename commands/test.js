@@ -22,8 +22,6 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
 
- 
-
 module.exports = {
       name: 'test',
       aliases: ['steamid','lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],

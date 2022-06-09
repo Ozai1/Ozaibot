@@ -41,31 +41,32 @@ client.on('ready', async () => {
             util.status('112.213.34.137').then(async (response) => {
                   let onlineplayers = []
                   response.players.sample.forEach(player => {
-                      onlineplayers.push(`${player.name}`)
+                        onlineplayers.push(`${player.name}`)
                   })
                   if (!onlineplayers[0]) {
-                      onlineplayers[0] = 'No one :('
+                        onlineplayers[0] = 'No one :('
                   }
                   onlineplayers = onlineplayers.toString()
                   onlineplayers = onlineplayers.replace(/,/g, '\n')
                   const embed77 = new Discord.MessageEmbed()
-                      .setTitle('MC Server Status')
-                      .setColor('BLUE')
-                      .setDescription(`**Currently ${response.players.online} players online:**\n${onlineplayers}`)
-                      .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+                        .setTitle('MC Server Status')
+                        .setColor('BLUE')
+                        .setDescription(`**Currently ${response.players.online} players online:**\n${onlineplayers}`)
+                        .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
                   const statuschannel = client.channels.cache.get('984030657078513714')
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
-                  messagetoedit.edit({embeds: [embed77] })
-              }).catch(async err => {
-                  const embed77 = new Discord.MessageEmbed()
-                  .setTitle('MC Server Status')
-                  .setColor('BLUE')
-                  .setDescription(`Server down.`)
-                  .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
-              const statuschannel = client.channels.cache.get('984030657078513714')
-              const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
-              messagetoedit.edit({embeds: [embed77] })
-              })
+                  messagetoedit.edit({ embeds: [embed77] })
+            }).catch(async err => {
+                  // const embed77 = new Discord.MessageEmbed()
+                  //       .setTitle('MC Server Status')
+                  //       .setColor('BLUE')
+                  //       .setDescription(`Server down.`)
+                  //       .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+                  // const statuschannel = client.channels.cache.get('984030657078513714')
+                  // const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
+                  // messagetoedit.edit({ embeds: [embed77] })
+                  console.log(err)
+            })
       }, 120000);
 
       console.log(`Signed into ${client.user.tag}`);

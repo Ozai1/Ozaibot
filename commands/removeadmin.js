@@ -9,9 +9,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
     name: 'removeadmin',
     description: 'removes the ADMIN LIKE ALL PERMS ADMIN role from a user',
@@ -27,4 +25,3 @@ module.exports = {
         }
     }
 }
-

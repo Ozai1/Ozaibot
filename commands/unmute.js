@@ -9,8 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
+
 const { GetMember } = require("../moderationinc")
 module.exports = {
       name: 'unmute',

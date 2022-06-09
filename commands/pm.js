@@ -9,9 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'pm',
       description: 'dms a user through the bot',

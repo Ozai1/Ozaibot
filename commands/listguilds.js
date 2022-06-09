@@ -9,9 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'listguilds',
       description: 'shows all the servers that the bot is in',

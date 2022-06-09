@@ -10,8 +10,6 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
 
-
-
 module.exports = {
       name: 'unblacklist',
       description: 'allows a user to use the bot again',

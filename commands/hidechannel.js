@@ -9,9 +9,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
- 
- 
- 
+
 module.exports = {
       name: 'hidechannel',
       description: 'changes the @ everyone permission for VIEW_CHANNEL to the opposet of its current state',
