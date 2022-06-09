@@ -20,8 +20,6 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
 
-
-
 require('dotenv').config();
 
 const client = new Discord.Client({
@@ -58,8 +56,15 @@ client.on('ready', async () => {
                   const statuschannel = client.channels.cache.get('984030657078513714')
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
                   messagetoedit.edit({embeds: [embed77] })
-              }).catch(err => {
-                  console.log(err)
+              }).catch(async err => {
+                  const embed77 = new Discord.MessageEmbed()
+                  .setTitle('MC Server Status')
+                  .setColor('BLUE')
+                  .setDescription(`Server down.`)
+                  .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+              const statuschannel = client.channels.cache.get('984030657078513714')
+              const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
+              messagetoedit.edit({embeds: [embed77] })
               })
       }, 120000);
 

@@ -4,7 +4,7 @@ module.exports = {
     name: 'ping',
     options: [],
 
-    run: async (client, interaction, Discord, userstatus) => {
+ async execute(client, interaction, Discord, userstatus)  {
         const start = Date.now();
         interaction.reply('Pong!').then(async() => {
         let last = Date.now();

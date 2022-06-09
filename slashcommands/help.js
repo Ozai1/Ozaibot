@@ -10,7 +10,7 @@ module.exports = {
         required: false
     }],
 
-    run: async (client, interaction, Discord, userstatus) => {
+ async execute(client, interaction, Discord, userstatus)  {
         const args0 = interaction.options.getString('command')
         if (!args0) {
             interaction.reply('dbdasf')

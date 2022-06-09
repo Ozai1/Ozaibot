@@ -60,7 +60,7 @@
 //         required: false
 //     },
 //     ],
-//        run: async (client, interaction, Discord, userstatus) => {
+//     async execute(client, interaction, Discord, userstatus)  {
 //         interaction.reply({ content: `I am way to lazy to code this ngl`, ephemeral: true })
 //     },
 // };
