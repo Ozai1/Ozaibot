@@ -10,7 +10,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-
+const { unix } = require('moment');
 module.exports = {
       name: 'unban',
       description: 'unbans a user from a guild',
@@ -55,6 +55,15 @@ module.exports = {
                   message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
                         message.channel.send('Unbanned <@' + args[0] + '>.');
                   }).catch(err => { console.log(err) });
+                  let reason = args.slice(1).join(" ");
+                  let query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?)`;
+                  let data = [message.guild.id, args[0], message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'unban'];
+                  connection.query(query, data, function (error, results, fields) {
+                      if (error) {
+                          message.channel.send('Error logging unban. Unban will still be instated but will not show up in punishment searches.');
+                          return console.log(error);
+                      }
+                  });
             })
       }
 }

@@ -106,7 +106,7 @@ module.exports = async (Discord, client, message) => {
             if (!message.content.startsWith('norcon')) {
                 if (message.author.id == '368587996112486401') {
                     if (message.content.toLowerCase().startsWith('op')) {
-                        await message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
+                        await message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => {console.log(err)})
                         message.channel.send('why u do dat')
                         return
                     }
@@ -116,7 +116,7 @@ module.exports = async (Discord, client, message) => {
                     }
                 }
                 await rconclient.connect().catch(err => {
-                    return message.channel.send(`Error detected:\n${err}`)
+                    message.channel.send(`Error detected:\n${err}`)
                 })
                 let response = await rconclient.send(message.content)
                 if (response === '') {

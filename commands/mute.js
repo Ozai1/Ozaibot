@@ -1,7 +1,7 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
 const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
-const {GetDatabasePassword} = require('../hotshit')
+const { GetDatabasePassword } = require('../hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -61,7 +61,7 @@ module.exports = {
                               console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                               return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                         }
-                        let member = await GetMember(message, args[0], Discord, false);
+                        let member = await GetMember(message, args[0], Discord, false, false);
                         if (!member) {
                               console.log('invalid member')
                               const errorembed = new Discord.MessageEmbed()
@@ -127,11 +127,19 @@ module.exports = {
                         data = [member.id, message.guild.id, timeunban, 'mute']
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
-                                    message.channel.send('There was a backend error :/')
+                                    message.channel.send('Creating unmute time in database failed. User is still muted but will not be automatically unmuted.')
                                     return console.log(error)
                               }
                               return
                         })
+                        query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                        data = [message.guild.id, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), muteduration, reason, 'mute'];
+                        connection.query(query, data, function (error, results, fields) {
+                              if (error) {
+                                    message.channel.send('Error logging mute. mute will still be instated but will not show up in punishment searches.');
+                                    return console.log(error);
+                              }
+                        });
                         console.log(`user has been muted${display}.`)
                         if (!muteduration || muteduration == 0) return
                         if (muteduration < 86400) {
