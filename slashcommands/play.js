@@ -26,7 +26,7 @@ module.exports = {
 
         const queue = await client.player.createQueue(interaction.guild, {
             leaveOnEnd: client.musicConfig.opt.voiceConfig.leaveOnEnd,
-            autoSelfDeaf: client.musicConfig.opt.voiceConfig.autoSelfDeaf,
+            autoSelfDeaf: false,
             metadata: interaction.channel
         });
 

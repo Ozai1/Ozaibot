@@ -1,9 +1,10 @@
 const mysql = require('mysql2');
+const {GetDatabasePassword} = require('../hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: `P0V6g5`,
+      password: GetDatabasePassword(),
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -25,7 +26,7 @@ module.exports = {
             }
             if (!userstatus == 1) {
                   if (!message.member.permissions.has('BAN_MEMBERS')) {
-                        console.log('attempted to mute while not having enough permissions')
+                        console.log('attempted to unban while not having enough permissions')
                         const errorembed = new Discord.MessageEmbed()
                               .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                               .setColor(15684432)
@@ -44,7 +45,7 @@ module.exports = {
             message.guild.bans.fetch().then(bans => {
                   let member = bans.get(args[0]);
                   if (!member) {
-                        console.log('attempted to mute while not having enough permissions')
+                        console.log('attempted unban on user which is not banned')
                         const errorembed = new Discord.MessageEmbed()
                               .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                               .setColor("GREEN")

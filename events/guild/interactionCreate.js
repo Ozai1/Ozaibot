@@ -1,10 +1,11 @@
 const { MessageEmbed } = require('discord.js');
 const mysql = require('mysql2');
+
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: 'P0V6g5',
+    password: '8pSHlRPaaN6Gw3Kx',
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
@@ -13,7 +14,7 @@ const connection = mysql.createPool({
 module.exports = (Discord, client, interaction) => {
 
     if (!interaction.guild) return
-
+    
     if (interaction.isCommand()) {
         query = "SELECT * FROM userstatus WHERE userid = ?";
         data = [interaction.member.id]

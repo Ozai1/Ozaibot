@@ -1,17 +1,22 @@
 require('dotenv').config();
 const mysql = require('mysql2');
+const { Rcon } = require('rcon-client')
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: `P0V6g5`,
+    password: '8pSHlRPaaN6Gw3Kx',
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
- 
+const rconclient = new Rcon({
+    host: '112.213.34.137',
+    port: '25575',
+    password: 'ZD:*{QsdD"4NV',
+});
 
 module.exports = async (Discord, client, message) => {
     /*
@@ -96,7 +101,31 @@ module.exports = async (Discord, client, message) => {
                 })
             }
         }
-
+        if (message.channel.id == '984719070022762507') {
+            if (message.author.id == client.user.id) return
+            if (!message.content.startsWith('norcon')) {
+                if (message.author.id == '368587996112486401') {
+                    if (message.content.toLowerCase().startsWith('op')) {
+                        await message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
+                        message.channel.send('why u do dat')
+                        return
+                    }
+                    if (message.content.toLowerCase().startsWith('gamemode creative')) {
+                        message.channel.send('would really rather not creative. the rest of the gamemodes are fine tho')
+                        return
+                    }
+                }
+                await rconclient.connect().catch(err => {
+                    return message.channel.send(`Error detected:\n${err}`)
+                })
+                let response = await rconclient.send(message.content)
+                if (response === '') {
+                    response = 'Successful.'
+                }
+                message.reply(`\n${response}`)
+                rconclient.end()
+            }
+        }
     }
     if (message.author.bot) return
     if (message.channel.name === undefined) {

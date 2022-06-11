@@ -1,5 +1,7 @@
-const { relativeTimeRounding } = require("moment");
+const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
 const { unix } = require("moment");
+const toggleShout = require('../index')
+const { joinVoiceChannel } = require('@discordjs/voice');
 const DISCORD_EPOCH = 1420070400000
 let nextbumptime = '';
 let lastbumptime = '';
@@ -11,11 +13,12 @@ const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
       return
 }
 const mysql = require('mysql2');
+const {GetDatabasePassword} = require('../hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: `P0V6g5`,
+      password: GetDatabasePassword(),
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -24,7 +27,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['steamid','lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -46,14 +49,19 @@ module.exports = {
             if (cmd === 'slashcommands') return slash_command_invite(message)
             if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
             if (cmd === 'steamid') return convert_steam_id(message, args);
+            if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord);
+
             if (userstatus == 1) {
             }
       }
 }
+
+
 async function convert_steam_id(message, args) {
       if (!args[0]) return message.channel.send('U needa add the steamid');
       message.channel.send(`#${args[0].replace(/:/g, '_')}`)
 }
+
 async function purge_of_racial_slurs(message, userstatus) {
       if (userstatus == 1) {
             let amountfound = 0;

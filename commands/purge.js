@@ -3,11 +3,12 @@ const imissjansomuchithurts = 1420070400000
 const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
 const mysql = require('mysql2');
 
+const {GetDatabasePassword} = require('../hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: `P0V6g5`,
+      password: GetDatabasePassword(),
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,

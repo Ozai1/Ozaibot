@@ -9,11 +9,12 @@ const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
 const { Help_INIT } = require('./slashcommands/help')
 const util = require('minecraft-server-util')
+const {GetDatabasePassword} = require('./hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: `P0V6g5`,
+      password: GetDatabasePassword(),
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -40,11 +41,12 @@ client.on('ready', async () => {
       setInterval(async () => {
             util.status('112.213.34.137').then(async (response) => {
                   let onlineplayers = []
-                  response.players.sample.forEach(player => {
-                        onlineplayers.push(`${player.name}`)
-                  })
-                  if (!onlineplayers[0]) {
+                  if (!response.players.sample) {
                         onlineplayers[0] = 'No one :('
+                  } else {
+                        response.players.sample.forEach(player => {
+                              onlineplayers.push(`${player.name}`)
+                        })
                   }
                   onlineplayers = onlineplayers.toString()
                   onlineplayers = onlineplayers.replace(/,/g, '\n')
@@ -57,14 +59,14 @@ client.on('ready', async () => {
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
                   messagetoedit.edit({ embeds: [embed77] })
             }).catch(async err => {
-                  // const embed77 = new Discord.MessageEmbed()
-                  //       .setTitle('MC Server Status')
-                  //       .setColor('BLUE')
-                  //       .setDescription(`Server down.`)
-                  //       .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
-                  // const statuschannel = client.channels.cache.get('984030657078513714')
-                  // const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
-                  // messagetoedit.edit({ embeds: [embed77] })
+                  const embed77 = new Discord.MessageEmbed()
+                        .setTitle('MC Server Status')
+                        .setColor('BLUE')
+                        .setDescription(`Server down.`)
+                        .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+                  const statuschannel = client.channels.cache.get('984030657078513714')
+                  const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
+                  messagetoedit.edit({ embeds: [embed77] })
                   console.log(err)
             })
       }, 120000);
@@ -549,6 +551,7 @@ client.on("messageCreate", async message => {
 
             }
       }
+
 })
 
 client.on('inviteCreate', async invite => {

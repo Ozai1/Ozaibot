@@ -1,11 +1,9 @@
 const mysql = require('mysql2')
- 
-
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: `P0V6g5`,
+    password: '8pSHlRPaaN6Gw3Kx',
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
