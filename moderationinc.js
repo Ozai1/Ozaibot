@@ -59,24 +59,35 @@ module.exports.GetDisplay = (timelength) => {
  * @param {string} string The string that is used to find a member
  * @param {Object} Discord Used for embeds
  * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
+ * @param {boolean} includeOffserver also searches for members outside of the guild with fetch requests
  * @returns {Object} member on success or undefined on fail
  */
-module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults) => {
+module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults = false, includeOffserver = false) => {
     try {
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
-            member = await message.guild.members.fetch(string);
-            return member
+            member = message.guild.members.cache.get(string);
+            if (member) {
+                return member
+            }
+            if (includeOffserver) {
+                member = message.guild.members.fetch(string);
+            }
+            if (member) {
+                return member
+            }
         }
         if (string.startsWith('<@')) {
             let member = message.guild.members.cache.get(string.slice(3, -1)) || message.guild.members.cache.get(string.slice(2, -1))
             if (!member) {
-                if (string.includes('!')) {
-                    member = await message.guild.members.fetch(string.slice(3, -1))
-                    return member
-                } else {
-                    member = await message.guild.members.fetch(string.slice(2, -1))
-                    return member
+                if (includeOffserver) {
+                    if (string.includes('!')) {
+                        member = await message.guild.members.fetch(string.slice(3, -1))
+                        return member
+                    } else {
+                        member = await message.guild.members.fetch(string.slice(2, -1))
+                        return member
+                    }
                 }
             }
             return member

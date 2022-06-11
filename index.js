@@ -9,7 +9,7 @@ const mysql = require('mysql2');
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
 const { Help_INIT } = require('./slashcommands/help')
 const util = require('minecraft-server-util')
-const {GetDatabasePassword} = require('./hotshit')
+const { GetDatabasePassword } = require('./hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -54,7 +54,7 @@ client.on('ready', async () => {
                         .setTitle('MC Server Status')
                         .setColor('BLUE')
                         .setDescription(`**Currently ${response.players.online} players online:**\n${onlineplayers}`)
-                        .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+                        .setFooter({ text: "Server IP: 112.213.34.137; Embed refreshes ever 2 mins" })
                   const statuschannel = client.channels.cache.get('984030657078513714')
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
                   messagetoedit.edit({ embeds: [embed77] })
@@ -513,45 +513,46 @@ const badwords = [
 ]
 let isenabled = false;
 client.on("messageCreate", async message => {
-      if (message.guild.id == '917964629089591337') {
-            if (isenabled) {
-                  let badwordfound = false;
-                  badwords.forEach(word => {
-                        if (badwordfound === false) {
-                              if (message.content.toLowerCase().includes(word)) {
-                                    if (message.content.toLowerCase().includes('<@&') || message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here')) return message.channel.send('Reminder must not contain any role, everyone or here pings.');
-                                    badwordfound = true
-                                    message.delete()
-                                    let newmessage = message.content.toLowerCase()
-                                    newmessage = newmessage.replace(/cunt/g, '\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/shit/g, '\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/retard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/fuck/g, '\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/bitch/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/twat/g, '\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/pussy/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/cock/g, '\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/dick/g, '\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/bastard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/penis/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                    newmessage = newmessage.replace(/sex/g, '\:heart:\:heart:\:heart:')
-                                    message.channel.send(`${message.member} says:\n${newmessage}`)
+      if (message.guild) {
+            if (message.guild.id == '917964629089591337') {
+                  if (isenabled) {
+                        let badwordfound = false;
+                        badwords.forEach(word => {
+                              if (badwordfound === false) {
+                                    if (message.content.toLowerCase().includes(word)) {
+                                          if (message.content.toLowerCase().includes('<@&') || message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here')) return message.channel.send('Reminder must not contain any role, everyone or here pings.');
+                                          badwordfound = true
+                                          message.delete()
+                                          let newmessage = message.content.toLowerCase()
+                                          newmessage = newmessage.replace(/cunt/g, '\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/shit/g, '\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/retard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/fuck/g, '\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/bitch/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/twat/g, '\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/pussy/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/cock/g, '\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/dick/g, '\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/bastard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/penis/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
+                                          newmessage = newmessage.replace(/sex/g, '\:heart:\:heart:\:heart:')
+                                          message.channel.send(`${message.member} says:\n${newmessage}`)
+                                    }
                               }
-                        }
-                  })
-            }
-            if (message.content.toLocaleLowerCase().startsWith('sm_togglebadwordfilter')) {
-                  if (isenabled == 0) {
-                        isenabled = 1
-                        message.channel.send(`Bad word filter set to: ${isenabled}`)
-                  } else {
-                        isenabled = 0
-                        message.channel.send(`Bad word filter set to: ${isenabled}`)
+                        })
                   }
+                  if (message.content.toLocaleLowerCase().startsWith('sm_togglebadwordfilter')) {
+                        if (isenabled == 0) {
+                              isenabled = 1
+                              message.channel.send(`Bad word filter set to: ${isenabled}`)
+                        } else {
+                              isenabled = 0
+                              message.channel.send(`Bad word filter set to: ${isenabled}`)
+                        }
 
+                  }
             }
       }
-
 })
 
 client.on('inviteCreate', async invite => {
