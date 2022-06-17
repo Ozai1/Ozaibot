@@ -19,7 +19,8 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (cmd === 'slap') {
             if (!args[0]) return message.channel.send('[SM] Usage: sm_slap <player|#playerid> <amount>')
-            const member = await GetMember(message, args[0], Discord, false)
+            const member = await GetMember(message, args[0], Discord, true, false)
+            if (member === 'cancelled') return
             if (!member) return message.channel.send('[SM] No matching clients found')
             if (!args[1]) {
                 return message.channel.send(`**[**OS**] ${message.member.user.username}** slapped **${member.user.username}** for **0** damage.`)

@@ -93,7 +93,7 @@ async function launchslashcommand(client, interaction, Discord, userstatus) {
     }
 
     cmd.execute(client, interaction, Discord, userstatus)
-    // let alllogs = client.channels.cache.get('882845463647256637');
+    // let alllogs = client.channels.cache.get('986882651921190932');
     // const commandembed = new MessageEmbed()
     //     .setDescription(`**${interaction.guild}** (${interaction.guild.id})\n ${interaction.channel} (${interaction.channel.name} | ${interaction.channel.id})\n**${interaction.member.user.tag}** (${interaction.member.id})\n"${interaction.commandName}".`)
     //     .setTimestamp()

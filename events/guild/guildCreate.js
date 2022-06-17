@@ -12,7 +12,7 @@ const connection = mysql.createPool({
 module.exports = async (Discord, client, guildCreate) => {
     let guild = guildCreate
     const guildowner = await guild.fetchOwner()
-    let alllogs = client.channels.cache.get('926353043144990740');
+    let alllogs = client.channels.cache.get('986882591980396604');
     await guild.members.fetch()
     let totalmembers = 0;
     guild.members.cache.forEach(member => {

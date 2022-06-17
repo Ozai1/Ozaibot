@@ -12,7 +12,7 @@ const connection = mysql.createPool({
 module.exports = async (Discord, client, guildDelete) => { 
     let guild = guildDelete
     const guildowner = await guild.fetchOwner()
-    let alllogs = client.channels.cache.get('926353043144990740');
+    let alllogs = client.channels.cache.get('986882591980396604');
     let query = "DELETE FROM activeinvites WHERE serverid = ?";
    let data = [guild.id];
     connection.query(query, data, function (error, results, fields) {

@@ -57,9 +57,9 @@ module.exports = {
                                           data = [member.id]
                                           connection.query(query, data, function (error, results, fields) {// remove bot admin and blacklist
                                                 if (error) return console.log(error)
-                                                message.channel.send(`${member} has had their botadmin removed`)
+                                                message.channel.send(`${member} has had their botadmin removed.`)
                                                 console.log(`${member.tag}(${member.id}) has had their botadmin removed by ${message.author.tag}`)
-                                                let alllogs = client.channels.cache.get('882845463647256637')
+                                                let alllogs = client.channels.cache.get('986882651921190932')
                                                 if (message.author.id !== '508847949413875712'){
                                                 alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had their botadmin removed as per the above message, this was done by by ${message.author.tag}`)}
                                                 return

@@ -54,14 +54,14 @@ client.on('ready', async () => {
                         .setTitle('MC Server Status')
                         .setColor('BLUE')
                         .setDescription(`**Currently ${response.players.online} players online:**\n${onlineplayers}`)
-                        .setFooter({ text: "Server IP: 112.213.34.137; Embed refreshes ever 2 mins" })
+                        .setFooter({ text: "Server IP: vps01.tsict.com.au, version 1.18.2; Embed refreshes ever 2 mins" })
                   const statuschannel = client.channels.cache.get('984030657078513714')
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
                   messagetoedit.edit({ embeds: [embed77] })
             }).catch(async err => {
                   const embed77 = new Discord.MessageEmbed()
                         .setTitle('MC Server Status')
-                        .setColor('BLUE')
+                        .setColor('RED')
                         .setDescription(`Server down.`)
                         .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
                   const statuschannel = client.channels.cache.get('984030657078513714')
@@ -96,8 +96,6 @@ client.on('ready', async () => {
       connection.query(query, data, function (error, results, fields) {
             if (error) return console.log(error);
       });
-
-      data = []
       client.guilds.cache.forEach(async guild => {
             if (guild.me.permissions.has('MANAGE_GUILD')) {
                   const newinvites = await guild.invites.fetch();
@@ -203,7 +201,7 @@ client.on('ready', async () => {
             })
       }, 60000);
       Help_INIT()
-      let alllogs = client.channels.cache.get('882845463647256637');
+      let alllogs = client.channels.cache.get('986882651921190932');
       alllogs.send(`Bot started up <@!508847949413875712>`);
       console.log(`Finished caching and updating`);
 });
@@ -212,8 +210,8 @@ client.on('guildMemberAdd', async member => {
       const guild = member.guild;
       console.log(`${member.user.tag} joined ${guild}`);
       if (!guild.me.permissions.has('MANAGE_GUILD')) return;
-      let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
-      let data = ['whitelist', guild.id];
+      let query = `SELECT * FROM serverconfigs WHERE serverid = ? && type = ?`;
+      let data = [guild.id, 'whitelist'];
       connection.query(query, data, async function (error, results, fields) {
             if (error) {
                   console.log('backend error for checking active bans');
@@ -222,7 +220,7 @@ client.on('guildMemberAdd', async member => {
             if (results == '' || results === undefined) {
             } else {
                   let query = "SELECT * FROM whitelist WHERE userid = ? && serverid = ?";
-                  let data = [member.id, member.guild.id];
+                  let data = [member.id, guild.id];
                   connection.query(query, data, async function (error, results, fields) {
                         if (error) {
                               console.log('backend error for checking active bans');
@@ -231,11 +229,13 @@ client.on('guildMemberAdd', async member => {
                         if (results == '' || results === undefined) {
                               try {
                                     if (member.bannable) {
-                                          member.ban({ reason: `Unauthed join, autoban (was not added to whitelist)`, days: 1 }).catch(err => {
+                                          member.ban({ reason: `Unauthed join, Autoban (Was not added to whitelist)` }).catch(err => {
                                                 console.log(err);
                                                 console.log('Ozaibot could not ban the following user.');
                                           })
-                                          console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned AUTOBAN`);
+                                          console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and got autobanned`);
+                                    } else {
+                                          console.log(`${member.user.tag}(${member.id}) tried to join ${member.guild} and autoban was attempted but the user was not bannable`);
                                     }
                               } catch (err) {
                                     console.log(err);
@@ -432,7 +432,7 @@ async function invfound(member, invite) {
       const guild = member.guild
       console.log('Invite found')
       query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
-      data = [member.id, member.guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];
+      data = [member.id, guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];
       connection.query(query, data, function (error, results, fields) {
             if (error) {
                   return console.log(error);
@@ -449,7 +449,7 @@ async function invfound(member, invite) {
             verchannel.send({ embeds: [verembed] });
       }
       query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
-      data = [invite.code, member.guild.id];
+      data = [invite.code, guild.id];
       connection.query(query, data, function (error, results, fields) {
             if (error) {
                   return console.log(error);
@@ -461,7 +461,7 @@ async function invfound(member, invite) {
                   let guildid = row["serverid"]
                   if (action === 'mute') {
                         let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
-                        let data = ['muterole', guildid];
+                        let data = ['muterole', guild.id];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) return console.log(error);
                               if (results == `` || results === undefined) {
@@ -497,6 +497,7 @@ async function invfound(member, invite) {
             }
       })
 }
+
 const badwords = [
       'cunt',
       'shit',
@@ -682,7 +683,7 @@ client.on('messageReactionRemove', async (react, author) => {
       }
 });
 
-client.on("voiceStateUpdate", function (oldstate, newstate) {
+client.on("voiceStateUpdate", async (oldstate, newstate) => {
       return
       if (oldstate.member.user.bot) return;
       let oldmember = oldstate.member

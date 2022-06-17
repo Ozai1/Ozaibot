@@ -1,22 +1,23 @@
 const mysql = require('mysql2');
-const help = require('../slashcommands/help');
-const {GetDatabasePassword} = require('../hotshit')
+const { GetDatabasePassword } = require('../hotshit')
 const connection = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: GetDatabasePassword(),
-      database: 'ozaibot',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: GetDatabasePassword(),
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
-
+const Help_Responses = new Map()
 module.exports = {
     name: 'help',
     aliases: ['zhelp', 'invite', 'ahelp'],
     description: 'sends a help message',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (cmd === 'invite') return Command_Invite(message, Discord)
+        if (cmd === 'ahelp') return Command_AHelp(message, userstatus, Discord)
         let prefix = 'sm_';
         query = "SELECT * FROM prefixes WHERE serverid = ?";
         if (message.guild) {
@@ -29,7 +30,137 @@ module.exports = {
             for (row of results) {
                 prefix = row["prefix"];
             }
-            /*
+            if (!args[0]) {
+                message.channel.send('dbdasf')
+            } else {
+                if (Help_Responses.has(args[0].toLowerCase())) {
+                    const returnmessage = Help_Responses.get(args[0].toLowerCase())
+                    returnmessage(message, Discord, userstatus)
+                } else {
+                    message.channel.send({ content: `Command / module not found. Please check your spelling.` })
+                }
+            }
+        })
+    }
+}
+
+module.exports.Help_INIT2 = () => {
+    Help_Responses.set('ban', HELP_EMBED_BAN)
+    Help_Responses.set('kick', HELP_EMBED_KICK)
+    Help_Responses.set('mute', HELP_EMBED_MUTE)
+    Help_Responses.set('unmute', HELP_EMBED_UNMUTE)
+    Help_Responses.set('unban', HELP_EMBED_UNBAN)
+    Help_Responses.set('rename', HELP_EMBED_RENAME)
+    Help_Responses.set('purge', HELP_EMBED_PURGE)
+    Help_Responses.set('help', HELP_EMBED_HELP)
+    Help_Responses.set('times', HELP_EMBED_TIMES)
+    Help_Responses.set('targeting', HELP_EMBED_TARGETING)
+}
+
+async function HELP_EMBED_TARGETING(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+    .setTitle('Targeting Users')
+        .setDescription(``)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_TIMES(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+    .setTitle('Time Durations')
+        .setDescription(`This is the way that the bot knows for how long to keep a punishemnt active on a user.\nAll commands that use custom durations will follow and use this system.\n\n**second:**\n\`seconds\` \`second\` \`secs\` \`sec\` \`s\`\n\n**minute:**\n\`minutes\` \`minute\` \`mins\` \`min\` \`m\`\n\n**hour:**\n\`hours\` \`hour\` \`h\`\n\n**day:**\n\`days\` \`day\` \`d\`\n\n**week:**\n\`weeks\` \`week\` \`w\`\n\n**month:**\n\`months\` \`month\` \`mon\`\n\n\nThese units of time are to be apended to a number.\n**Examples:**\n\`1mon\`\n\`3.4d\`\n\`2h\`\n\`0.875weeks\``)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_BAN(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+    .setTitle('Ban')
+        .setDescription(`Removes a user from the server and prevents them from rejoining.\n\nHowever many days of the user's messages are specified will be deleted.\nMax of 7 days worth of messages can be deleted, defaults to 0 days.\n\n**Usage:**\n\`ban <@user|user_id> <days to delete> <reason>\`\n\n**Examples:**\n\`ban @user called me a no no name\`\n\`ban @user 1 unspeakable things\`\n\`ban 6942077777888889999 off server ban so they cant join\`\n\n**Aliases:**\n\`b\`\n\n**Reversal Command:**\n\`unban\`\n\n**Permissions:**\nBan Members.\n`)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_KICK(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+    .setTitle('kick')
+        .setDescription(`Removes a user from the server.\nUsers who are kicked will need to be sent an invite in order to rejoin.\n\n**Usage:**\n\`kick <@user|user_id> <reason>\`\n\n**Examples:**\n\`kick @user\`\n\`kick @user spam\`\n\n**Aliases:**\n\`k\`\n\n**Permissions:**\nKick Members.\n`)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_MUTE(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+    .setTitle('Mute')
+        .setDescription(`Prevents a user from speaking in text channels.\nCommand will not work until a mute role has been set,\nYou can set a muterole with the \`muterole\`command.\n\n**Usage:**\n\`mute <@user|user_id> <time> <reason>\`\n\n**Examples:**\n\`mute @user\`\n\`mute @user spam\`\n\`mute @user 1h bad words\`\n\n**Aliases:**\n\`m\`\n\n**Reversal Command:**\n\`unmute\`\n\n**Permissions:**\nManage Messages.\n`)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_RENAME(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+        .addField(`sm_rename <@user> <new name>`, `Renames the user.\nPermissions: Manage Nicknames.`)
+        .setTimestamp()
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_UNBAN(message, Discord, userstatus) {
+    message.channel.send({ content: `KICK` })
+}
+
+async function HELP_EMBED_UNMUTE(message, Discord, userstatus) {
+    message.channel.send({ content: `KICK` })
+}
+
+async function HELP_EMBED_PURGE(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+        .addField(`sm_purge <number_of_messages_to_be_deleted>`, `Deletes the amount of messages given. \nMax messages to delete is 1000.\nPermissions: Manage Messages.`)
+        .setTimestamp()
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_HELP(message, Discord, userstatus) {
+    message.channel.send({ content: `KICK` })
+}
+
+async function Command_Invite(message, Discord) {
+    const helpembed = new Discord.MessageEmbed()
+        .setTitle('Click here to add Ozaibot to a new server.')
+        .setURL('https://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands')
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] });
+    return
+}
+
+async function Command_AHelp(message, userstatus, Discord) {
+    if (userstatus == 1) {
+        let printarr = []
+        client.commands.forEach(entry => {
+            if (entry.aliases) {
+                entry.aliases.forEach(alias => {
+                    printarr.push(alias)
+                })
+            }
+            printarr.push(entry.name)
+        });
+        let descriptionlength = 0
+        printarr.forEach(entry => {
+            descriptionlength = descriptionlength + entry.length
+        })
+        if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
+        const helpembed = new Discord.MessageEmbed()
+            .setTitle('Literally every command')
+            .setDescription(printarr)
+            .setTimestamp()
+            .setColor('BLUE')
+        message.channel.send({ embeds: [helpembed] });
+        return
+    }
+}
+
+/*
             if (cmd === 'zhelp') {
                 // HELP EMBED
                 if (!args[0]) {
@@ -213,182 +344,3 @@ module.exports = {
 return
             } // ozaibot from here
             */
-            if (cmd === 'invite') {
-                const helpembed = new Discord.MessageEmbed()
-                    .setTitle('Click here to add Ozaibot to a new server.')
-                    .setURL('https://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands')
-                    .setColor('BLUE')
-                message.channel.send({ embeds: [helpembed] });
-                return
-            }
-            if (cmd === 'ahelp') {
-                let printarr = []
-                client.commands.forEach(entry => {
-                    if (entry.aliases) {
-                        entry.aliases.forEach(alias => {
-                            printarr.push(alias)
-                        })
-                    }
-                    printarr.push(entry.name)
-                });
-                let descriptionlength = 0
-                printarr.forEach(entry => {
-                    descriptionlength = descriptionlength + entry.length
-                })
-                if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
-                const helpembed = new Discord.MessageEmbed()
-                    .setTitle('Literally every command')
-                    .setDescription(printarr)
-                    .setTimestamp()
-                    .setColor('BLUE')
-                message.channel.send({ embeds: [helpembed] });
-                return
-            }
-            if (!args[0]) {
-                message.channel.send(`Uhm to lazy for embed just ping me`)
-            } else {
-                let command_chosen = args[0].toLowerCase();
-                if (command_chosen === 'ping') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`**sm_ping**`, `Just a text response command, used a lot to check if the bot is online.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'help') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`**sm_help <command_name(optional)>**`, `Gives you a guide and discription of a command. \n if you dont select a command to get info on then it will give you a list of commands.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'kick') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`**sm_kick <@user> <reason>**`, `Kicks the user from the server. \nSends a message to the kicked user stating who and why they were kicked. \nPermissions: Kick Members.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'ban') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_ban <@user> <time(optional)> <reason>`, `Bans a user from the server. \nIt will send a message to the banned user stating who and why they were banned. \nThe reason will be the ban reason in server settings. \nPermissions: Ban Members.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'purge') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_purge <number_of_messages_to_be_deleted>`, `Deletes the amount of messages given. \nMax messages to delete is 1000.\nPermissions: Manage Messages.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'Rename') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_rename <@user> <new name>`, `Renames the user.\nPermissions: Manage Nicknames.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'mute') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_mute <@user>`, `Adds a muted role to the user so they cannot speak in any channels. \nIf no muted role is found it will create one. \nPermissions: Manage Channels`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'unmute') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_unmute <@user>`, `Removes the muted role from the mentioned user. \nPermissions: Manage Channels`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'pm') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_pm <stealth(Optional)> <@user> <message to send to them>`, `Sends your message to the mentioned user through the bot. \nIf stealth was added it does not say who the message is from.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'lockdown') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_lockdown <start|stop|end>`, `Edits the permissions of the channel so no one can send messages but Administrators and people with pre-existing overides. \nIf you do not tell the command what to do it will assume to start a lockdown, but you must use stop/end to stop it. \nPermissions: Manage Channels`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'random') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_random <no0(optional) | number(put number here if you did not select no0)> <number(if no0 was selected only would it go here)> or sm_random <option1> <option2> <option3> <option4> <option5> (options can keep going up to 50) `, `Pseudorandomly generates a number or word.\nIf you only use 1 number it will randomize that number between 0 and the number and include 0 as a number.\nIf you include no0 it will randomize the number but it will not include 0 so it has less chances due to it starting from 1 instead of 0\n if you do not use just 1 number with or without no0 it will randomize all of the words you state.\nIf you wish to randomize sentences use_underscores_inbetween_words_instead_of_spaces for each sentence and then use a space to end the sentence and start the next one that may be chosen.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'report') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_report <issue goes here>`, `Use this command for reporting issues with the bot, all issues are welcome no matter how small, refining the bot is important.\nDo not spam the command, it pings me twice and logs it to my bots console. I will see it.\nThe bot isn't perfect so don't hesitate to chuck me a message, please greatly detail the issue so I can fix it properly.\nThis command can also be used for suggestions, if you want something added, ask!\nI appreciate all issues sent, it helps me a lot. Cheers.`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'say') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_say <message to repeat>`, `Repeats what you say in chat.\nIt does not filter out @ everyone or @role pings so use it with care, don't even toy with everyone and role pings, you never know when it may ping.\nDont abuse it in ways like making it say dumb shit then pitting it on the bot, its not a good look on me.\nPermissions: Administrator`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'prefix') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`sm_prefix <prefix>`, `Sets the bots prefix.\nIf you manage to lose the prefix message me <@508847949413875712> (508847949413875712) and I will reset it for you. Permissions: Manage Server`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'poll') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`\`sm_poll "poll name" "option1" "option2" "option3" ect.\``, `Must include the poll name but all options are not needed\nMax of 10 options\nAll of the options and the poll name must be enclosed in speech marks, eg. \n\`sm_poll "example name!" "This would be option A" "This would be option B" "This would be option C"\``)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'music') {
-                    const helpembed = new Discord.MessageEmbed()
-                        .addField(`This is more of a category than one command.`, `**sm_play <song name | song url>**(youtube links only for urls)\n\nThis command has the bot join the channel that you are in and play music!\nIf there is already a song playing it will add the song you have chosen to a queue and play it when the rest of the queue has finished.\n\n**sm_skip**\n\nThis skips the current song\n\n**sm_stop**\nAliases: leave, fuckoff, dc, disconnect.\nClears the queue and has the bot leave the channel.\n\n**sm_pause**\n\nPauses the music, its literally that simple.\n\n**sm_resume**\nAliases: unpause.\nStarts the music again after being paused.\n\n**sm_debug**\n\nResets the bot in your server so that it can be recovered from errors, if the bot stops working for whatever reason use this command and it *should* be fixed\n\nIf you have any issues or suggestions chuck us an sm_report <issue>`)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                } else if (command_chosen === 'all') {
-                    let printarr = []
-                    client.commands.forEach(entry => {
-                        if (entry.aliases) {
-                            entry.aliases.forEach(alias => {
-                                printarr.push(alias)
-                            })
-                        }
-                        printarr.push(entry.name)
-                    });
-                    let descriptionlength = 0
-                    printarr.forEach(entry => {
-                        descriptionlength = descriptionlength + entry.length
-                    })
-                    let printmessage = printarr.filter((a) => a).toString()
-                    printmessage = printmessage.replace(/,/g, '\n')
-                    if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
-                    const helpembed = new Discord.MessageEmbed()
-                        .setTitle('Literally every command')
-                        .setDescription(printmessage)
-                        .setTimestamp()
-                        .setColor('BLUE')
-                    message.channel.send({ embeds: [helpembed] });
-                    return
-                }
-                else {
-                    message.reply(`That is either not a command, is spelt incorrectly or has not been added to sm_help yet.`)
-                }
-            }
-        })
-    }
-}

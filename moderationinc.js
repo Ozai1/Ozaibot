@@ -58,11 +58,11 @@ module.exports.GetDisplay = (timelength) => {
  * @param {Object} message Message object
  * @param {string} string The string that is used to find a member
  * @param {Object} Discord Used for embeds
- * @param {boolean} MustNotHaveMultiResults Whether to allow the embed that asks what user they meant or to just return if multiple members are found
- * @param {boolean} includeOffserver also searches for members outside of the guild with fetch requests
+ * @param {boolean} AllowMultipleResults If a name instead of an ID or a mention is supplied it is possible to have multiple members with overlapping names found. This boolean is whether to allow the embed which will allow the admin to select which user out of the users found they intended to target.
+ * @param {boolean} AllowOffServer also searches for members outside of the guild
  * @returns {Object} member on success or undefined on fail
  */
-module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResults = false, includeOffserver = false) => {
+module.exports.GetMember = async (message, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
     try {
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
@@ -104,7 +104,7 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
             member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(4, -1));
             return member
         }
-        if (MustNotHaveMultiResults === true || possibleusers.length > 9) return undefined
+        if (AllowMultipleResults === false || possibleusers.length > 9) return undefined
         let printmessage = possibleusers.filter((a) => a).toString()
         printmessage = printmessage.replace(/,/g, '\n')
         const helpembed = new Discord.MessageEmbed()
@@ -120,7 +120,7 @@ module.exports.GetMember = async (message, string, Discord, MustNotHaveMultiResu
                 confmessage.delete().catch(err => { });
                 if (message2.content.startsWith('cancel')) {
                     message.channel.send('Cancelled.')
-                    return
+                    return 'cancelled'
                 }
                 if (isNaN(message2.content)) {
                     message2.channel.send('Failed, you are supposed to pick one of the #-numbers.')

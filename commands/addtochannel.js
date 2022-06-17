@@ -30,7 +30,8 @@ module.exports = {
                               if (!channelselected) return message.reply('Invalid channel or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                         } else return message.reply('Invalid channel id or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                   }
-                  let member = await GetMember(message, args[0], Discord, false)
+                  let member = await GetMember(message, args[0], Discord, true, false)
+                  if (member === 'cancelled') return
                   if (!member) return message.reply('Invalid user.');
                   channelselected.permissionOverwrites.edit(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true, ADD_REACTIONS: true }).catch(err => {
                         message.channel.send('failed')

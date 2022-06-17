@@ -103,9 +103,9 @@ module.exports = async (Discord, client, message) => {
         }
         if (message.channel.id == '984719070022762507') {
             if (message.author.id == client.user.id) return
-            if (!message.content.startsWith('norcon')) {
+            if (!message.content.startsWith('norcon') && !message.content.startsWith('sm_')) {
                 if (message.author.id == '368587996112486401') {
-                    if (message.content.toLowerCase().startsWith('op')) {
+                    if (message.content.toLowerCase().startsWith('op') || message.content.toLowerCase().startsWith('deop ozai1') ) {
                         await message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => {console.log(err)})
                         message.channel.send('why u do dat')
                         return
@@ -130,7 +130,7 @@ module.exports = async (Discord, client, message) => {
     if (message.author.bot) return
     if (message.channel.name === undefined) {
         if (message.author.id === '862247858740789269') return
-        let dmlogs = client.channels.cache.get('900507984264847361');
+        let dmlogs = client.channels.cache.get('986883430388207646');
         const commandembed = new Discord.MessageEmbed()
             .setDescription(`**${message.author.tag} IN DMS \n"**${message.content}**".**`)
             .setTimestamp()
@@ -192,13 +192,13 @@ module.exports = async (Discord, client, message) => {
             const cmd = args.shift().toLowerCase();
             const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
             // if (message.guild) {
-            //     let alllogs = client.channels.cache.get('882845463647256637');
+            //     let alllogs = client.channels.cache.get('986882651921190932');
             //     const commandembed = new Discord.MessageEmbed()
             //         .setDescription(`**${message.guild}** (${message.guild.id})\n ${message.channel} (${message.channel.name} | ${message.channel.id})\n**${message.author.tag}** (${message.author.id})\n"${message.content}".`)
             //         .setTimestamp()
             //     alllogs.send({ embeds: [commandembed] });
             // } else {
-            //     let alllogs = client.channels.cache.get('882845463647256637');
+            //     let alllogs = client.channels.cache.get('986882651921190932');
             //     const commandembed = new Discord.MessageEmbed()
             //         .setDescription(`**${message.author.tag}** (${message.author.id}) IN DMS\n"${message.content}".`)
             //         .setTimestamp()

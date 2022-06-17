@@ -22,8 +22,8 @@ module.exports = {
             if (!args[0]) {
                   return message.channel.send('Please give a member.')
             }
-            let query = `SELECT * FROM serverconfigs WHERE type = ?`;
-            let data = ['muterole']
+            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+            let data = ['muterole', message.guild.id]
             connection.query(query, data, async function (error, results, fields) {
                   if (error) return console.log(error)
                   if (results == ``) {
@@ -38,7 +38,8 @@ module.exports = {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }
                         }
-                        let member = await GetMember(message, args[0], Discord, false, false);
+                        let member = await GetMember(message, args[0], Discord, true, false);
+                        if (member === 'cancelled') return
                         if (!member) return message.channel.send("Invalid member.");
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
@@ -48,8 +49,8 @@ module.exports = {
                         }).then(() => {
                               message.channel.send(`${member} has been unmuted`);
                         })
-                        query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
-                        data = [member.id, message.guild.id, 'mute']
+                        let query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
+                        let data = [member.id, message.guild.id, 'mute']
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
                                     console.log('backend error for checking active bans')
@@ -65,8 +66,8 @@ module.exports = {
                               }
                         })
                         let reason = args.slice(1).join(" ");
-                        let query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?)`;
-                        let data = [message.guild.id, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'unmute'];
+                        query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?)`;
+                        data = [message.guild.id, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'unmute'];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
                                     message.channel.send('Error logging unmute. Unmute will still be instated but will not show up in punishment searches.');

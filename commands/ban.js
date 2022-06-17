@@ -30,6 +30,7 @@ module.exports = {
             return message.channel.send({ embeds: [errorembed] })
         }
         let member = await GetMember(message, args[0], Discord, false, false);
+        if (member === 'cancelled') return
         if (!userstatus == 1) {
             if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
             if (member) {
@@ -122,7 +123,7 @@ async function logban(message, member, reason) {
 async function sban(message, args, userstatus, Discord) {
     if (userstatus == 1) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
-        const member = await GetMember(message, args[0], Discord, false)
+        const member = await GetMember(message, args[0], Discord, true, false)
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
         if (!member) return message.author.send('no member')
         if (!member.bannable) return message.author.send('I do not have high enough permissions for this or they\'re not on the server or smth')

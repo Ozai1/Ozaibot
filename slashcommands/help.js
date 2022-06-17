@@ -1,4 +1,5 @@
 const Help_Responses = new Map()
+const {Help_INIT2} = require('../commands/help')
 module.exports = {
     showHelp: false,
     description: "information about the bot",
@@ -10,7 +11,7 @@ module.exports = {
         required: false
     }],
 
- async execute(client, interaction, Discord, userstatus)  {
+    async execute(client, interaction, Discord, userstatus) {
         const args0 = interaction.options.getString('command')
         if (!args0) {
             interaction.reply('dbdasf')
@@ -34,11 +35,14 @@ module.exports.Help_INIT = () => {
     Help_Responses.set('rename', HELP_EMBED_RENAME)
     Help_Responses.set('purge', HELP_EMBED_PURGE)
     Help_Responses.set('help', HELP_EMBED_HELP)
-
+    Help_INIT2()
 }
 
 async function HELP_EMBED_BAN(interaction, Discord, userstatus) {
-
+    const helpembed = new Discord.MessageEmbed()
+        .setDescription(`Removes a user from the server and prevents them from rejoining.\n\nIf a singular number is added after the member arguement, that many days of the members messages will be deleted.\nMax of 7 days worth of messages can be deleted.\n`)
+        .setTimestamp()
+        .setColor('BLUE')
     interaction.reply({ content: `BAN`, ephemeral: true })
 }
 
@@ -51,10 +55,10 @@ async function HELP_EMBED_MUTE(interaction, Discord, userstatus) {
 }
 
 async function HELP_EMBED_RENAME(interaction, Discord, userstatus) {
-     const helpembed = new Discord.MessageEmbed()
-    .addField(`sm_rename <@user> <new name>`, `Renames the user.\nPermissions: Manage Nicknames.`)
-    .setTimestamp()
-    .setColor('BLUE')
+    const helpembed = new Discord.MessageEmbed()
+        .addField(`sm_rename <@user> <new name>`, `Renames the user.\nPermissions: Manage Nicknames.`)
+        .setTimestamp()
+        .setColor('BLUE')
     interaction.reply({ embeds: [helpembed], ephemeral: true })
 }
 

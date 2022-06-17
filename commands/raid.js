@@ -529,7 +529,7 @@ module.exports = {
                                 if (error) return console.log(error)
                                 message.channel.send(`${member} has been given access to raid commands in ${daguild.name}`)
                                 console.log(`${member.tag}(${member.id}) has been given raid cmds by ${message.author.tag}.`)
-                                let alllogs = client.channels.cache.get('882845463647256637')
+                                let alllogs = client.channels.cache.get('986882651921190932')
                                 if (message.author.id !== '508847949413875712') {
                                     alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given raid cmds as per the message above, given by ${message.author.tag}`)
                                 }
@@ -559,7 +559,7 @@ module.exports = {
                                 connection.query(query, data, function (error, results, fields) {//check what theyre current status is
                                     if (error) return console.log(error)
                                     message.channel.send(`${member} has had their raid permissions removed from all servers.`)
-                                    let alllogs = client.channels.cache.get('882845463647256637')
+                                    let alllogs = client.channels.cache.get('986882651921190932')
                                     if (message.author.id !== '508847949413875712') {
                                         alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had raid cmds removed as per the message above, done by ${message.author.tag}`)
                                     }
@@ -585,7 +585,7 @@ module.exports = {
                             connection.query(query, data, function (error, results, fields) {//check what theyre current status is
                                 if (error) return console.log(error)
                                 message.channel.send(`${member} has had their raid permissions removed from ${daguild.name}.`)
-                                let alllogs = client.channels.cache.get('882845463647256637')
+                                let alllogs = client.channels.cache.get('986882651921190932')
                                 if (message.author.id !== '508847949413875712') {
                                     alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had raid cmds removed as per the message above, done by ${message.author.tag}`)
                                 }

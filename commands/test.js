@@ -1,6 +1,7 @@
 const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
 const { unix } = require("moment");
-const toggleShout = require('../index')
+const fs = require('fs')
+const ytdl = require('ytdl-core');
 const { joinVoiceChannel } = require('@discordjs/voice');
 const DISCORD_EPOCH = 1420070400000
 let nextbumptime = '';
@@ -13,7 +14,7 @@ const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
       return
 }
 const mysql = require('mysql2');
-const {GetDatabasePassword} = require('../hotshit')
+const { GetDatabasePassword } = require('../hotshit')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -27,7 +28,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -50,12 +51,33 @@ module.exports = {
             if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
             if (cmd === 'steamid') return convert_steam_id(message, args);
             if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord);
-
+            if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
             if (userstatus == 1) {
             }
       }
 }
 
+async function Command_GetYTVideoAudio(message, args, userstatus) {
+      if (userstatus == 1 || message.author.id == '174095706653458432' || message.author.id == '368587996112486401' || message.author.id == '325520772980539393') {
+            const confmessage = await message.channel.send('searching')
+            if (!args[0]) return confmessage.edit('Invalid link')
+            if (!ytdl.validateURL(args[0])) return confmessage.edit('Invalid link')
+            try {
+                  const stream = ytdl(args[0], { filter: 'audioonly', highWaterMark: 1024 * 1024 * 1 })
+                  confmessage.edit('Video found; fetching audio now...')
+                        stream.pipe(fs.createWriteStream('audio.mp3')).on('finish', async finish => {
+                              await confmessage.edit({ files: ["./audio.mp3"], content: 'Finished:' })
+                              fs.unlinkSync('./audio.mp3')
+                              stream.destroy()
+                        })
+            } catch (err) {
+                  confmessage.edit(err)
+            }
+
+      } else {
+            message.channel.send('You do not have permission to use this command')
+      }
+}
 
 async function convert_steam_id(message, args) {
       if (!args[0]) return message.channel.send('U needa add the steamid');
@@ -534,6 +556,11 @@ async function chercord_role(message, args) {
                               } else if (args[1].toLowerCase() === 'purple') {
                                     usersrole.edit({ color: '#A020F0' }).catch(err => { console.log(err) })
                                     message.channel.send('Role color edited.')
+                              } else if (args[1].toLowerCase() === 'black') {
+                                    usersrole.edit({ color: '#020202' }).catch(err => { console.log(err) })
+                                    message.channel.send('Role color edited.')
+                              } else {
+                                    return message.channel.send('Colour not found.')
                               }
                         }
                   }

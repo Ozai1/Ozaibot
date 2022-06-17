@@ -82,7 +82,7 @@ module.exports = {
             } else return message.channel.send('you do not have permissions to interact with this server\'s whitelist')
         } else if (cmd === 'enablewhitelist') {
             if (userstatus == 1 || message.author.id == message.guild.ownerID) {
-                let query = `SELECT * FROM ${message.guild.id}config WHERE type = ? && serverid = ?`;
+                let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
                 let data = ['whitelist', message.guild.id]
                 connection.query(query, data, function (error, results, fields) {
                     if (error) {

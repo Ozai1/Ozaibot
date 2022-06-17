@@ -29,7 +29,8 @@ module.exports = {
                   if (!isNaN(args[0]) || args[0].startsWith('<@')) {
                         name = args.slice(1).join(" ");
                         if (name.length > 32) return message.reply(`Nicknames must be less than 32 characters long, this name is ${name.length} characters long.`)
-                        member = await GetMember(message, args[0], Discord, false);
+                        member = await GetMember(message, args[0], Discord, true, false);
+                        if (member === 'cancelled') return
                         if (!member) return message.channel.send('Invalid member.');
                         userpinged = true
                   }

@@ -38,7 +38,7 @@ module.exports = {
                                                 if (error) return console.log(error)
                                                 message.channel.send(`${member} has been unblacklisted`)
                                                 console.log(`${member.tag}(${member.id}) has been unblacklisted by ${message.author.tag}`)
-                                                let alllogs = client.channels.cache.get('882845463647256637')
+                                                let alllogs = client.channels.cache.get('986882651921190932')
                                                 if (message.author.id == '508847949413875712') return
                                                 alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been unblacklisted as per the above message, this was done by by ${message.author.tag}`)
                                                 return
