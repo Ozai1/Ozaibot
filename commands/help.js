@@ -59,7 +59,7 @@ module.exports.Help_INIT2 = () => {
 
 async function HELP_EMBED_TARGETING(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
-    .setTitle('Targeting Users')
+        .setTitle('Targeting Users')
         .setDescription(``)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
@@ -67,15 +67,15 @@ async function HELP_EMBED_TARGETING(message, Discord, userstatus) {
 
 async function HELP_EMBED_TIMES(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
-    .setTitle('Time Durations')
-        .setDescription(`This is the way that the bot knows for how long to keep a punishemnt active on a user.\nAll commands that use custom durations will follow and use this system.\n\n**second:**\n\`seconds\` \`second\` \`secs\` \`sec\` \`s\`\n\n**minute:**\n\`minutes\` \`minute\` \`mins\` \`min\` \`m\`\n\n**hour:**\n\`hours\` \`hour\` \`h\`\n\n**day:**\n\`days\` \`day\` \`d\`\n\n**week:**\n\`weeks\` \`week\` \`w\`\n\n**month:**\n\`months\` \`month\` \`mon\`\n\n\nThese units of time are to be apended to a number.\n**Examples:**\n\`1mon\`\n\`3.4d\`\n\`2h\`\n\`0.875weeks\``)
+        .setTitle('Time Durations')
+        .setDescription(`This is the way that the bot knows for how long to keep a punishemnt active on a user.\nAll commands that use custom durations will follow and use this system.\n\n**second:**\n\`seconds\` \`second\` \`secs\` \`sec\` \`s\`\n\n**minute:**\n\`minutes\` \`minute\` \`mins\` \`min\` \`m\`\n\n**hour:**\n\`hours\` \`hour\` \`h\`\n\n**day:**\n\`days\` \`day\` \`d\`\n\n**week:**\n\`weeks\` \`week\` \`w\`\n\n**month:**\n\`months\` \`month\` \`mon\`\n\n\nThese units of time are to be apended to a number.\n\n**Examples:**\n\`1mon\`\n\`3.4d\`\n\`2h\`\n\`0.875weeks\``)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
 }
 
 async function HELP_EMBED_BAN(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
-    .setTitle('Ban')
+        .setTitle('Ban')
         .setDescription(`Removes a user from the server and prevents them from rejoining.\n\nHowever many days of the user's messages are specified will be deleted.\nMax of 7 days worth of messages can be deleted, defaults to 0 days.\n\n**Usage:**\n\`ban <@user|user_id> <days to delete> <reason>\`\n\n**Examples:**\n\`ban @user called me a no no name\`\n\`ban @user 1 unspeakable things\`\n\`ban 6942077777888889999 off server ban so they cant join\`\n\n**Aliases:**\n\`b\`\n\n**Reversal Command:**\n\`unban\`\n\n**Permissions:**\nBan Members.\n`)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
@@ -83,7 +83,7 @@ async function HELP_EMBED_BAN(message, Discord, userstatus) {
 
 async function HELP_EMBED_KICK(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
-    .setTitle('kick')
+        .setTitle('kick')
         .setDescription(`Removes a user from the server.\nUsers who are kicked will need to be sent an invite in order to rejoin.\n\n**Usage:**\n\`kick <@user|user_id> <reason>\`\n\n**Examples:**\n\`kick @user\`\n\`kick @user spam\`\n\n**Aliases:**\n\`k\`\n\n**Permissions:**\nKick Members.\n`)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
@@ -91,7 +91,7 @@ async function HELP_EMBED_KICK(message, Discord, userstatus) {
 
 async function HELP_EMBED_MUTE(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
-    .setTitle('Mute')
+        .setTitle('Mute')
         .setDescription(`Prevents a user from speaking in text channels.\nCommand will not work until a mute role has been set,\nYou can set a muterole with the \`muterole\`command.\n\n**Usage:**\n\`mute <@user|user_id> <time> <reason>\`\n\n**Examples:**\n\`mute @user\`\n\`mute @user spam\`\n\`mute @user 1h bad words\`\n\n**Aliases:**\n\`m\`\n\n**Reversal Command:**\n\`unmute\`\n\n**Permissions:**\nManage Messages.\n`)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
@@ -115,8 +115,8 @@ async function HELP_EMBED_UNMUTE(message, Discord, userstatus) {
 
 async function HELP_EMBED_PURGE(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
-        .addField(`sm_purge <number_of_messages_to_be_deleted>`, `Deletes the amount of messages given. \nMax messages to delete is 1000.\nPermissions: Manage Messages.`)
-        .setTimestamp()
+        .setTitle('Mute')
+        .setDescription(`Bulk deletes messages.\n\nMaximum amount of messages that can be deleted is 1000.\n\n**Usage:**\n\`purge <amount> <filters>\`\n\n**Purge filters**:\n\`@user\` \`silent\` \`links\` \`invites\` \`bots\` \`embeds\` \`files\` \`users\` \`images\` \`pins\` \`mentions\` \`stickers\`\n\nApplying options to the command will make the command search within the amount specified for messages that match the filer.\n*The bot will not look indefinitely until the amount is filled with messages that match, it will only search through the amount for messages that match the filter.*\nAdding a user(s) will make the bot only search through those user(s) messages and ignore all others regardless of filters.\nThe silent filter will simply delete the command message and the bots confirmation after the purge is complete.\n\n**Examples:**\n\`purge 50\`\n\`purge 200 @user\`(purges all of the users messages out of the last 200 messages in the channel)\n\`purge 25 links @user\`(deletes all of the users messages that contain links in the last 25 messages)\n\`purge 400 @user links images invites silent\`(deletes all of the users messages that contain links, images or invites to servers then deletes the command & confirmation message)\n\n**Aliases:**\n\`prune\`\n\`clear\`\n\n**Permissions:**\nManage Messages.\n`)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
 }

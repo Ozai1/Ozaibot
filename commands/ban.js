@@ -26,7 +26,7 @@ module.exports = {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor(`${message.author.tag}`, message.author.avatarURL())
                 .setColor(15684432)
-                .setDescription(`Invalid member arguement.\nProper usage: \`sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>\``)
+                .setDescription(`Invalid member arguement.\nProper usage: \`ban <@user|user_id> <days to delete> <reason>\``)
             return message.channel.send({ embeds: [errorembed] })
         }
         let member = await GetMember(message, args[0], Discord, false, false);
@@ -44,7 +44,7 @@ module.exports = {
         }
         let offserver = false
         if (!member) {
-            if (isNaN(args[0])) return message.channel.send('Usage is "sm_ban <@user|user_id> <days_to_delete(optional)> <reason(optional)>"');
+            if (isNaN(args[0])) return message.channel.send('Usage is \`ban <@user|user_id> <days to delete> <reason>\`');
             member = await client.users.fetch(args[0]).catch(err => { })
             offserver = true;
             if (!member) {

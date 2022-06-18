@@ -835,6 +835,7 @@ async function application_respond(message, args, userstatus, client) {
       }
 }
 async function server_wide_purge(message, args, userstatus) {
+      const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
       if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
       const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
       let hasperms = true;
@@ -883,6 +884,7 @@ async function server_wide_purge(message, args, userstatus) {
 
 }
 async function next_bump(message) {
+      const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
       let foundtruebump = false;
       await message.channel.messages.fetch({ limit: 50 }).then(messages => {
             messages.forEach(async (message) => {

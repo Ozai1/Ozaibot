@@ -26,6 +26,7 @@ require('dotenv').config();
 const client = new Discord.Client({
       intents: 98047/* doesnt include status intents*/, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
 });
+
 client.musicConfig = require('./musicconfig');
 client.player = new Player(client, client.musicConfig.opt.discordPlayer);
 const player = client.player;
