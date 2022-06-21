@@ -1,20 +1,20 @@
 const mysql = require('mysql2');
-const {GetDatabasePassword} = require('../hotshit')
+const { GetDatabasePassword } = require('../hotshit')
 const connection = mysql.createPool({
-      host: 'vps01.tsict.com.au',
-      port: '3306',
-      user: 'root',
-      password: GetDatabasePassword(),
-      database: 'ozaibot',
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: GetDatabasePassword(),
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
 
 
 const { unix } = require('moment');
-
+const { GetPunishmentDuration } = require('../moderationinc')
 module.exports = {
     name: 'raid',
     aliases: [
@@ -97,7 +97,7 @@ module.exports = {
                         const helpembed = new Discord.MessageEmbed()
                             .setTitle('These users have joined off the link provided.')
                             .setDescription(printmessage)
-                        if (!extra === '') { helpembed.setFooter({ text: extra}) }
+                        if (!extra === '') { helpembed.setFooter({ text: extra }) }
                         helpembed.setColor('BLUE')
                         message.channel.send({ embeds: [helpembed] })
                     }
@@ -139,14 +139,12 @@ module.exports = {
                 } else return message.channel.send('You do not have access to anti raid commands. Use `sm_raid` for more info.')
             } else if (cmd === 'blacklistinvite') {
                 if (userstatus == 1 || userstatus == 3) {
-                    if (!args[0]) return message.channel.send('Please give an invite for the bot to use.')
-                    if (!args[1]) return message.channel.send('Please give an action for the bot to execute on link usage.\nThe actions you may use are `mute/kick/ban`')
+                    if (!args[2]) return message.channel.send(`Missing arguments. Usage: \`sm_blacklistinvite <invite> <punishment> <time>\``)
                     if (!args[1] === 'mute' && !args[1] === 'kick' && !args[1] === 'ban') {
-                        return message.channel.send('Invalid action given, valid actions are `mute/kick/ban`')
+                        return message.channel.send('Invalid punishment given, valid punishments are `mute`/`kick`/`ban`')
                     }
-                    if (!args[2]) return message.channel.send('Please add the amount of time this link blacklist should exist.')
                     let properinvite = false;
-                    await message.guild.fetchInvites().then(invites => {
+                    await message.guild.invites.fetch().then(invites => {
                         invites.forEach(invite => {
                             if (invite.code === args[0]) {
                                 properinvite = true;
@@ -155,64 +153,9 @@ module.exports = {
                     }).catch(err => { console.log(err) })
                     if (properinvite === true) {
                         const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
-                        let timeunban = 9999999999;
-                        let mutetimeseconds = null;
-                        const validtimes = ['s-sec', 'sec-sec', 'second-sec', 'secs-sec', 'seconds-sec', 'm-min', 'min-min', 'mins-min', 'minute-min', 'minutes-min', 'h-hou', 'hour-hou', 'hours-hou', 'd-day', 'day-day', 'days-day', 'w-wee', 'week-wee', 'weeks-wee', 'mon-mon', 'months-mon']
-                        let unitoftime = null;
-                        let unitchosenraw = null;
-                        const timechosen = args[2];
-                        let timechosenpostfixfound = false;
-                        validtimes.forEach((potentialtime2) => {
-                            const potentialtime = potentialtime2.slice(0, -4)
-                            if (timechosenpostfixfound === false) {
-                                if (potentialtime === timechosen.slice(timechosen.length - 1)) {
-                                    unitchosenraw = timechosen.slice(timechosen.length - 1)
-                                    timechosenpostfixfound = true
-                                    unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                } else if (potentialtime === timechosen.slice(timechosen.length - 3)) {
-                                    unitchosenraw = timechosen.slice(timechosen.length - 3)
-                                    timechosenpostfixfound = true
-                                    unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                } else if (potentialtime === timechosen.slice(timechosen.length - 4)) {
-                                    unitchosenraw = timechosen.slice(timechosen.length - 4)
-                                    timechosenpostfixfound = true
-                                    unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                } else if (potentialtime === timechosen.slice(timechosen.length - 5)) {
-                                    unitchosenraw = timechosen.slice(timechosen.length - 5)
-                                    timechosenpostfixfound = true
-                                    unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                } else if (potentialtime === timechosen.slice(timechosen.length - 6)) {
-                                    unitchosenraw = timechosen.slice(timechosen.length - 6)
-                                    timechosenpostfixfound = true
-                                    unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-                                } else if (potentialtime === timechosen.slice(timechosen.length - 7)) {
-                                    unitchosenraw = timechosen.slice(timechosen.length - 7)
-                                    timechosenpostfixfound = true
-                                    unitoftime = potentialtime2.slice(potentialtime2.length - 3)
-
-                                }
-                            }
-                        })
-                        if (timechosenpostfixfound === true) {
-                            if (unitoftime === 'min') {
-                                mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 60;
-                                timeunban = Number(mutetimeseconds + currenttime);
-                            } else if (unitoftime === 'hou') {
-                                mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 3600;
-                                timeunban = mutetimeseconds + currenttime;
-                            } else if (unitoftime === 'day') {
-                                mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 86400;
-                                timeunban = Number(mutetimeseconds + currenttime);
-                            } else if (unitoftime === 'wee') {
-                                mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 604800;
-                                timeunban = Number(mutetimeseconds + currenttime);
-                            } else if (unitoftime === 'mon') {
-                                mutetimeseconds = timechosen.slice(0, -unitchosenraw.length) * 2592000;
-                                timeunban = Number(mutetimeseconds + currenttime);
-                            } else if (unitoftime === 'sec') {
-                                mutetimeseconds = timechosen.slice(0, -unitchosenraw.length);
-                                timeunban = Number(mutetimeseconds) + currenttime;
-                            }
+                        const mutetimeseconds = GetPunishmentDuration(args[2])
+                        if (!mutetimeseconds) {
+                            const timeunban = mutetimeseconds + currenttime
                             if (mutetimeseconds > 604800) return message.channel.send('You may lockdown a link for a maximum of a week.')
                             query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
                             data = [args[0], message.guild.id]
@@ -246,19 +189,15 @@ module.exports = {
 
                                 }
                             })
-                        } else {
-                            return message.channel.send('Invalid time given. `sec/min/hour/day/week`, there are a lot more than that but those are the only units chosable. you may do things like 0.4hour too')
-                        }
-                    } else {
-                        return message.channel.send('Invalid invite code. / That invite was not found in this server')
-                    }
+                        } else return message.channel.send('Invalid time given. Please refer to `sm_help times` for details on durations.')
+                    } else return message.channel.send('Invalid invite code. / That invite was not found in this server')
                 } else return message.channel.send('You do not have access to anti raid commands. Use `sm_raid` for more info.')
             } else if (cmd === 'raid') {
                 const helpembed = new Discord.MessageEmbed()
                     .setTitle('Anti Raid')
                     .setDescription(`This is a command set for ozaibot that is built to help with raids.\nIt has a variety of commands including commands that:\n\n\`sm_whoinvited <@user>\`\nShows you what link a user joined off.\n\n\`sm_whojoined <link_code>\`\nShow you all the users who have joined off a link.\n\n\`sm_blacklistinvite <invite_code> <mute/kick/ban> <time>\`\nLock down links so that if they are used to join your server it will automatically apply an action to them.\n\n\`sm_purgeinvite <link_code> <mute/kick/ban>\`\nApply an action to all users who have joined off a link.\nExample: kick everyone who joined off link ABC123 in the last 10 mins. would allow up to a day if needed.\n\nAnd more coming.\n\n\nEdit: I am now happy for people to start using these features if they wish, you may apply using \`sm_raidapp\`.\nAny time an invite link is required to be inputed you must remove the discord.gg/ at the start.\nIf the link is discord.gg/1qa2ws3ed then proper usage would be: \`sm_blacklistinvite 1qa2ws3ed\``)
                     .setTimestamp()
-                    .setFooter({ text: 'Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.'})
+                    .setFooter({ text: 'Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.' })
                     .setColor('BLUE')
                 message.channel.send({ embeds: [helpembed] });
                 return
@@ -342,7 +281,7 @@ module.exports = {
                             const helpembed = new Discord.MessageEmbed()
                                 .setTitle(`These users will have the (${args[1]}) punishment applied to them.`)
                                 .setDescription(printmessage)
-                                .setFooter({ text: 'Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N'})
+                                .setFooter({ text: 'Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N' })
                                 .setColor('ORANGE')
                             let filter = m => m.author.id === message.author.id;
                             message.channel.send({ embeds: [helpembed] }).then(() => {
@@ -378,7 +317,7 @@ module.exports = {
                                             printmessage = printmessage.replace(/,/g, '\n')
                                             const helpembed = new Discord.MessageEmbed()
                                                 .setDescription(printmessage)
-                                                .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.'})
+                                                .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.' })
                                                 .setColor('RED')
                                             conformationmessage.edit('Done:', { embeds: [helpembed] })
                                         } else if (action === 'kick') {
@@ -407,7 +346,7 @@ module.exports = {
                                             printmessage = printmessage.replace(/,/g, '\n')
                                             const helpembed = new Discord.MessageEmbed()
                                                 .setDescription(printmessage)
-                                                .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.'})
+                                                .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.' })
                                                 .setColor('RED')
                                             conformationmessage.edit('Done:', { embeds: [helpembed] })
                                         } else if (action === 'mute') {
@@ -502,7 +441,7 @@ module.exports = {
                                     .addField('Guild', `${message.guild} (${message.guild.id})`)
                                     .addField('time', `<t:${currenttime}> (<t:${currenttime}:R>)`)
                                     .setDescription(`**Message**:\n${args.slice(0).join(" ")}`)
-                                    .setFooter({ text: `application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>`})
+                                    .setFooter({ text: `application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>` })
                                     .setColor('BLUE')
                                 appchannel.send({ embeds: [helpembed] }).catch(err => { console.log(err) })
                             }

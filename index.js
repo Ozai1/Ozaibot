@@ -64,7 +64,7 @@ client.on('ready', async () => {
                         .setTitle('MC Server Status')
                         .setColor('RED')
                         .setDescription(`Server down.`)
-                        .setFooter({ text: `Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`})
+                        .setFooter({ text: `Server IP: 112.213.34.137; Embed refreshes ever 2 mins.` })
                   const statuschannel = client.channels.cache.get('984030657078513714')
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
                   messagetoedit.edit({ embeds: [embed77] })
@@ -381,7 +381,6 @@ client.on('guildMemberAdd', async member => {
                         if (invitesindb[1]) {
                               //console.log(invitesindb)
                               return //console.log('More than one invite seen missing, stopping search through this method')
-
                         }
                         if (!invitesindb[0]) return console.log('could not find any missing invites, stopping search')
                         if (invitesindb[0]) {
@@ -498,84 +497,6 @@ async function invfound(member, invite) {
       })
 }
 
-const badwords = [
-      'cunt',
-      'shit',
-      'retard',
-      'fuck',
-      'bitch',
-      'twat',
-      'pussy',
-      'cock',
-      'dick',
-      'bastard',
-      'penis',
-      'sex'
-]
-let isenabled = false;
-client.on("messageCreate", async message => {
-      if (message.guild) {
-            if (message.guild.id == '917964629089591337') {
-                  if (isenabled) {
-                        let badwordfound = false;
-                        badwords.forEach(word => {
-                              if (badwordfound === false) {
-                                    if (message.content.toLowerCase().includes(word)) {
-                                          if (message.content.toLowerCase().includes('<@&') || message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here')) return message.channel.send('Reminder must not contain any role, everyone or here pings.');
-                                          badwordfound = true
-                                          message.delete()
-                                          let newmessage = message.content.toLowerCase()
-                                          newmessage = newmessage.replace(/cunt/g, '\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/shit/g, '\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/retard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/fuck/g, '\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/bitch/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/twat/g, '\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/pussy/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/cock/g, '\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/dick/g, '\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/bastard/g, '\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/penis/g, '\:heart:\:heart:\:heart:\:heart:\:heart:')
-                                          newmessage = newmessage.replace(/sex/g, '\:heart:\:heart:\:heart:')
-                                          message.channel.send(`${message.member} says:\n${newmessage}`)
-                                    }
-                              }
-                        })
-                  }
-                  if (message.content.toLocaleLowerCase().startsWith('sm_togglebadwordfilter')) {
-                        if (isenabled == 0) {
-                              isenabled = 1
-                              message.channel.send(`Bad word filter set to: ${isenabled}`)
-                        } else {
-                              isenabled = 0
-                              message.channel.send(`Bad word filter set to: ${isenabled}`)
-                        }
-
-                  }
-            }
-      }
-})
-
-client.on('inviteCreate', async invite => {
-      query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
-      data = [invite.guild.id, invite.inviter.id, invite.code, invite.uses];
-      connection.query(query, data, function (error, results, fields) {
-            if (error) return console.log(error);
-      })
-      console.log(`Invite ${invite.code} pushed to db for guild ${invite.guild} (${invite.guild.id})`)
-});
-
-client.on('inviteDelete', async invite => {
-      setTimeout(() => {
-            query = `DELETE FROM activeinvites WHERE invitecode = ?`;
-            data = [invite.code];
-            connection.query(query, data, function (error, results, fields) {
-                  if (error) return console.log(error);
-            })
-            console.log(`Invite ${invite.code} deleted from db for guild ${invite.guild} (${invite.guild.id})`)
-      }, 5000);
-});
-
 client.on('guildMemberUpdate', async (oldmember, newmember) => {
       if (newmember.guild.id == '806532573042966528') {
             if (!newmember.roles.cache.has('922514880102277161') && oldmember.roles.cache.has('922514880102277161')) {
@@ -609,11 +530,6 @@ client.on('messageUpdate', async (oldMessage, newMessage) => { // Old message ma
       MessageLog.send(embed);
 });
 
-client.on('guildMemberRemove', async member => {
-      if (member.id == '753454519937007696' || member.id == '949162832396693514') {
-            client.users.cache.get('508847949413875712').send(`${member.user.tag} has left ${member.guild}`);
-      }
-});
 
 client.on('messageReactionAdd', async (react, author) => {
       if (react.message.id == '942754717484863508') {

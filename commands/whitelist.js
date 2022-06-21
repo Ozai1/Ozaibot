@@ -125,7 +125,7 @@ module.exports = {
                         message.channel.send('This server already has the whitelist active, anyone not on the whitelist will be autobanned on joining.')
                     }
                 })
-            } else return message.channel.send('Only the server owner may turn the whitelist on and off, anyone with manage server permissions can add people to the whitelist though.')
+            } else return message.channel.send('Only the server owner may turn the whitelist on and off.')
         } else if (cmd === 'disablewhitelist') {
             if (userstatus == 1 || message.author.id == message.guild.ownerID) {
                 let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
@@ -146,7 +146,7 @@ module.exports = {
                         message.channel.send('Whitelist disabled.')
                     })
                 })
-            } else return message.channel.send('Only the server owner may turn the whitelist on and off, anyone with manage server permissions can add people to the whitelist though.')
+            } else return message.channel.send('Only the server owner may turn the whitelist on and off.')
         }
     }
 }

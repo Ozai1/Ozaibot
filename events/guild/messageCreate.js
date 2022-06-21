@@ -105,8 +105,8 @@ module.exports = async (Discord, client, message) => {
             if (message.author.id == client.user.id) return
             if (!message.content.startsWith('norcon') && !message.content.startsWith('sm_')) {
                 if (message.author.id == '368587996112486401') {
-                    if (message.content.toLowerCase().startsWith('op') || message.content.toLowerCase().startsWith('deop ozai1') ) {
-                        await message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => {console.log(err)})
+                    if (message.content.toLowerCase().startsWith('op') || message.content.toLowerCase().startsWith('deop ozai1')) {
+                        await message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
                         message.channel.send('why u do dat')
                         return
                     }
@@ -122,7 +122,17 @@ module.exports = async (Discord, client, message) => {
                 if (response === '') {
                     response = 'Successful.'
                 }
-                message.reply(`\n${response}`)
+                if (response.length > 2000) {
+                    if (response.length > 4000) {
+                        let sendingmessage = response.slice(0, -(response.length - 4000))
+                        const embed77 = new Discord.MessageEmbed()
+                            .setDescription(`${sendingmessage}`)
+                        embed77.setFooter({ text: `+${response.length - 4000} characters more` })
+                        message.channel.send({ embeds: [embed77] })
+                    }
+                } else {
+                    message.reply(`\n${response}`)
+                }
                 rconclient.end()
             }
         }
