@@ -121,9 +121,8 @@ module.exports = {
                         if (muteduration) {
                               timeunban = muteduration + currenttime
                               display = GetDisplay(muteduration)
-                        } else {
                               reason = args.slice(2).join(" ");
-                        }
+                        } 
                         message.channel.send(`${member} has been muted${display}.`)
                         query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
                         data = [member.id, message.guild.id, timeunban, 'mute']

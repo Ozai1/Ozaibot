@@ -97,7 +97,7 @@ module.exports = {
                         const helpembed = new Discord.MessageEmbed()
                             .setTitle('These users have joined off the link provided.')
                             .setDescription(printmessage)
-                        if (!extra === '') { helpembed.setFooter(extra) }
+                        if (!extra === '') { helpembed.setFooter({ text: extra}) }
                         helpembed.setColor('BLUE')
                         message.channel.send({ embeds: [helpembed] })
                     }
@@ -258,7 +258,7 @@ module.exports = {
                     .setTitle('Anti Raid')
                     .setDescription(`This is a command set for ozaibot that is built to help with raids.\nIt has a variety of commands including commands that:\n\n\`sm_whoinvited <@user>\`\nShows you what link a user joined off.\n\n\`sm_whojoined <link_code>\`\nShow you all the users who have joined off a link.\n\n\`sm_blacklistinvite <invite_code> <mute/kick/ban> <time>\`\nLock down links so that if they are used to join your server it will automatically apply an action to them.\n\n\`sm_purgeinvite <link_code> <mute/kick/ban>\`\nApply an action to all users who have joined off a link.\nExample: kick everyone who joined off link ABC123 in the last 10 mins. would allow up to a day if needed.\n\nAnd more coming.\n\n\nEdit: I am now happy for people to start using these features if they wish, you may apply using \`sm_raidapp\`.\nAny time an invite link is required to be inputed you must remove the discord.gg/ at the start.\nIf the link is discord.gg/1qa2ws3ed then proper usage would be: \`sm_blacklistinvite 1qa2ws3ed\``)
                     .setTimestamp()
-                    .setFooter('Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.')
+                    .setFooter({ text: 'Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.'})
                     .setColor('BLUE')
                 message.channel.send({ embeds: [helpembed] });
                 return
@@ -342,7 +342,7 @@ module.exports = {
                             const helpembed = new Discord.MessageEmbed()
                                 .setTitle(`These users will have the (${args[1]}) punishment applied to them.`)
                                 .setDescription(printmessage)
-                                .setFooter('Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N')
+                                .setFooter({ text: 'Any false bans/kicks/mutes will be on you, it is unlikely that any of these people shouldnt be in this list but you should still be checking. Are you sure you want to continue with this command? Y / N'})
                                 .setColor('ORANGE')
                             let filter = m => m.author.id === message.author.id;
                             message.channel.send({ embeds: [helpembed] }).then(() => {
@@ -378,7 +378,7 @@ module.exports = {
                                             printmessage = printmessage.replace(/,/g, '\n')
                                             const helpembed = new Discord.MessageEmbed()
                                                 .setDescription(printmessage)
-                                                .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
+                                                .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.'})
                                                 .setColor('RED')
                                             conformationmessage.edit('Done:', { embeds: [helpembed] })
                                         } else if (action === 'kick') {
@@ -407,7 +407,7 @@ module.exports = {
                                             printmessage = printmessage.replace(/,/g, '\n')
                                             const helpembed = new Discord.MessageEmbed()
                                                 .setDescription(printmessage)
-                                                .setFooter('Any fails are most likely due to the bot not having high enough permissions.')
+                                                .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.'})
                                                 .setColor('RED')
                                             conformationmessage.edit('Done:', { embeds: [helpembed] })
                                         } else if (action === 'mute') {
@@ -502,7 +502,7 @@ module.exports = {
                                     .addField('Guild', `${message.guild} (${message.guild.id})`)
                                     .addField('time', `<t:${currenttime}> (<t:${currenttime}:R>)`)
                                     .setDescription(`**Message**:\n${args.slice(0).join(" ")}`)
-                                    .setFooter(`application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>`)
+                                    .setFooter({ text: `application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>`})
                                     .setColor('BLUE')
                                 appchannel.send({ embeds: [helpembed] }).catch(err => { console.log(err) })
                             }

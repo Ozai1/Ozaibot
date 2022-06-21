@@ -10,7 +10,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-
+const { unix } = require('moment');
 const { GetMember } = require("../moderationinc")
 module.exports = {
       name: 'kick',
@@ -22,6 +22,7 @@ module.exports = {
             if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!args[0]) return message.channel.send('You must add a member to kick.')
             member = await GetMember(message, args[0], Discord, true, false);
+            if (member === 'cancelled') return
             if (!userstatus == 1) {
                   if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have permissions to do this!');
                   if (message.guild.ownerID !== message.author.id) {

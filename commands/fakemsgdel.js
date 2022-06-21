@@ -25,7 +25,7 @@ module.exports = {
                 .setTitle('Message deleted!')
                 .addField('Message author:', `${member}`)
                 .addField('Message content:', `${content}`)
-                .setFooter('Anti Message Delete!', client.user.displayAvatarURL())
+                .setFooter({ text: 'Anti Message Delete!', iconURL: client.user.displayAvatarURL()})
                 .setColor('RED')
                 .setTimestamp()
             message.channel.send({embeds: [lolembed]}).catch(err => { console.log(err) })

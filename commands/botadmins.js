@@ -44,7 +44,7 @@ module.exports = {
                     printmessage = printmessage.replace(/,/g, '\n')
                     const helpembed = new Discord.MessageEmbed()
                         .setDescription(printmessage)
-                    if (!extra === '') { helpembed.setFooter(extra) }
+                    if (!extra === '') { helpembed.setFooter({ text: extra}) }
                     helpembed.setColor('BLUE')
                     message.channel.send({embeds: [helpembed]})
                 }

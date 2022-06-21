@@ -64,7 +64,7 @@ client.on('ready', async () => {
                         .setTitle('MC Server Status')
                         .setColor('RED')
                         .setDescription(`Server down.`)
-                        .setFooter(`Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`)
+                        .setFooter({ text: `Server IP: 112.213.34.137; Embed refreshes ever 2 mins.`})
                   const statuschannel = client.channels.cache.get('984030657078513714')
                   const messagetoedit = await statuschannel.messages.fetch('984043956008550430')
                   messagetoedit.edit({ embeds: [embed77] })
@@ -431,7 +431,6 @@ client.on('guildMemberAdd', async member => {
 
 async function invfound(member, invite) {
       const guild = member.guild
-      console.log('Invite found')
       query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
       data = [member.id, guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];
       connection.query(query, data, function (error, results, fields) {

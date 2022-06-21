@@ -37,6 +37,7 @@ module.exports = {
             })
       }
 }
+
 async function user_command(message, args, Discord, client) {
       if (!args[0]) {
             if (message.guild) {
@@ -54,7 +55,7 @@ async function user_command(message, args, Discord, client) {
                         .addField('Highest rank', member.roles.highest)
                         .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
                         .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter(`requested by ${message.author.tag}`)
+                        .setFooter({ text: `requested by ${message.author.tag}`})
                         .setTimestamp()
                         .setColor(member.displayHexColor);
                   message.channel.send({embeds: [uiembed]})
@@ -69,7 +70,7 @@ async function user_command(message, args, Discord, client) {
                   }
                   uiembed.addField('ID', user.id)
                         .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter(`requested by ${message.author.tag}`)
+                        .setFooter({ text: `requested by ${message.author.tag}`})
                         .setTimestamp()
                         .setColor(240116);
                   message.channel.send({embeds: [uiembed]})
@@ -98,7 +99,7 @@ async function user_command(message, args, Discord, client) {
                         .addField('Highest rank', member.roles.highest)
                         .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
                         .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter(`requested by ${message.author.tag}`)
+                        .setFooter({ text: `requested by ${message.author.tag}`})
                         .setTimestamp()
                         .setColor(member.displayHexColor);
                   message.channel.send({embeds: [uiembed]})
@@ -112,7 +113,7 @@ async function user_command(message, args, Discord, client) {
                   }
                   uiembed.addField('ID', user.id)
                         .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter(`requested by ${message.author.tag}`)
+                        .setFooter({ text: `requested by ${message.author.tag}`})
                         .setTimestamp()
                         .setColor(240116);
                   message.channel.send({embeds: [uiembed]})

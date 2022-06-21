@@ -109,7 +109,7 @@ module.exports.GetMember = async (message, string, Discord, AllowMultipleResults
         printmessage = printmessage.replace(/,/g, '\n')
         const helpembed = new Discord.MessageEmbed()
             .setTitle('Which of these members did you mean? Please type out the corrosponding number.')
-            .setFooter('Type cancel to cancel the search.')
+            .setFooter({ text: 'Type cancel to cancel the search.'})
             .setDescription(`${printmessage}`)
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;
