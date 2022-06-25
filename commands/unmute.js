@@ -1,10 +1,11 @@
 const mysql = require('mysql2')
-const { GetDatabasePassword } = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -14,7 +15,7 @@ const { unix } = require('moment');
 const { GetMember } = require("../moderationinc")
 module.exports = {
       name: 'unmute',
-      aliases: ['muterole', 'unm'],
+      aliases: ['muterole', 'unm', 'un-mute'],
       description: 'unmutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
@@ -38,17 +39,11 @@ module.exports = {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }
                         }
-                        let member = await GetMember(message, args[0], Discord, true, false);
+                        let member = await GetMember(message, client,args[0], Discord, true, false);
                         if (member === 'cancelled') return
                         if (!member) return message.channel.send("Invalid member.");
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
-                        member.roles.remove(muterole).catch(err => {
-                              console.log(err)
-                              message.channel.send('Failed.')
-                        }).then(() => {
-                              message.channel.send(`${member} has been unmuted`);
-                        })
                         let query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
                         let data = [member.id, message.guild.id, 'mute']
                         connection.query(query, data, function (error, results, fields) {
@@ -56,23 +51,70 @@ module.exports = {
                                     console.log('backend error for checking active bans')
                                     return console.log(error)
                               }
-                              for (row of results) {
-                                    query = "DELETE FROM activebans WHERE id = ?";
-                                    data = [row["id"]]
-                                    let count = [row['count']]
-                                    connection.query(query, data, function (error, results, fields) {
-                                          if (error) return console.log(error)
+                              if (results == '') {
+                                    if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
+                                    member.roles.remove(muterole).catch(err => {
+                                          console.log(err)
+                                          message.channel.send('Failed.')
+                                    }).then(() => {
+                                          const returnembed = new Discord.MessageEmbed()
+                                                .setDescription(`<:check:988867881200652348> ${member} has had the muterole removed.`)
+                                                .setColor("GREEN")
+                                          message.channel.send({ embeds: [returnembed] })
                                     })
+                              } else {
+                                    for (row of results) {
+                                          query = "DELETE FROM activebans WHERE id = ?";
+                                          data = [row["id"]]
+                                          let count = [row['count']]
+                                          connection.query(query, data, function (error, results, fields) {
+                                                if (error) return console.log(error)
+                                          })
+                                          if (!member.roles.cache.some(role => role.id == muterole.id)) {
+                                                const returnembed = new Discord.MessageEmbed()
+                                                      .setDescription(`<:check:988867881200652348> ${member} has been unmuted. The role was not removed as they dont currently have the role.`)
+                                                      .setColor("GREEN")
+                                                message.channel.send({ embeds: [returnembed] })
+                                          } else {
+                                                member.roles.remove(muterole).catch(err => {
+                                                      console.log(err)
+                                                      message.channel.send('Failed.')
+                                                }).then(() => {
+                                                      const returnembed = new Discord.MessageEmbed()
+                                                            .setDescription(`<:check:988867881200652348> ${member} has been un-muted.`)
+                                                            .setColor("GREEN")
+                                                      message.channel.send({ embeds: [returnembed] })
+                                                })
+                                          }
+
+                                    }
                               }
                         })
                         let reason = args.slice(1).join(" ");
-                        query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?)`;
-                        data = [message.guild.id, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'unmute'];
+                        query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
+                        data = [message.guild.id];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
-                                    message.channel.send('Error logging unmute. Unmute will still be instated but will not show up in punishment searches.');
+                                    message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
                                     return console.log(error);
                               }
+                              let casenumber = 1
+                              if (!results == ``) {
+                                    for (row of results) {
+                                          casenumber = row["MAX(casenumber)"] + 1
+                                    }
+                              }
+                              if (casenumber == undefined || casenumber === null) {
+                                    casenumber = 1
+                              }
+                              query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                              data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Un-mute'];
+                              connection.query(query, data, function (error, results, fields) {
+                                    if (error) {
+                                          message.channel.send('Error logging unmute. Unmute will still be instated but will not show up in punishment searches.');
+                                          return console.log(error);
+                                    }
+                              });
                         });
                   }
             })
@@ -90,7 +132,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                         return console.log(error);
                   if (results == ``) {
                         const embed = new Discord.MessageEmbed()
-                              .setAuthor(message.author.tag, message.author.avatarURL())
+                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                               .setColor('BLUE')
                               .setDescription(`This server currently has no mute role set.\n\nSet a mute role using \n\`sm_muterole set [@role/role_id]\`\n\nAlternatively you may create a new mute role using \n\`sm_muterole create\`.\n\nThe mute command currently cannot be used due to the lack of a mute role.`);
                         return message.channel.send(embed);
@@ -99,7 +141,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                         let muteroleid = row["details"];
                         const muterole = message.guild.roles.cache.get(muteroleid);
                         const embed = new Discord.MessageEmbed()
-                              .setAuthor(message.author.tag, message.author.avatarURL())
+                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                               .setColor('BLUE')
                               .setDescription(`This server's mute role is currently ${muterole}.\n\nYou may stop the bot using this role with \n\`sm_muterole remove\`.\n\nIf you would like to set a new mute role you can do so using\n\`sm_muterole set [@role/role_id]\`.\n\nIf you remove the mute role and do not set another the mute command will stop working.`);
                         return message.channel.send({ embeds: [embed] });

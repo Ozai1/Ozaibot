@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
-const {GetDatabasePassword} = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -29,7 +30,7 @@ module.exports = {
                   if (!isNaN(args[0]) || args[0].startsWith('<@')) {
                         name = args.slice(1).join(" ");
                         if (name.length > 32) return message.reply(`Nicknames must be less than 32 characters long, this name is ${name.length} characters long.`)
-                        member = await GetMember(message, args[0], Discord, true, false);
+                        member = await GetMember(message, client,args[0], Discord, true, false);
                         if (member === 'cancelled') return
                         if (!member) return message.channel.send('Invalid member.');
                         userpinged = true

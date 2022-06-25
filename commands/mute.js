@@ -1,12 +1,13 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
+
 const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
-const { GetDatabasePassword } = require('../hotshit')
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -45,7 +46,7 @@ module.exports = {
                   if (!args[0]) {
                         console.log('Add a member arguement.')
                         const errorembed = new Discord.MessageEmbed()
-                              .setAuthor(message.author.tag, message.author.avatarURL())
+                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                               .setColor(15684432)
                               .setDescription(`Add a member arguement.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
                         return message.channel.send({ embeds: [errorembed] })
@@ -61,13 +62,12 @@ module.exports = {
                               console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                               return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                         }
-
-                        let member = await GetMember(message, args[0], Discord, true, false);
+                        let member = await GetMember(message, client,args[0], Discord, true, false);
                         if (member === 'cancelled') return
                         if (!member) {
                               console.log('invalid member')
                               const errorembed = new Discord.MessageEmbed()
-                                    .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                                     .setColor(15684432)
                                     .setDescription(`Invalid member.\n\nProper useage is:\n\`mute <@member|member_id> <time> <reason>\``)
                               return message.channel.send({ embeds: [errorembed] })
@@ -75,16 +75,23 @@ module.exports = {
                         if (member.id === message.author.id) {
                               console.log('attempted self mute, canceling')
                               const errorembed = new Discord.MessageEmbed()
-                                    .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                                     .setColor(15684432)
                                     .setDescription(`You cannot mute yourself.`)
                               return message.channel.send({ embeds: [errorembed] })
+                        }
+                        if (member.id == client.user.id) {
+                              const errorembed = new Discord.MessageEmbed()
+                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                .setColor(15684432)
+                .setDescription(`Why do you want to mute me :(`)
+            return message.channel.send({ embeds: [errorembed] })
                         }
                         if (message.guild.ownerID !== message.author.id) {
                               if (member.id == message.guild.ownerID || member.permissions.has('ADMINISTRATOR')) {
                                     console.log('attempted mute against administrator, canceling')
                                     const errorembed = new Discord.MessageEmbed()
-                                          .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                          .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                                           .setColor(15684432)
                                           .setDescription(`You cannot mute members with Administrator Permissions.`)
                                     return message.channel.send({ embeds: [errorembed] })
@@ -93,7 +100,7 @@ module.exports = {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) {
                                           console.log('attempted mute against someone of higher rank, canceling')
                                           const errorembed = new Discord.MessageEmbed()
-                                                .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                                                 .setColor(15684432)
                                                 .setDescription(`You cannot mute members with higher or the same permissions as your own.`)
                                           return message.channel.send({ embeds: [errorembed] })
@@ -103,7 +110,7 @@ module.exports = {
                         if (member.roles.cache.some(role => role.id == muterole.id)) {
                               console.log('attempted mute against someone already muted, canceling')
                               const errorembed = new Discord.MessageEmbed()
-                                    .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                                     .setColor(15684432)
                                     .setDescription(`This member is already muted.`)
                               return message.channel.send({ embeds: [errorembed] })
@@ -120,12 +127,15 @@ module.exports = {
                         let timeunban = 9999999999;
                         if (muteduration) {
                               timeunban = muteduration + currenttime
-                              display = GetDisplay(muteduration)
+                              display = GetDisplay(muteduration, true)
                               reason = args.slice(2).join(" ");
-                        } 
-                        message.channel.send(`${member} has been muted${display}.`)
-                        query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
-                        data = [member.id, message.guild.id, timeunban, 'mute']
+                        }
+                        const returnembed = new Discord.MessageEmbed()
+                              .setDescription(`<:check:988867881200652348> ${member} has been muted${display}.`)
+                              .setColor("GREEN")
+                        message.channel.send({ embeds: [returnembed] })
+                        let query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
+                        let data = [member.id, message.guild.id, timeunban, 'mute']
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
                                     message.channel.send('Creating unmute time in database failed. User is still muted but will not be automatically unmuted.')
@@ -133,13 +143,30 @@ module.exports = {
                               }
                               return
                         })
-                        query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                        data = [message.guild.id, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), muteduration, reason, 'mute'];
+                        query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
+                        data = [message.guild.id];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
-                                    message.channel.send('Error logging mute. mute will still be instated but will not show up in punishment searches.');
+                                    message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
                                     return console.log(error);
                               }
+                              let casenumber = 1
+                              if (!results == ``) {
+                                    for (row of results) {
+                                          casenumber = row["MAX(casenumber)"] + 1
+                                    }
+                              }
+                              if (casenumber == undefined || casenumber === null) {
+                                    casenumber = 1
+                              }
+                              let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                              let data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), muteduration, reason, 'Mute'];
+                              connection.query(query, data, function (error, results, fields) {
+                                    if (error) {
+                                          message.channel.send('Error logging mute. mute will still be instated but will not show up in punishment searches.');
+                                          return console.log(error);
+                                    }
+                              });
                         });
                         console.log(`user has been muted${display}.`)
                         if (!muteduration || muteduration == 0) return

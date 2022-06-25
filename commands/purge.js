@@ -1,12 +1,13 @@
 const { unix } = require("moment");
 const imissjansomuchithurts = 1420070400000
 const mysql = require('mysql2');
-const { GetDatabasePassword } = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: GetDatabasePassword(),
+    password: process.env.DATABASE_PASSWORD,
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
@@ -24,7 +25,7 @@ module.exports = {
             if (!message.member.permissionsIn(message.channel).has("MANAGE_MESSAGES")) {
                 console.log('You do not have permissions to use this command')
                 const errorembed = new Discord.MessageEmbed()
-                    .setAuthor(message.author.tag, message.author.avatarURL())
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
                     .setDescription(`You do not hvae the permissions required to use this command.`)
                 return conformationmessage.edit({ embeds: [errorembed] })
@@ -98,6 +99,7 @@ module.exports = {
                     setTimeout(() => {
                         conformationmessage.delete().catch(err => { console.log(err) });
                     }, 10000);
+                    if (silentonly) return ExecuteLargeBulkDelete(message, amount, conformationmessage)
                 }
                 return ExecuteLargeBulkDeleteWithOptions(message, amount, conformationmessage, members, silent, haslinks, hasinvites, hasbots, hasembeds, hasfiles, hasusers, hasimages, hasmentions, haspins, silentonly, membersonly, hasstickers)
             } else {
@@ -105,6 +107,7 @@ module.exports = {
                     setTimeout(() => {
                         conformationmessage.delete().catch(err => { console.log(err) });
                     }, 5000);
+                    if (silentonly) return ExecuteBulkDelete(message, amount, conformationmessage)
                 }
                 return ExecuteBulkDeleteWithOptions(message, amount, conformationmessage, members, silent, haslinks, hasinvites, hasbots, hasembeds, hasfiles, hasusers, hasimages, hasmentions, haspins, silentonly, membersonly, hasstickers)
             }
@@ -158,19 +161,6 @@ async function ExecuteBulkDeleteWithOptions(message, amount, conformationmessage
                     }
                 }
             } else {
-                if (silentonly) {
-                    let messagetime = (`${Number(message2.id / 4194304 + imissjansomuchithurts)}`).slice(0, -7) // what the time of the message was,cut off all decimal places so we are at seconds
-                    if (messagetime.length > 10) {
-                        messagetime = messagetime.slice(0, -1) // if the message time has 1 extra decimal place, cut it the fuck off
-                    }
-                    const messageage = currenttime - messagetime // how old the message is in seconds
-                    if (messageage <= 604740) { // is the message older than 2 weeks? any messages 1 min before a fortnight old will not be deleted.
-                        messagesincache.push(message2)
-                        amountcached = amountcached + 1;
-                    } else {
-                        amountgreaterthan14days = amountgreaterthan14days + 1 // for every message older than 14 days it adds one to a counter, by the end this will show how many were too old
-                    }
-                }
                 if (members) {
                     members.forEach(member => {
                         if (message2.author.id == member.id) {
@@ -335,12 +325,7 @@ async function ExecuteBulkDeleteWithOptions(message, amount, conformationmessage
                         }
                     })
                 } else {
-                    if (HasSilent && !silentonly) {
-                        message.delete().catch(err => { console.log(err) });
-                        setTimeout(() => {
-                            conformationmessage.delete().catch(err => { console.log(err) });
-                        }, 5000);
-                    }
+
                     if (HasLinks) {
                         let message2content = message2.content.toLowerCase()
                         if (message2content.includes('http:/') || message2content.includes('www.') || message2content.includes('.com') || message2content.includes('https:/')) {
@@ -532,7 +517,7 @@ async function ExecuteBulkDelete(message, amount, conformationmessage) {
             message.reply('There was an error deleting the messages.');
             return
         }).then(() => {
-            if (Number(totalmessages) !== amount) {
+            if (Number(totalmessages) < amount) {
                 if (amountgreaterthan14days == 0) {
                     return conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`).catch(err => { console.log(err) });
 
@@ -619,39 +604,6 @@ async function ExecuteLargeBulkDeleteWithOptions(message, amount, conformationme
                         }
                     }
                 } else {
-                    if (silentonly) {
-                        let messagetime = (`${Number(message2.id / 4194304 + imissjansomuchithurts)}`).slice(0, -7) // what the time of the message was,cut off all decimal places so we are at seconds
-                        if (messagetime.length > 10) {
-                            messagetime = messagetime.slice(0, -1) // if the message time has 1 extra decimal place, cut it the fuck off
-                        }
-                        const messageage = currenttime - messagetime // how old the message is in seconds
-                        if (messageage <= 604740) { // is the message older than 2 weeks? any messages older than 1 week, 6 days, 13 hours, and 59 mins (1 min before a fortnight old) will not be deleted.
-                            if (!messagesincache[99]) {
-                                messagesincache.push(message2)
-                            } else if (!messagesincache2[99]) {
-                                messagesincache2.push(message2)
-                            } else if (!messagesincache3[99]) {
-                                messagesincache3.push(message2)
-                            } else if (!messagesincache4[99]) {
-                                messagesincache4.push(message2)
-                            } else if (!messagesincache5[99]) {
-                                messagesincache5.push(message2)
-                            } else if (!messagesincache6[99]) {
-                                messagesincache6.push(message2)
-                            } else if (!messagesincache7[99]) {
-                                messagesincache7.push(message2)
-                            } else if (!messagesincache8[99]) {
-                                messagesincache8.push(message2)
-                            } else if (!messagesincache9[99]) {
-                                messagesincache9.push(message2)
-                            } else if (!messagesincache10[99]) {
-                                messagesincache10.push(message2)
-                            }
-                            amountcached = amountcached + 1;
-                        } else {
-                            amountgreaterthan14days = amountgreaterthan14days + 1 // for every message older than 14 days it adds one to a counter, by the end this will show how many were too old
-                        }
-                    }
                     if (members) {
                         members.forEach(member => {
                             if (message2.author.id == member.id) {
@@ -688,12 +640,6 @@ async function ExecuteLargeBulkDeleteWithOptions(message, amount, conformationme
                                         amountgreaterthan14days = amountgreaterthan14days + 1 // for every message older than 14 days it adds one to a counter, by the end this will show how many were too old
                                     }
                                 } else {
-                                    if (HasSilent && !silentonly) {
-                                        message.delete().catch(err => { console.log(err) });
-                                        setTimeout(() => {
-                                            conformationmessage.delete().catch(err => { console.log(err) });
-                                        }, 5000);
-                                    }
                                     if (HasLinks) {
                                         let message2content = message2.content.toLowerCase()
                                         if (message2content.includes('http:/') || message2content.includes('www.') || message2content.includes('.com') || message2content.includes('https:/')) {
@@ -1584,7 +1530,7 @@ async function ExecuteLargeBulkDelete(message, amount, conformationmessage) {
             janisawesome = false;
         }
     }
-    if (Number(totalmessages) !== amount) {
+    if (Number(totalmessages) < amount) {
         if (amountgreaterthan14days == 0) {
             return conformationmessage.edit(`${message.author}, Only ${totalmessages} messages were found, ${amountcached} messages were deleted.`).catch(err => { console.log(err) });
         }

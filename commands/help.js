@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
-const { GetDatabasePassword } = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: GetDatabasePassword(),
+    password: process.env.DATABASE_PASSWORD,
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
@@ -17,7 +18,7 @@ module.exports = {
     description: 'sends a help message',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (cmd === 'invite') return Command_Invite(message, Discord)
-        if (cmd === 'ahelp') return Command_AHelp(message, userstatus, Discord)
+        if (cmd === 'ahelp') return Command_AHelp(message, userstatus, Discord, client)
         let prefix = 'sm_';
         query = "SELECT * FROM prefixes WHERE serverid = ?";
         if (message.guild) {
@@ -46,12 +47,17 @@ module.exports = {
 
 module.exports.Help_INIT2 = () => {
     Help_Responses.set('ban', HELP_EMBED_BAN)
+    Help_Responses.set('b', HELP_EMBED_BAN)
     Help_Responses.set('kick', HELP_EMBED_KICK)
+    Help_Responses.set('k', HELP_EMBED_KICK)
     Help_Responses.set('mute', HELP_EMBED_MUTE)
+    Help_Responses.set('m', HELP_EMBED_MUTE)
     Help_Responses.set('unmute', HELP_EMBED_UNMUTE)
     Help_Responses.set('unban', HELP_EMBED_UNBAN)
     Help_Responses.set('rename', HELP_EMBED_RENAME)
     Help_Responses.set('purge', HELP_EMBED_PURGE)
+    Help_Responses.set('clear', HELP_EMBED_PURGE)
+    Help_Responses.set('prune', HELP_EMBED_PURGE)
     Help_Responses.set('help', HELP_EMBED_HELP)
     Help_Responses.set('times', HELP_EMBED_TIMES)
     Help_Responses.set('targeting', HELP_EMBED_TARGETING)
@@ -134,7 +140,7 @@ async function Command_Invite(message, Discord) {
     return
 }
 
-async function Command_AHelp(message, userstatus, Discord) {
+async function Command_AHelp(message, userstatus, Discord, client) {
     if (userstatus == 1) {
         let printarr = []
         client.commands.forEach(entry => {
@@ -152,7 +158,7 @@ async function Command_AHelp(message, userstatus, Discord) {
         if (descriptionlength > 4000) return message.channel.send('To many commands to say in one embed, make send in better way')
         const helpembed = new Discord.MessageEmbed()
             .setTitle('Literally every command')
-            .setDescription(printarr)
+            .setDescription(`${printarr}`)
             .setTimestamp()
             .setColor('BLUE')
         message.channel.send({ embeds: [helpembed] });

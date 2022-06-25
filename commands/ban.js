@@ -1,12 +1,13 @@
 const { GetMember } = require("../moderationinc")
 const mysql = require('mysql2');
+
 const { unix } = require('moment');
-const { GetDatabasePassword } = require('../hotshit')
+require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
-    password: GetDatabasePassword(),
+    password: process.env.DATABASE_PASSWORD,
     database: 'ozaibot',
     waitForConnections: true,
     connectionLimit: 10,
@@ -24,20 +25,29 @@ module.exports = {
         if (!args[0]) {
             console.log('stopped, no member arg')
             const errorembed = new Discord.MessageEmbed()
-                .setAuthor(`${message.author.tag}`, message.author.avatarURL())
+                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
                 .setDescription(`Invalid member arguement.\nProper usage: \`ban <@user|user_id> <days to delete> <reason>\``)
             return message.channel.send({ embeds: [errorembed] })
         }
-        let member = await GetMember(message, args[0], Discord, false, false);
+        let member = await GetMember(message, client, args[0], Discord, false, false);
         if (member === 'cancelled') return
         if (!userstatus == 1) {
-            if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have permissions to ban members.');
+            if (!message.member.permissions.has('BAN_MEMBERS')) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`Missing permissions.`)
+                return message.channel.send({ embeds: [errorembed] })
+            }
             if (member) {
                 if (message.guild.ownerID !== message.author.id) {
                     if (message.member.roles.highest.position <= member.roles.highest.position) {
-                        console.log('You cannot ban someone with higher or the same roles as your own.');
-                        return message.channel.send('You cannot ban someone with higher or the same roles as your own.');
+                        const errorembed = new Discord.MessageEmbed()
+                            .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                            .setColor(15684432)
+                            .setDescription(`You cannot ban this member.`)
+                        return message.channel.send({ embeds: [errorembed] })
                     }
                 }
             }
@@ -57,7 +67,13 @@ module.exports = {
                 console.log('You can\'t ban yourself.');
                 return message.channel.send('You can\'t ban yourself.');
             }
-
+            if (member.id == client.user.id) {
+                const errorembed = new Discord.MessageEmbed()
+                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                .setColor(15684432)
+                .setDescription(`Why do you want to ban me :(`)
+            return message.channel.send({ embeds: [errorembed] })
+            }
             if (!member.bannable) {
                 console.log("I cannot ban this member.");
                 return message.reply("I cannot ban this member.");
@@ -72,15 +88,22 @@ module.exports = {
                 console.log('Reason must be less than 512 characters long.');
                 return message.channel.send('Reason must be less than 512 characters long.');
             }
-            if (!reason) reason = 'No reason provided';
-            message.channel.send(`${member} has been banned and has had ${days} days of they're messages deleted.`);
+            const returnembed = new Discord.MessageEmbed()
+                .setDescription(`<:check:988867881200652348> ${member} has been banned.`)
+                .setColor("GREEN")
+            message.channel.send({ embeds: [returnembed] })
             console.log(`${member.user.tag} has been banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}${message.author.id} and has had ${days} days of they're messages deleted.`)
-            const bannedembed = new Discord.MessageEmbed()
-                .addField(`**You have been banned from**: ${message.guild}.`, `**Banned by**: ${message.author} \n **For**: "${reason}".`)
-                .setColor('RED')
-                .setTimestamp()
             if (offserver === false) {
-                member.send({ embeds: [bannedembed] }).catch(err => { console.log(`The folowing message failed to send to the user.`) })
+                const bannedembed = new Discord.MessageEmbed()
+                    .setColor('RED')
+                    .setTitle(`You have been banned from ${message.guild}`)
+                    .setTimestamp()
+                if (reason) {
+                    bannedembed.setDescription(`**Banned by:** ${message.author}\n**Reason:** ${reason}`)
+                } else {
+                    bannedembed.setDescription(`**Banned by:** ${message.author}`)
+                }
+                member.send({ embeds: [bannedembed] }).catch(err => { console.log(`The following message failed to send to the user.`) })
                 console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
             }
             await message.guild.members.ban(member, { days: days, reason: `${reason} - ${message.author.tag} (${message.author.id})`, }).catch(err => {
@@ -92,13 +115,20 @@ module.exports = {
         }
         let reason = args.slice(1).join(" ");
         if (reason.length > 512) return message.channel.send('Reason must be less than 512 characters long.')
-        if (!reason) reason = 'no reason provided';
-        message.channel.send(`${member} has been banned.`);
-        const bannedembed = new Discord.MessageEmbed()
-            .addField(`**You have been banned from**: ${message.guild}.`, `**Banned by**: ${message.author} \n **For**: "${reason}".`)
-            .setColor('RED')
-            .setTimestamp()
+        const returnembed = new Discord.MessageEmbed()
+            .setDescription(`<:check:988867881200652348> ${member} has been banned.`)
+            .setColor("GREEN")
+        message.channel.send({ embeds: [returnembed] })
         if (offserver === false) {
+            const bannedembed = new Discord.MessageEmbed()
+                .setColor('RED')
+                .setTitle(`You have been banned from ${message.guild}`)
+                .setTimestamp()
+            if (reason) {
+                bannedembed.setDescription(`**Banned by:** ${message.author}\n**Reason:** ${reason}`)
+            } else {
+                bannedembed.setDescription(`**Banned by:** ${message.author}`)
+            }
             member.send({ embeds: [bannedembed] }).catch(err => { })
             console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
         }
@@ -111,19 +141,36 @@ module.exports = {
     }
 }
 async function logban(message, member, reason) {
-    let query = `INSERT INTO serverpunishments (serverid, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?)`;
-    let data = [message.guild.id, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'ban'];
+    let query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
+    let data = [message.guild.id];
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
             return console.log(error);
         }
+        let casenumber = 1
+        if (!results == ``) {
+            for (row of results) {
+                casenumber = row["MAX(casenumber)"] + 1
+            }
+        }
+        if (casenumber == undefined || casenumber === null) {
+            casenumber = 1
+        }
+        query = `INSERT INTO serverpunishments (serverid,casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?,?)`;
+        data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Ban'];
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
+                return console.log(error);
+            }
+        });
     });
 }
 async function sban(message, args, userstatus, Discord) {
     if (userstatus == 1) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
-        const member = await GetMember(message, args[0], Discord, true, false)
+        const member = await GetMember(message, client, args[0], Discord, true, false)
         if (member === 'cancelled') return
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
         if (!member) return message.author.send('no member')

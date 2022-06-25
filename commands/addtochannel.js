@@ -1,11 +1,12 @@
 const { GetMember } = require("../moderationinc")
 const mysql = require('mysql2');
-const {GetDatabasePassword} = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -30,7 +31,7 @@ module.exports = {
                               if (!channelselected) return message.reply('Invalid channel or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                         } else return message.reply('Invalid channel id or wrong arguements. Usage is "sm_addtochannel <@user | user_id> <#channel | channel_id(optional)>"');
                   }
-                  let member = await GetMember(message, args[0], Discord, true, false)
+                  let member = await GetMember(message, client,args[0], Discord, true, false)
                   if (member === 'cancelled') return
                   if (!member) return message.reply('Invalid user.');
                   channelselected.permissionOverwrites.edit(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true, ADD_REACTIONS: true }).catch(err => {

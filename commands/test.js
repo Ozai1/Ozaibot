@@ -14,12 +14,13 @@ const convertSnowflakeToDate = (snowflake, epoch = DISCORD_EPOCH) => {
       return
 }
 const mysql = require('mysql2');
-const { GetDatabasePassword } = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -611,7 +612,7 @@ async function chat_crawler(message, userstatus, client) {
 }
 /* User error embed for cmds
                           const bannedembed = new Discord.MessageEmbed()
-                              .setAuthor(message.author.tag, message.author.avatarURL())
+                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                               .setColor('RED')
                               .setDescription(`Invalid member argurment.\n\nProper useage is:\n`mute <member>``)
                         message.channel.send(bannedembed)

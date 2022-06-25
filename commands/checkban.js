@@ -1,12 +1,13 @@
 const { unix } = require('moment');
 const moment = require('moment');
 const mysql = require('mysql2');
-const {GetDatabasePassword} = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -96,7 +97,7 @@ async function user_command(message, args, Discord, client) {
                         uiembed.setDescription('Is a bot')
                   }
                   uiembed.addField('ID', user.id)
-                        .addField('Highest rank', member.roles.highest)
+                        .addField('Highest rank', `${member.roles.highest.name}`)
                         .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
                         .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
                         .setFooter({ text: `requested by ${message.author.tag}`})

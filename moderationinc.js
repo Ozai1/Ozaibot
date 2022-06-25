@@ -22,11 +22,12 @@ module.exports.GetPunishmentDuration = async (string) => {
 /**
 * Generates a response messages for returning the amount of time a punishment was executed for
 * @param {integer} timeinseconds the length of the punish, in seconds 
+* @param {boolean} includeFor to include it saying for or just output the units
 * @returns {string} what actual length of time the user has selected. formated like: "for [amount] [unit]", space before "for" and no full stop at the end
 * @error if some dumb shit is inputed
 */
 
-module.exports.GetDisplay = (timelength) => {
+module.exports.GetDisplay = (timelength, includeFor = false) => {
     if (isNaN(timelength)) return
     if (timelength < 0) return
     let display = ''
@@ -50,19 +51,23 @@ module.exports.GetDisplay = (timelength) => {
         if (timelength == 2592000) { postfix = '' }
         display = ` for ${timelength / 2592000} month${postfix}`
     }
+    if (!includeFor) {
+        display = display.slice(4)
+    }
     return display
 }
 
 /**
  * Retreves a member from the guild of command origin
  * @param {Object} message Message object
+ * @param {Object} client Discord client object
  * @param {string} string The string that is used to find a member
  * @param {Object} Discord Used for embeds
  * @param {boolean} AllowMultipleResults If a name instead of an ID or a mention is supplied it is possible to have multiple members with overlapping names found. This boolean is whether to allow the embed which will allow the admin to select which user out of the users found they intended to target.
  * @param {boolean} AllowOffServer also searches for members outside of the guild
  * @returns {Object} member on success or undefined on fail
  */
-module.exports.GetMember = async (message, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
+module.exports.GetMember = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
     try {
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
@@ -71,21 +76,27 @@ module.exports.GetMember = async (message, string, Discord, AllowMultipleResults
                 return member
             }
             if (includeOffserver) {
-                member = message.guild.members.fetch(string);
+                member = client.users.cache.get(string)
+                if (member) {
+                    return member
+                }
+                member = await client.users.fetch(string).catch(err => { })
             }
-            if (member) {
-                return member
-            }
+            return member
         }
         if (string.startsWith('<@')) {
-            let member = message.guild.members.cache.get(string.slice(3, -1)) || message.guild.members.cache.get(string.slice(2, -1))
+            member = message.guild.members.cache.get(string.slice(3, -1)) || message.guild.members.cache.get(string.slice(2, -1))
             if (!member) {
                 if (includeOffserver) {
+                    member = client.users.cache.get(string.slice(3, -1)) || client.users.cache.get(string.slice(2, -1))
+                    if (member) {
+                        return member
+                    }
                     if (string.includes('!')) {
-                        member = await message.guild.members.fetch(string.slice(3, -1))
+                        member = await client.users.fetch(string.slice(3, -1)).catch(err => { })
                         return member
                     } else {
-                        member = await message.guild.members.fetch(string.slice(2, -1))
+                        member = await client.users.fetch(string.slice(2, -1)).catch(err => { })
                         return member
                     }
                 }
@@ -104,12 +115,15 @@ module.exports.GetMember = async (message, string, Discord, AllowMultipleResults
             member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(4, -1));
             return member
         }
-        if (AllowMultipleResults === false || possibleusers.length > 9) return undefined
+        if (AllowMultipleResults === false) return undefined
+        if (possibleusers.length > 9) {
+            return message.channel.send('To many users found. Please use a more definitive string.')
+        }
         let printmessage = possibleusers.filter((a) => a).toString()
         printmessage = printmessage.replace(/,/g, '\n')
         const helpembed = new Discord.MessageEmbed()
             .setTitle('Which of these members did you mean? Please type out the corrosponding number.')
-            .setFooter({ text: 'Type cancel to cancel the search.'})
+            .setFooter({ text: 'Type cancel to cancel the search.' })
             .setDescription(`${printmessage}`)
             .setColor('BLUE')
         let filter = m => m.author.id === message.author.id;

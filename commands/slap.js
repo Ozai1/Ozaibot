@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
-const {GetDatabasePassword} = require('../hotshit')
+
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
       user: 'root',
-      password: GetDatabasePassword(),
+      password: process.env.DATABASE_PASSWORD,
       database: 'ozaibot',
       waitForConnections: true,
       connectionLimit: 10,
@@ -19,7 +20,7 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (cmd === 'slap') {
             if (!args[0]) return message.channel.send('[SM] Usage: sm_slap <player|#playerid> <amount>')
-            const member = await GetMember(message, args[0], Discord, true, false)
+            const member = await GetMember(message, client,args[0], Discord, true, false)
             if (member === 'cancelled') return
             if (!member) return message.channel.send('[SM] No matching clients found')
             if (!args[1]) {
