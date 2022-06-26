@@ -16,11 +16,10 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'checkban',
-      aliases: ['checkbans', 'isbanned', 'user', 'userinfo', 'who', 'whois', 'ui', 'totalbans', 'bancount'],
+      aliases: ['totalbans'],
       description: 'checks if a user is banned from a guild and what theyre ban reason is',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (cmd === 'user' || cmd === 'userinfo' || cmd === 'who' || cmd === 'whois' || cmd === 'ui') return user_command(message, args, Discord, client)
-            if (cmd === 'totalbans' || cmd === 'bancount') return total_bans(message, client, userstatus)
+            if (cmd === 'totalbans') return total_bans(message, client, userstatus)
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
             if (!userstatus == 1) {
@@ -39,88 +38,6 @@ module.exports = {
       }
 }
 
-async function user_command(message, args, Discord, client) {
-      if (!args[0]) {
-            if (message.guild) {
-                  let member = message.guild.members.cache.get(message.author.id)
-                  let user = client.users.cache.get(message.author.id)
-                  const joinedatunix = Number(moment(member.joinedAt).unix())
-                  const createdatunix = Number(moment(user.createdAt).unix())
-                  const uiembed = new Discord.MessageEmbed()
-                        .setTitle(`${user.tag}`)
-                        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                  if (user.bot) {
-                        uiembed.setDescription('Is a bot')
-                  }
-                  uiembed.addField('ID', user.id)
-                        .addField('Highest rank', member.roles.highest)
-                        .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
-                        .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter({ text: `requested by ${message.author.tag}`})
-                        .setTimestamp()
-                        .setColor(member.displayHexColor);
-                  message.channel.send({embeds: [uiembed]})
-            } else {
-                  let user = client.users.cache.get(message.author.id)
-                  const createdatunix = Number(moment(user.createdAt).unix())
-                  const uiembed = new Discord.MessageEmbed()
-                        .setTitle(`${user.tag}`)
-                        .setThumbnail(user.displayAvatarURL({ dynamic: true }))
-                  if (user.bot) {
-                        uiembed.setDescription('Is a bot.')
-                  }
-                  uiembed.addField('ID', user.id)
-                        .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter({ text: `requested by ${message.author.tag}`})
-                        .setTimestamp()
-                        .setColor(240116);
-                  message.channel.send({embeds: [uiembed]})
-            }
-      } else {
-            let membertype = 'member'
-            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1)) || message.mentions.members.first();
-            let user = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0]) || client.users.cache.get(args[0].slice(2, -1)) || message.mentions.users.first();
-            if (!member) {
-                  membertype = 'user'
-                  if (!user) {
-                        user = await client.users.fetch(args[0])
-                        if (!user) return message.channel.send('Invalid user.')
-                  }
-            }
-            if (membertype === 'member') {
-                  const joinedatunix = Number(moment(member.joinedAt).unix())
-                  const createdatunix = Number(moment(user.createdAt).unix())
-                  const uiembed = new Discord.MessageEmbed()
-                        .setTitle(`${user.tag}`)
-                        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
-                  if (user.bot) {
-                        uiembed.setDescription('Is a bot')
-                  }
-                  uiembed.addField('ID', user.id)
-                        .addField('Highest rank', `${member.roles.highest.name}`)
-                        .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
-                        .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter({ text: `requested by ${message.author.tag}`})
-                        .setTimestamp()
-                        .setColor(member.displayHexColor);
-                  message.channel.send({embeds: [uiembed]})
-            } else {
-                  const createdatunix = Number(moment(user.createdAt).unix())
-                  const uiembed = new Discord.MessageEmbed()
-                        .setTitle(`${user.tag}`)
-                        .setThumbnail(user.displayAvatarURL({ dynamic: true }))
-                  if (user.bot) {
-                        uiembed.setDescription('Is a bot.')
-                  }
-                  uiembed.addField('ID', user.id)
-                        .addField('Created account at', `\`${moment(user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
-                        .setFooter({ text: `requested by ${message.author.tag}`})
-                        .setTimestamp()
-                        .setColor(240116);
-                  message.channel.send({embeds: [uiembed]})
-            }
-      }
-}
 async function total_bans(message, client, userstatus) {
       if (userstatus == 1) {
             if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.author.send('Ozaibot does not have permission to see bans in this server.')

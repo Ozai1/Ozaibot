@@ -27,7 +27,7 @@ module.exports = {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
-                .setDescription(`Missing arguments.\nProper usage: \`case <case number> `)
+                .setDescription(`Missing arguments.\nProper usage: \`case <case number>\``)
             return message.channel.send({ embeds: [errorembed] })
         }
         let casenumber = args[0]
@@ -56,13 +56,15 @@ module.exports = {
                             .setDescription(`This case has been deleted.`)
                         return message.channel.send({ embeds: [errorembed] })
                     }
-                    const punishtype = row["type"]
                     casenumber = row["casenumber"]
-                    const timeexecuted = row["timeexecuted"]
+                    const punishtype = row["type"]
                     const length = row["length"]
                     const userid = row["userid"]
                     const adminid = row["adminid"]
                     const reason = row["reason"]
+                    let timeexecuted = row["timeexecuted"]
+                    timeexecuted = timeexecuted + '000'
+                    timeexecuted = Date.now() - timeexecuted
                     const member = await client.users.fetch(userid)
                     const adminperson = await client.users.fetch(adminid)
                     let embedstring = ''
@@ -77,7 +79,7 @@ module.exports = {
                         .setAuthor({ name: `${adminperson.tag}`, iconURL: adminperson.avatarURL() })
                         .setColor('BLUE')
                         .setDescription(embedstring)
-                        .setTimestamp(Date(timeexecuted))
+                        .setTimestamp(Date.now() - timeexecuted)
                         .setFooter({ text: `Case #${casenumber}` })
                     message.channel.send({ embeds: [caseembed] });
                 }
