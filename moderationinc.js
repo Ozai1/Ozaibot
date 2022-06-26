@@ -64,7 +64,7 @@ module.exports.GetDisplay = (timelength, includeFor = false) => {
  * @param {string} string The string that is used to find a member
  * @param {Object} Discord Used for embeds
  * @param {boolean} AllowMultipleResults If a name instead of an ID or a mention is supplied it is possible to have multiple members with overlapping names found. This boolean is whether to allow the embed which will allow the admin to select which user out of the users found they intended to target.
- * @param {boolean} AllowOffServer also searches for members outside of the guild
+ * @param {boolean} AllowOffServer also searches for members outside of the guild, cannot use names
  * @returns {Object} member on success or undefined on fail
  */
 module.exports.GetMember = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
