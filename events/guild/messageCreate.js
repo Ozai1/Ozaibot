@@ -18,6 +18,8 @@ const rconclient = new Rcon({
     password: 'ZD:*{QsdD"4NV',
 });
 
+const prefixes = new Map()
+
 module.exports = async (Discord, client, message) => {
     /*
     let prefixes = [`003750558849475280916sm_`,];

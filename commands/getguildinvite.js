@@ -20,24 +20,16 @@ module.exports = {
                   if (!args[0]) return
                   let selectedguild = client.guilds.cache.get(args[0])
                   if (!selectedguild) return message.channel.send('Invalid server id')
-                  if (!selectedguild.me.permissions.has('CREATE_INSTANT_INVITE')) return message.channel.send('cannot create invite for this server due to low perms');
-                  let channelsarr = [];
-                  selectedguild.channels.cache.forEach(async (channel, id) => {
-                        if (!channelsarr[0]) {
-                              if (channel.type !== 'category') {
-                                    channelsarr.push(channel.id)
-                              }
-                        }
-                  });
-                  if (!channelsarr[0]) return message.channel.send('This server has no channels, so no invite could be generated.')
-                  let invchannel = client.channels.cache.get(channelsarr[0])
-                  if (!invchannel) return message.channel.send('Error getting channel')
-                  let invite = await invchannel.createInvite({ maxAge: 0, maxUses: 0 }).catch(err => {
-                        console.log(err)
-                        message.channel.send('Failed.')
-                        return
+                  if (!selectedguild.me.permissions.has('MANAGE_GUILD')) return message.channel.send('cannot see invite for this server due to low perms');
+                  const invites = await selectedguild.invites.fetch().catch(err => {
+                        return message.channel.send('Failed to fetch invites(s)')
                   })
-                  message.channel.send(`${invite}`)
+                  let dainvite = invites.first()
+                  if (dainvite) {
+                        message.channel.send(`discord.gg/${dainvite.code}`)
+                  } else {
+                        message.channel.send('This server does not have any invites active which i can steal')
+                  }
             }
       }
 }
