@@ -1,5 +1,4 @@
 const Help_Responses = new Map()
-const {Help_INIT2} = require('../commands/help')
 module.exports = {
     showHelp: false,
     description: "information about the bot",
@@ -35,7 +34,6 @@ module.exports.Help_INIT = () => {
     Help_Responses.set('rename', HELP_EMBED_RENAME)
     Help_Responses.set('purge', HELP_EMBED_PURGE)
     Help_Responses.set('help', HELP_EMBED_HELP)
-    Help_INIT2()
 }
 
 async function HELP_EMBED_BAN(interaction, Discord, userstatus) {

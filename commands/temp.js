@@ -21,10 +21,9 @@ module.exports = {
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
-            const returnembed = new Discord.MessageEmbed()
-                .setDescription(`<:check:988867881200652348> ${message.member} **has been muted.**`)
-                .setColor("GREEN")
-            message.channel.send({ embeds: [returnembed] })
+            client.userstatus.forEach((value, key) => {
+                console.log(`k: ${key}, v: ${value}`)
+            })
         }
     }
 }

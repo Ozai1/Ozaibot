@@ -33,6 +33,7 @@ module.exports = {
                                     if (status == 1) {// they already blacklisted
                                           return message.channel.send('This user is not blacklisted, infact they are a botadmin.')
                                     } else if (status == 0) {// remove bot admin and blacklist
+                                          client.userstatus.delete(member.id)
                                           let query = "DELETE FROM userstatus WHERE userid = ?";
                                           data = [member.id]
                                           connection.query(query, data, function (error, results, fields) {// remove bot admin and blacklist

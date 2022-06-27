@@ -17,11 +17,12 @@ module.exports = {
       aliases: ['rba'],
       description: 'removes a user from the botadmin status',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id == '254223729091936256') { // includes sun tzu
+            if (userstatus == 1 || message.author.id == '508847949413875712') { // includes sun tzu
                   if (!args[0]) return message.channel.send('Please give a member to have their botadmin removed')
                   if (args[0].toLowerCase() === '@!me') {
                         let query = "DELETE FROM userstatus WHERE status='1'";
                         let data = []
+
                         connection.query(query, data, function (error, results, fields) {// remove ALL botadmins bar the executer
                               if (error) return console.log(error)
                               query = "INSERT INTO userstatus (username, userid, status) VALUES (?, ?, ?)";
@@ -36,40 +37,41 @@ module.exports = {
                                     })
                               })
                         })
-                        return
                   }
+                  client.userstatus.forEach((value, key) => {
+                        if (value == 1) {
+                              client.userstatus.delete(key)
+                        }
+                  })
                   let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                   if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
                   if (!member) return message.channel.send('Invalid member') // still no member
-                  if (member.id == '508847949413875712') return message.channel.send(`${member} has had their botadmin removed.`)
-                  let query = "SELECT * FROM userstatus WHERE userid = ?";
-                  let data = [member.id]
-                  connection.query(query, data, function (error, results, fields) {//check what theyre current status is
-                        if (error) return console.log(error)
-                        if (results == ``) { // if they not in db, they get botadmin
-                              return message.channel.send('This user is not a botadmin.')
-                        } else {
-                              for (row of results) {
-                                    var status = row["status"];
-                                    if (status == 0) {// they already blacklisted
-                                          return message.channel.send('This user is not a botadmin, infact they are blacklisted.')
-                                    } else if (status == 1) {// remove bot admin and blacklist
-                                          let query = "DELETE FROM userstatus WHERE userid = ?";
-                                          data = [member.id]
-                                          connection.query(query, data, function (error, results, fields) {// remove bot admin and blacklist
-                                                if (error) return console.log(error)
-                                                message.channel.send(`${member} has had their botadmin removed.`)
-                                                console.log(`${member.tag}(${member.id}) has had their botadmin removed by ${message.author.tag}`)
-                                                let alllogs = client.channels.cache.get('986882651921190932')
-                                                if (message.author.id !== '508847949413875712'){
-                                                alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had their botadmin removed as per the above message, this was done by by ${message.author.tag}`)}
-                                                return
-                                          })
-
-                                    }
+                  if (!message.author.id == '508847949413875712') {
+                        if (member.id == '508847949413875712') return message.channel.send(`${member} has had their botadmin removed.`)
+                  }
+                  let status = client.userstatus.get(member.id)
+                  if (!status) { // if they not in db, they get botadmin
+                        return message.channel.send('This user is not a botadmin.')
+                  }
+                  if (status == 0) {// they already blacklisted
+                        return message.channel.send('This user is not a botadmin, infact they are blacklisted.')
+                  } else if (status == 1) {// remove bot admin
+                        client.userstatus.delete(member.id)
+                        let query = "DELETE FROM userstatus WHERE userid = ?";
+                        data = [member.id]
+                        connection.query(query, data, function (error, results, fields) {// remove bot admin
+                              if (error) return console.log(error)
+                              message.channel.send(`${member} has had their botadmin removed.`)
+                              console.log(`${member.tag}(${member.id}) has had their botadmin removed by ${message.author.tag}`)
+                              let alllogs = client.channels.cache.get('986882651921190932')
+                              if (message.author.id !== '508847949413875712') {
+                                    alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has had their botadmin removed as per the above message, this was done by by ${message.author.tag}`)
                               }
-                        }
-                  })
+                              return
+                        })
+
+                  }
+
             }
       }
 }

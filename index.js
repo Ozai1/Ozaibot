@@ -1,15 +1,13 @@
 console.log('Stwarting Ozwaibot!!!');
 const fs = require('fs');
 const { unix } = require('moment');
-console.log("Stwarting Ozwaibot!!!");
 const { Player } = require('discord-player');
 const Discord = require('discord.js');
 const moment = require('moment');
-const mysql = require('mysql2');
 
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
-const { Help_INIT } = require('./slashcommands/help')
-const util = require('minecraft-server-util')
+const { Main_INIT } = require('./INIT')
+const mysql = require('mysql2');
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -199,7 +197,7 @@ client.on('ready', async () => {
                   }
             })
       }, 60000);
-      Help_INIT()
+      await Main_INIT(client)
       let alllogs = client.channels.cache.get('986882651921190932');
       alllogs.send(`Bot started up <@!508847949413875712>`);
       console.log(`Finished caching and updating`);
@@ -657,3 +655,11 @@ player.on('connectionError', async (queue, error) => {
 player.on('error', async (queue, error) => {
       console.log(error)
 });
+
+async function MuteRoleCache_INIT(client) {
+
+}
+
+async function Prefixes_INIT(client) {
+
+}
