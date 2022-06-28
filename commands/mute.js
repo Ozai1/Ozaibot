@@ -62,7 +62,7 @@ module.exports = {
                               console.log('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                               return message.channels.send('Ozaibot does not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
                         }
-                        let member = await GetMember(message, client,args[0], Discord, true, false);
+                        let member = await GetMember(message, client, args[0], Discord, true, false);
                         if (member === 'cancelled') return
                         if (!member) {
                               console.log('invalid member')
@@ -82,10 +82,10 @@ module.exports = {
                         }
                         if (member.id == client.user.id) {
                               const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`Why do you want to mute me :(`)
-            return message.channel.send({ embeds: [errorembed] })
+                                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                                    .setColor(15684432)
+                                    .setDescription(`Why do you want to mute me :(`)
+                              return message.channel.send({ embeds: [errorembed] })
                         }
                         if (message.guild.ownerID !== message.author.id) {
                               if (member.id == message.guild.ownerID || member.permissions.has('ADMINISTRATOR')) {
@@ -143,30 +143,14 @@ module.exports = {
                               }
                               return
                         })
-                        query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
-                        data = [message.guild.id];
+                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+                        query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                        data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), muteduration, reason, 'Mute'];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
-                                    message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
+                                    message.channel.send('Error logging mute. mute will still be instated but will not show up in punishment searches.');
                                     return console.log(error);
                               }
-                              let casenumber = 1
-                              if (!results == ``) {
-                                    for (row of results) {
-                                          casenumber = row["MAX(casenumber)"] + 1
-                                    }
-                              }
-                              if (casenumber == undefined || casenumber === null) {
-                                    casenumber = 1
-                              }
-                              let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                              let data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), muteduration, reason, 'Mute'];
-                              connection.query(query, data, function (error, results, fields) {
-                                    if (error) {
-                                          message.channel.send('Error logging mute. mute will still be instated but will not show up in punishment searches.');
-                                          return console.log(error);
-                                    }
-                              });
                         });
                         console.log(`user has been muted${display}.`)
                         if (!muteduration || muteduration == 0) return

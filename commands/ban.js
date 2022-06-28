@@ -69,10 +69,10 @@ module.exports = {
             }
             if (member.id == client.user.id) {
                 const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`Why do you want to ban me :(`)
-            return message.channel.send({ embeds: [errorembed] })
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`Why do you want to ban me :(`)
+                return message.channel.send({ embeds: [errorembed] })
             }
             if (!member.bannable) {
                 console.log("I cannot ban this member.");
@@ -141,30 +141,14 @@ module.exports = {
     }
 }
 async function logban(message, member, reason) {
-    let query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
-    let data = [message.guild.id];
+    let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+    let query = `INSERT INTO serverpunishments (serverid,casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?,?)`;
+    let data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Ban'];
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
             return console.log(error);
         }
-        let casenumber = 1
-        if (!results == ``) {
-            for (row of results) {
-                casenumber = row["MAX(casenumber)"] + 1
-            }
-        }
-        if (casenumber == undefined || casenumber === null) {
-            casenumber = 1
-        }
-        query = `INSERT INTO serverpunishments (serverid,casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?,?)`;
-        data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Ban'];
-        connection.query(query, data, function (error, results, fields) {
-            if (error) {
-                message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
-                return console.log(error);
-            }
-        });
     });
 }
 async function sban(message, args, userstatus, Discord) {

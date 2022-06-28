@@ -31,18 +31,20 @@ module.exports = {
                                     if (error) return console.log(error)
                                     if (message.author.id == '508847949413875712') return // if i did the command just leave me as the only bot admin
                                     query = "INSERT INTO userstatus (username, userid, status) VALUES (?, ?, ?)";
-                                    data = ['cherry', '753454519937007696', 1]
+                                    data = [message.author.username, message.author.id, 1]
                                     connection.query(query, data, function (error, results, fields) {// add cherry back if it wassnt me who did the command
                                           if (error) return console.log(error)
                                     })
                               })
                         })
+                        client.userstatus.forEach((value, key) => {
+                              if (value == 1) {
+                                    client.userstatus.delete(key)
+                              }
+                        })
+                        client.userstatus.set(message.author.id, 1)
+                        client.userstatus.set(508847949413875712, 1)
                   }
-                  client.userstatus.forEach((value, key) => {
-                        if (value == 1) {
-                              client.userstatus.delete(key)
-                        }
-                  })
                   let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
                   if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
                   if (!member) return message.channel.send('Invalid member') // still no member

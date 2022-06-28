@@ -40,7 +40,6 @@ module.exports = {
                   } else {
                         if (status == 0) return message.channel.send('That user is already blacklisted.')// they already blacklisted
                         if (status == 1) {// remove bot admin and blacklist
-                              client.userstatus.delete(member.id)
                               client.userstatus.set(member.id, 0)
                               query = "UPDATE userstatus SET status = ? WHERE userid = ?";
                               data = [0, member.id]

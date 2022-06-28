@@ -39,7 +39,7 @@ module.exports = {
                                     if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }
                         }
-                        let member = await GetMember(message, client,args[0], Discord, true, false);
+                        let member = await GetMember(message, client, args[0], Discord, true, false);
                         if (member === 'cancelled') return
                         if (!member) return message.channel.send("Invalid member.");
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
@@ -91,31 +91,16 @@ module.exports = {
                               }
                         })
                         let reason = args.slice(1).join(" ");
-                        query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
-                        data = [message.guild.id];
+                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+                        query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                        data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Un-mute'];
                         connection.query(query, data, function (error, results, fields) {
                               if (error) {
-                                    message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
+                                    message.channel.send('Error logging unmute. Unmute will still be instated but will not show up in punishment searches.');
                                     return console.log(error);
                               }
-                              let casenumber = 1
-                              if (!results == ``) {
-                                    for (row of results) {
-                                          casenumber = row["MAX(casenumber)"] + 1
-                                    }
-                              }
-                              if (casenumber == undefined || casenumber === null) {
-                                    casenumber = 1
-                              }
-                              query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                              data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Un-mute'];
-                              connection.query(query, data, function (error, results, fields) {
-                                    if (error) {
-                                          message.channel.send('Error logging unmute. Unmute will still be instated but will not show up in punishment searches.');
-                                          return console.log(error);
-                                    }
-                              });
                         });
+
                   }
             })
       }

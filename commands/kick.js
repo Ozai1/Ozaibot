@@ -22,7 +22,7 @@ module.exports = {
             if (cmd === 'skick') return skick(message, args, userstatus, Discord)
             if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!args[0]) return message.channel.send('You must add a member to kick.')
-            member = await GetMember(message, client,args[0], Discord, true, false);
+            member = await GetMember(message, client, args[0], Discord, true, false);
             if (member === 'cancelled') return
             if (!userstatus == 1) {
                   if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have permissions to do this!');
@@ -49,38 +49,22 @@ module.exports = {
                   console.log(err)
                   message.channel.send('Failed to kick')
                   return
-            })
-            let query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
-            let data = [message.guild.id];
+            });
+            let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+            let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+            let data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Kick'];
             connection.query(query, data, function (error, results, fields) {
                   if (error) {
-                        message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
+                        message.channel.send('Error logging kick. Ban will still be instated but will not show up in punishment searches.');
                         return console.log(error);
                   }
-                  let casenumber = 1
-                  if (!results == ``) {
-                        for (row of results) {
-                              casenumber = row["MAX(casenumber)"] + 1
-                        }
-                  }
-                  if (casenumber == undefined || casenumber === null) {
-                        casenumber = 1
-                  }
-                  query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                  data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Kick'];
-                  connection.query(query, data, function (error, results, fields) {
-                        if (error) {
-                              message.channel.send('Error logging kick. Ban will still be instated but will not show up in punishment searches.');
-                              return console.log(error);
-                        }
-                  });
             });
       }
 }
 async function skick(message, args, userstatus, Discord) {
       if (userstatus == 1) {
             if (!args[0]) return message.member.send('You must add a member to kick.')
-            const member = await GetMember(message, client,args[0], Discord, true, false)
+            const member = await GetMember(message, client, args[0], Discord, true, false)
             if (member === 'cancelled') return
             if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!member) return message.author.send('no member ')

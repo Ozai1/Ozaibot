@@ -56,7 +56,6 @@ module.exports = {
                                 alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin & had their blacklist removed as per the above message, they were given botadmin by by ${message.author.tag}`)}
                                 return
                             })
-                            client.userstatus.delete(member.id)
                             client.userstatus.set(member.id, 1)
                         }
                     }

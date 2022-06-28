@@ -21,9 +21,6 @@ module.exports = {
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
-            client.userstatus.forEach((value, key) => {
-                console.log(`k: ${key}, v: ${value}`)
-            })
         }
     }
 }
