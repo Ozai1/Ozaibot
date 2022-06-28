@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const { GetDisplay } = require('../moderationinc')
+const { GetDisplay, GetPunishName} = require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -57,7 +57,8 @@ module.exports = {
                         return message.channel.send({ embeds: [errorembed] })
                     }
                     casenumber = row["casenumber"]
-                    const punishtype = row["type"]
+                    let punishtype = row["type"]
+                    punishtype = GetPunishName(punishtype)
                     const length = row["length"]
                     const userid = row["userid"]
                     const adminid = row["adminid"]
@@ -74,6 +75,8 @@ module.exports = {
                         embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}\n**Duration:** ${GetDisplay(length, false)}`
                     } if (reason && !length) {
                         embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}\n**Reason:** ${reason}`
+                    } if (!reason && !length) {
+                        embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}`
                     }
                     const caseembed = new Discord.MessageEmbed()
                         .setAuthor({ name: `${adminperson.tag}`, iconURL: adminperson.avatarURL() })

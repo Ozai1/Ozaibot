@@ -1,7 +1,6 @@
-const { GetMember } = require("../moderationinc")
+const { GetMember, LogPunishment} = require("../moderationinc")
 const mysql = require('mysql2');
 
-const { unix } = require('moment');
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -111,7 +110,7 @@ module.exports = {
                 message.channel.send('Failed to ban.')
                 return
             })
-            logban(message, member, reason)
+            LogPunishment(message, client, member.id, 1, null, reason)
         }
         let reason = args.slice(1).join(" ");
         if (reason.length > 512) return message.channel.send('Reason must be less than 512 characters long.')
@@ -137,19 +136,8 @@ module.exports = {
             message.channel.send('Failed to ban.')
             return
         })
-        logban(message, member, reason)
+        LogPunishment(message, client, args[0], 1, null, reason)
     }
-}
-async function logban(message, member, reason) {
-    let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-    let query = `INSERT INTO serverpunishments (serverid,casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?,?)`;
-    let data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Ban'];
-    connection.query(query, data, function (error, results, fields) {
-        if (error) {
-            message.channel.send('Error logging ban. Ban will still be instated but will not show up in punishment searches.');
-            return console.log(error);
-        }
-    });
 }
 async function sban(message, args, userstatus, Discord) {
     if (userstatus == 1) {

@@ -1,7 +1,7 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
 
-const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
+const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment } = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -119,9 +119,22 @@ module.exports = {
                               console.log(err)
                               console.log('Failed; unable to add muterole to member')
                               return message.channel.send('Failed; unable to add muterole to member')
-                        })
+                        });
                         const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
                         const muteduration = await GetPunishmentDuration(args[1])
+                        if (muteduration === Infinity) {
+                              console.log('attempted mute with some bullshit time inputed')
+                              member.roles.remove(muterole).catch(err => {
+                                    console.log(err)
+                                    console.log('Failed; unable to add muterole to member')
+                                    return message.channel.send('Failed; unable to remove muterole from member because a dumb time was inputed')
+                              });
+                              const errorembed = new Discord.MessageEmbed()
+                                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                                    .setColor(15684432)
+                                    .setDescription(`Invalid time.`)
+                              return message.channel.send({ embeds: [errorembed] });
+                        }
                         let reason = args.slice(1).join(" ");
                         let display = ''
                         let timeunban = 9999999999;
@@ -143,15 +156,7 @@ module.exports = {
                               }
                               return
                         })
-                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-                        query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                        data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), muteduration, reason, 'Mute'];
-                        connection.query(query, data, function (error, results, fields) {
-                              if (error) {
-                                    message.channel.send('Error logging mute. mute will still be instated but will not show up in punishment searches.');
-                                    return console.log(error);
-                              }
-                        });
+                        LogPunishment(message, client, member.id, 3, muteduration, reason)
                         console.log(`user has been muted${display}.`)
                         if (!muteduration || muteduration == 0) return
                         if (muteduration < 86400) {

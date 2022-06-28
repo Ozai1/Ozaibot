@@ -491,7 +491,7 @@ async function invfound(member, invite) {
                   }
             }
       })
-}
+};
 
 client.on('guildMemberUpdate', async (oldmember, newmember) => {
       if (newmember.guild.id == '806532573042966528') {

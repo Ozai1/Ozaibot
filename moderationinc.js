@@ -1,4 +1,17 @@
 const { GetAlias, GetTime } = require('./functions')
+const { unix } = require('moment');
+const mysql = require('mysql2');
+require('dotenv').config();
+const connection = mysql.createPool({
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: process.env.DATABASE_PASSWORD,
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 
 /**
 * use GetDisplay for the response message, this function is only used for getting the length of the puinishment
@@ -160,4 +173,43 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
         console.log(err)
         return;
     }
+}
+
+/**
+ * Pushes the punishment to the database
+ * @param {Object} message Message object
+ * @param {Object} client Client object
+ * @param {Object} memberid The target of the command's ID
+ * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban,
+ * @param {integer} length duration of the punishment, if any
+ * @param {String} reason reason for the command, inputed by the user
+ */
+
+module.exports.LogPunishment = async (message, client, memberid, type, length, reason) => {
+    let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+    let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type];
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.');
+            return console.log(error);
+        }
+    });
+}
+const punishmentnames = new Map()
+punishmentnames.set(1, 'Ban')
+punishmentnames.set(2, 'Un-Ban')
+punishmentnames.set(3, 'Mute')
+punishmentnames.set(4, 'Un-Mute')
+punishmentnames.set(5, 'Kick')
+punishmentnames.set(6, 'Soft-Ban')
+
+/**
+ * Returns the proper name of the punishment
+ * @param {integer} type The type of punishment in number form
+ * @returns {String} name of the punishment
+ */
+
+module.exports.GetPunishName = (type) => {
+    return punishmentnames.get(parseInt(type))
 }

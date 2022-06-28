@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-
+const { LogPunishment } = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -56,21 +56,12 @@ module.exports = {
                   }
                   message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
                         const returnembed = new Discord.MessageEmbed()
-                        .setDescription(`<:check:988867881200652348> <@${args[0]}> has been un-banned.`)
-                        .setColor("GREEN")
-                    message.channel.send({ embeds: [returnembed] })
+                              .setDescription(`<:check:988867881200652348> <@${args[0]}> has been un-banned.`)
+                              .setColor("GREEN")
+                        message.channel.send({ embeds: [returnembed] })
                   }).catch(err => { console.log(err) });
                   let reason = args.slice(1).join(" ");
-                  let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-                        let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                        let  data = [message.guild.id, casenumber, args[0], message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Un-ban'];
-                        connection.query(query, data, function (error, results, fields) {
-                              if (error) {
-                                    message.channel.send('Error logging unban. Unban will still be instated but will not show up in punishment searches.');
-                                    return console.log(error);
-                              }
-                        });
-                  
+                  LogPunishment(message, client, args[0], 2,null, reason)
             })
       }
 }

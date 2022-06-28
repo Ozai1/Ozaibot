@@ -21,6 +21,12 @@ module.exports = {
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
+            const returnembed = new Discord.MessageEmbed()
+            .setTitle('Case #22')
+                .setDescription(`<:check:988867881200652348> <@508847949413875712> has been **muted**.`)
+                //.setFooter({text: `Case #22`})
+                .setColor("GREEN")
+            message.channel.send({ embeds: [returnembed] })
         }
     }
 }

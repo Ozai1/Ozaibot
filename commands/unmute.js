@@ -12,7 +12,7 @@ const connection = mysql.createPool({
       queueLimit: 0
 });
 const { unix } = require('moment');
-const { GetMember } = require("../moderationinc")
+const { GetMember, LogPunishment } = require("../moderationinc")
 module.exports = {
       name: 'unmute',
       aliases: ['muterole', 'unm', 'un-mute'],
@@ -91,16 +91,7 @@ module.exports = {
                               }
                         })
                         let reason = args.slice(1).join(" ");
-                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-                        query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-                        data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Un-mute'];
-                        connection.query(query, data, function (error, results, fields) {
-                              if (error) {
-                                    message.channel.send('Error logging unmute. Unmute will still be instated but will not show up in punishment searches.');
-                                    return console.log(error);
-                              }
-                        });
-
+                        LogPunishment(message, client, member.id, 4, null, reason)
                   }
             })
       }

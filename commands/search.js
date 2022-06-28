@@ -28,8 +28,9 @@ module.exports = {
                 return console.log(error);
             }
             let currentpage = 1
+            let currentresultonpage = 1
             for (row of results) {
-                console.log(``)
+                
             }
         });
     }

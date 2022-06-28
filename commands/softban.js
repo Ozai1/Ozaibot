@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 const unix = require('moment')
 require('dotenv').config();
-const { GetMember } = require("../moderationinc");
+const { GetMember, LogPunishment } = require("../moderationinc");
 const { exec } = require('child_process');
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -72,7 +72,7 @@ module.exports = {
                 }
                 else {
                     ExecuteBanAndUnBan(message, member, daystodelete, Discord)
-                    logban(message, member, reason)
+                    LogPunishment(message, client, member.id, 6, null, reason)
                 }
             })
         } else {
@@ -111,7 +111,7 @@ module.exports = {
                 return message.channel.send({ embeds: [errorembed] })
             }
             ExecuteBanAndUnBan(message, member, daystodelete, Discord)
-            logban(message, member, reason)
+            LogPunishment(message, client, args[0], 6, null, reason)
         }
     }
 }
