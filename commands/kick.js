@@ -33,7 +33,6 @@ module.exports = {
             if (member.id === message.author.id) return message.channel.send('You cant kick yourself!');
             if (!member.kickable) return message.reply("I do not have high enough permissions to kick this member.");
             let reason = args.slice(1).join(" ");
-            if (!reason) reason = 'no reason provided';
             let casenumber = client.currentcasenumber.get(message.guild.id) + 1
             const returnembed = new Discord.MessageEmbed()
                   .setTitle(`Case #${casenumber}`)

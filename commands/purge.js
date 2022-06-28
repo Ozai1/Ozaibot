@@ -51,8 +51,8 @@ module.exports = {
         let hasimages = false;
         let haspins = false;
         let hasmentions = false;
-        let silentonly = false;
-        let membersonly = false;
+        let silentonly = true;
+        let membersonly = true;
         let hasstickers = false;
         if (args[1]) {
             args.forEach(async arg => {
@@ -61,24 +61,44 @@ module.exports = {
                     message.delete().catch(err => { console.log(err) })
                 } if (arg.toLowerCase() === 'links') {
                     haslinks = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'invites') {
                     hasinvites = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'bots') {
                     hasbots = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'embeds') {
                     hasembeds = true;
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'files') {
                     hasfiles = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'users') {
                     hasusers = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'images') {
                     hasimages = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'pins') {
                     haspins = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'mentions') {
                     hasmentions = true
+                    membersonly = false;
+                    silentonly = false;
                 } if (arg.toLowerCase() === 'stickers') {
                     hasstickers = true
+                    membersonly = false;
+                    silentonly = false;
                 }
                 let member2 = message.guild.members.cache.get(arg.slice(3, -1)) || message.guild.members.cache.get(arg) || message.guild.members.cache.get(arg.slice(2, -1));
                 if (member2) {
@@ -87,12 +107,6 @@ module.exports = {
             })
             if (!members[0]) {
                 members = false;
-            }
-            if (silent && !members && !haslinks && !hasinvites && !hasbots && !hasembeds && !hasfiles && !hasfiles && !hasimages && !haspins && !hasmentions && !hasstickers) {
-                silentonly = true
-            }
-            if (members && !haslinks && !hasinvites && !hasbots && !hasembeds && !hasfiles && !hasusers && !hasimages && !haspins && !hasmentions && !hasstickers) {
-                membersonly = true
             }
             if (amount > 100) {
                 if (silent) {
@@ -325,7 +339,6 @@ async function ExecuteBulkDeleteWithOptions(message, amount, conformationmessage
                         }
                     })
                 } else {
-
                     if (HasLinks) {
                         let message2content = message2.content.toLowerCase()
                         if (message2content.includes('http:/') || message2content.includes('www.') || message2content.includes('.com') || message2content.includes('https:/')) {
