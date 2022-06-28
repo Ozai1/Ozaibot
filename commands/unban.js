@@ -55,8 +55,10 @@ module.exports = {
                         return message.channel.send({ embeds: [errorembed] })
                   }
                   message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
+                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
                         const returnembed = new Discord.MessageEmbed()
-                              .setDescription(`<:check:988867881200652348> <@${args[0]}> has been un-banned.`)
+                              .setTitle(`Case #${casenumber}`)
+                              .setDescription(`<:check:988867881200652348> <@${args[0]}> has been **un-banned**.`)
                               .setColor("GREEN")
                         message.channel.send({ embeds: [returnembed] })
                   }).catch(err => { console.log(err) });

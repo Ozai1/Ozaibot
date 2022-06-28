@@ -143,8 +143,10 @@ module.exports = {
                               display = GetDisplay(muteduration, true)
                               reason = args.slice(2).join(" ");
                         }
+                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
                         const returnembed = new Discord.MessageEmbed()
-                              .setDescription(`<:check:988867881200652348> ${member} has been muted${display}.`)
+                              .setTitle(`Case #${casenumber}`)
+                              .setDescription(`<:check:988867881200652348> ${member} has been **muted**${display}.`)
                               .setColor("GREEN")
                         message.channel.send({ embeds: [returnembed] })
                         let query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";

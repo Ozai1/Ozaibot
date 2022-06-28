@@ -34,8 +34,10 @@ module.exports = {
             if (!member.kickable) return message.reply("I do not have high enough permissions to kick this member.");
             let reason = args.slice(1).join(" ");
             if (!reason) reason = 'no reason provided';
+            let casenumber = client.currentcasenumber.get(message.guild.id) + 1
             const returnembed = new Discord.MessageEmbed()
-                  .setDescription(`<:check:988867881200652348> ${member} has been kicked.`)
+                  .setTitle(`Case #${casenumber}`)
+                  .setDescription(`<:check:988867881200652348> ${member} has been **kicked**.`)
                   .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
             const kickedembed = new Discord.MessageEmbed()

@@ -195,6 +195,7 @@ module.exports.LogPunishment = async (message, client, memberid, type, length, r
             return console.log(error);
         }
     });
+    client.currentcasenumber.set(message.guild.id, casenumber);
 }
 const punishmentnames = new Map()
 punishmentnames.set(1, 'Ban')

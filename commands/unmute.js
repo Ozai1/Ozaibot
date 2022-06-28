@@ -44,6 +44,7 @@ module.exports = {
                         if (!member) return message.channel.send("Invalid member.");
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
+                        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
                         let query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
                         let data = [member.id, message.guild.id, 'mute']
                         connection.query(query, data, function (error, results, fields) {
@@ -58,6 +59,7 @@ module.exports = {
                                           message.channel.send('Failed.')
                                     }).then(() => {
                                           const returnembed = new Discord.MessageEmbed()
+                                                .setTitle(`Case #${casenumber}`)
                                                 .setDescription(`<:check:988867881200652348> ${member} has had the muterole removed.`)
                                                 .setColor("GREEN")
                                           message.channel.send({ embeds: [returnembed] })
@@ -66,13 +68,14 @@ module.exports = {
                                     for (row of results) {
                                           query = "DELETE FROM activebans WHERE id = ?";
                                           data = [row["id"]]
-                                          let count = [row['count']]
                                           connection.query(query, data, function (error, results, fields) {
                                                 if (error) return console.log(error)
                                           })
                                           if (!member.roles.cache.some(role => role.id == muterole.id)) {
+
                                                 const returnembed = new Discord.MessageEmbed()
-                                                      .setDescription(`<:check:988867881200652348> ${member} has been unmuted. The role was not removed as they dont currently have the role.`)
+                                                      .setTitle(`Case #${casenumber}`)
+                                                      .setDescription(`<:check:988867881200652348> ${member} has been unmuted. The mute role was not removed as they don't currently have the role.`)
                                                       .setColor("GREEN")
                                                 message.channel.send({ embeds: [returnembed] })
                                           } else {
@@ -81,7 +84,8 @@ module.exports = {
                                                       message.channel.send('Failed.')
                                                 }).then(() => {
                                                       const returnembed = new Discord.MessageEmbed()
-                                                            .setDescription(`<:check:988867881200652348> ${member} has been un-muted.`)
+                                                            .setTitle(`Case #${casenumber}`)
+                                                            .setDescription(`<:check:988867881200652348> ${member} has been **un-muted**.`)
                                                             .setColor("GREEN")
                                                       message.channel.send({ embeds: [returnembed] })
                                                 })

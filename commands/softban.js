@@ -71,7 +71,7 @@ module.exports = {
                     return message.channel.send({ embeds: [errorembed] })
                 }
                 else {
-                    ExecuteBanAndUnBan(message, member, daystodelete, Discord)
+                    ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
                     LogPunishment(message, client, member.id, 6, null, reason)
                 }
             })
@@ -110,14 +110,16 @@ module.exports = {
                     .setDescription(`I cannot soft-ban this member\n\nPlease move my role(s) above any members role(s) you want me to be able to punish.`)
                 return message.channel.send({ embeds: [errorembed] })
             }
-            ExecuteBanAndUnBan(message, member, daystodelete, Discord)
-            LogPunishment(message, client, args[0], 6, null, reason)
+            ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
+            LogPunishment(message, client, member.id, 6, null, reason)
         }
     }
 }
-async function ExecuteBanAndUnBan(message, member, daystodelete, Discord) {
+async function ExecuteBanAndUnBan(message, client, member, daystodelete, Discord) {
+    let casenumber = client.currentcasenumber.get(message.guild.id) + 1
     const returnembed = new Discord.MessageEmbed()
-        .setDescription(`<:check:988867881200652348> ${member} has been soft-banned.`)
+        .setTitle(`Case #${casenumber}`)
+        .setDescription(`<:check:988867881200652348> ${member} has been **soft-banned**.`)
         .setColor("GREEN")
     message.channel.send({ embeds: [returnembed] })
     await message.guild.members.ban(member, { days: daystodelete, reason: `soft-ban insigated by ${message.author.tag} (${message.author.id}), please check ozaibot logs for more info`, }).catch(err => {
@@ -130,17 +132,4 @@ async function ExecuteBanAndUnBan(message, member, daystodelete, Discord) {
         message.channel.send('Failed to un-ban.')
         return
     })
-}
-
-async function logban(message, member, reason) {
-    let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-    let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, reason, type) VALUES (?, ?, ?, ?, ?, ?,?)`;
-    let data = [message.guild.id, casenumber, member.id, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), reason, 'Soft-ban'];
-    connection.query(query, data, function (error, results, fields) {
-        if (error) {
-            message.channel.send('Error logging soft-ban. soft-ban will still be instated but will not show up in punishment searches.');
-            return console.log(error);
-        }
-    });
-
 }

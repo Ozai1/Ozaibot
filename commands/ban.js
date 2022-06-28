@@ -87,8 +87,10 @@ module.exports = {
                 console.log('Reason must be less than 512 characters long.');
                 return message.channel.send('Reason must be less than 512 characters long.');
             }
+            let casenumber = client.currentcasenumber.get(message.guild.id) + 1
             const returnembed = new Discord.MessageEmbed()
-                .setDescription(`<:check:988867881200652348> ${member} has been banned.`)
+                  .setTitle(`Case #${casenumber}`)
+                .setDescription(`<:check:988867881200652348> ${member} has been **banned**.`)
                 .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
             console.log(`${member.user.tag} has been banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}${message.author.id} and has had ${days} days of they're messages deleted.`)
@@ -114,8 +116,10 @@ module.exports = {
         }
         let reason = args.slice(1).join(" ");
         if (reason.length > 512) return message.channel.send('Reason must be less than 512 characters long.')
+        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
         const returnembed = new Discord.MessageEmbed()
-            .setDescription(`<:check:988867881200652348> ${member} has been banned.`)
+              .setTitle(`Case #${casenumber}`)
+            .setDescription(`<:check:988867881200652348> ${member} has been **banned**.`)
             .setColor("GREEN")
         message.channel.send({ embeds: [returnembed] })
         if (offserver === false) {
