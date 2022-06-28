@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const { GetDisplay, GetPunishName} = require('../moderationinc')
+const { GetDisplay, GetPunishName } = require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -13,10 +13,11 @@ const connection = mysql.createPool({
 });
 
 module.exports = {
-    name: 'case',
-    description: 'gets and displays a users past punishments',
+    name: 'removecase',
+    aliases: ['rmcase', 'remove-case'],
+    description: 'Deletes a case from the database.',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (!message.member.permissions.has("MANAGE_MESSAGES")) {
+        if (!message.member.permissions.has("KICK_MEMBERS")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
@@ -27,7 +28,7 @@ module.exports = {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
-                .setDescription(`Missing arguments.\nProper usage: \`case <case number>\``)
+                .setDescription(`Missing arguments.\nProper usage: \`remove-case <case number>\``)
             return message.channel.send({ embeds: [errorembed] })
         }
         let casenumber = args[0]
@@ -38,7 +39,7 @@ module.exports = {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
-                .setDescription(`Invalid case.\nProper usage: \`case <case number>\``)
+                .setDescription(`Invalid case.\nProper usage: \`remove-case <case number>\``)
             return message.channel.send({ embeds: [errorembed] })
         }
         let query = `SELECT * FROM serverpunishments WHERE serverid = ? && casenumber = ?`;
@@ -52,7 +53,7 @@ module.exports = {
                 const errorembed = new Discord.MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
-                    .setDescription(`That case does not exist yet.`)
+                    .setDescription(`This case does not exist yet.`)
                 return message.channel.send({ embeds: [errorembed] })
             } else {
                 for (row of results) {
@@ -60,7 +61,7 @@ module.exports = {
                         const errorembed = new Discord.MessageEmbed()
                             .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                             .setColor(15684432)
-                            .setDescription(`This case has been deleted.`)
+                            .setDescription(`This case has already been deleted.`)
                         return message.channel.send({ embeds: [errorembed] })
                     }
                     casenumber = row["casenumber"]
@@ -91,7 +92,33 @@ module.exports = {
                         .setDescription(embedstring)
                         .setTimestamp(Date.now() - timeexecuted)
                         .setFooter({ text: `Case #${casenumber}` })
-                    message.channel.send({ embeds: [caseembed] });
+                    let filter = m => m.author.id === message.author.id;
+                    await message.channel.send({ embeds: [caseembed], content: "Are you sure you would like to delete this case? `yes` / `no`" }).then(async () => {
+                        await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+                            message2 = message2.first();
+                            message2.delete().catch(err => { });
+                            if (message2.content.toLowerCase().startsWith('cancel') || message2.content.toLowerCase().startsWith('n')) return conformationmessage.edit('Cancelled.')
+                            else if (message2.content.toLowerCase() === 'y' || message2.content.toLowerCase() === 'yes') {
+                                let query = `UPDATE serverpunishments SET deleted = 1 WHERE serverid = ? && casenumber = ?`;
+                                let data = [message.guild.id, casenumber];
+                                connection.query(query, data, async function (error, results, fields) {
+                                    if (error) {
+                                        message.channel.send('Error deleting case. Please try again later.');
+                                        return console.log(error);
+                                    }
+                                    const returnembed = new Discord.MessageEmbed()
+                                        .setDescription(`<:check:988867881200652348> Case #${casenumber} has been deleted.`)
+                                        .setColor("GREEN")
+                                    message.channel.send({ embeds: [returnembed] })
+                                })
+                            }
+                            else return message.channel.send('Cancelled: Invalid response.')
+                        }).catch(collected => {
+                            console.log(collected);
+                            message.channel.send('Timed out.').catch(err => { console.log(err) });
+                            return
+                        });
+                    });
                 }
             }
         })

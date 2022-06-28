@@ -20,7 +20,7 @@ module.exports = {
         if (userstatus == 1 || message.member.permissions.has('MANAGE_GUILD')) {
             let newprefix = args.slice(0).join(" ")
             if (!args[0]) return message.channel.send('You must add a prefix for the bot to use')
-            if (newprefix.length > 10) return message.reply('Please make the prefix less than 100 characters long.')
+            if (newprefix.length > 100) return message.reply('Please make the prefix less than 100 characters long.')
             if (message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here') || message.content.toLowerCase().includes('<@&')) return message.channel.send('Prefixes must not contain everyone, here or role mentions.')
             let query = "SELECT * FROM prefixes WHERE serverid = ?";
             let data = [message.guild.id]

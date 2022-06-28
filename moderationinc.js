@@ -47,25 +47,26 @@ module.exports.GetDisplay = (timelength, includeFor = false) => {
     let postfix = 's'; //60 3600 86400 604800 2592000
     if (timelength < 60) {
         if (timelength == 1) { postfix = '' }
-        display = ` for ${timelength} second${postfix}`
+        display = ` for **${timelength} second${postfix}**`
     } if (timelength >= 60) {
         if (timelength == 60) { postfix = '' }
-        display = ` for ${timelength / 60} minute${postfix}`
+        display = ` for **${timelength / 60} minute${postfix}**`
     } if (timelength >= 3600) {
         if (timelength == 3600) { postfix = '' }
-        display = ` for ${timelength / 3600} hour${postfix}`
+        display = ` for **${timelength / 3600} hour${postfix}**`
     } if (timelength >= 86400) {
         if (timelength == 86400) { postfix = '' }
-        display = ` for ${timelength / 86400} day${postfix}`
+        display = ` for **${timelength / 86400} day${postfix}**`
     } if (timelength >= 604800) {
         if (timelength == 604800) { postfix = '' }
-        display = `for ${timelength / 604800} week${postfix}`
+        display = `for **${timelength / 604800} week${postfix}**`
     } if (timelength >= 2592000) {
         if (timelength == 2592000) { postfix = '' }
-        display = ` for ${timelength / 2592000} month${postfix}`
+        display = ` for **${timelength / 2592000} month${postfix}**`
     }
     if (!includeFor) {
         display = display.slice(4)
+        display = display.replace(/\*/g, '')
     }
     return display
 }
