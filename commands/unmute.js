@@ -11,7 +11,6 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-const { unix } = require('moment');
 const { GetMember, LogPunishment } = require("../moderationinc")
 module.exports = {
       name: 'unmute',
@@ -19,7 +18,7 @@ module.exports = {
       description: 'unmutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (cmd === 'muterole') return mute_role(message, cmd, args, userstatus, Discord)
+            if (cmd === 'muterole') return mute_role(message, client, args, userstatus, Discord)
             if (!args[0]) {
                   return message.channel.send('Please give a member.')
             }
@@ -100,35 +99,25 @@ module.exports = {
             })
       }
 }
-async function mute_role(message, cmd, args, userstatus, Discord) {
+async function mute_role(message, client, args, userstatus, Discord) {
       if (!userstatus == 1) {
-            if (!message.member.permissions.has("ADMINISTRATOR")) return message.channel.send("You do not have enough permissions to use this command.");
+            if (!message.member.permissions.has("MANAGE_GUILD")) return message.channel.send("You do not have enough permissions to use this command.");
       }
       if (!args[0]) {
-            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
-            let data = ['muterole', message.guild.id];
-            connection.query(query, data, function (error, results, fields) {
-                  if (error)
-                        return console.log(error);
-                  if (results == ``) {
-                        const embed = new Discord.MessageEmbed()
-                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                              .setColor('BLUE')
-                              .setDescription(`This server currently has no mute role set.\n\nSet a mute role using \n\`sm_muterole set [@role/role_id]\`\n\nAlternatively you may create a new mute role using \n\`sm_muterole create\`.\n\nThe mute command currently cannot be used due to the lack of a mute role.`);
-                        return message.channel.send(embed);
-                  }
-                  for (row of results) {
-                        let muteroleid = row["details"];
-                        const muterole = message.guild.roles.cache.get(muteroleid);
-                        const embed = new Discord.MessageEmbed()
-                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                              .setColor('BLUE')
-                              .setDescription(`This server's mute role is currently ${muterole}.\n\nYou may stop the bot using this role with \n\`sm_muterole remove\`.\n\nIf you would like to set a new mute role you can do so using\n\`sm_muterole set [@role/role_id]\`.\n\nIf you remove the mute role and do not set another the mute command will stop working.`);
-                        return message.channel.send({ embeds: [embed] });
-
-                  }
-            });
-            return;
+            const muteroleid = client.muteroles.get(message.guild.id)
+            if (!muteroleid) {
+                  const embed = new Discord.MessageEmbed()
+                        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                        .setColor('BLUE')
+                        .setDescription(`This server currently has no mute role set.\n\nSet a mute role using \n\`sm_muterole set [@role/role_id]\`\n\nAlternatively you may create a new mute role using \n\`sm_muterole create\`.\n\nThe mute command currently cannot be used due to the lack of a mute role.`);
+                  return message.channel.send({ embeds: [embed] });
+            }
+            const muterole = message.guild.roles.cache.get(muteroleid);
+            const embed = new Discord.MessageEmbed()
+                  .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                  .setColor('BLUE')
+                  .setDescription(`This server's mute role is currently ${muterole}.\n\nYou may stop the bot using this role with \n\`sm_muterole remove\`.\n\nIf you would like to set a new mute role you can do so using\n\`sm_muterole set [@role/role_id]\`.\n\nIf you remove the mute role and do not set another the mute command will stop working.`);
+            return message.channel.send({ embeds: [embed] });
       }
       if (args[0].toLowerCase() !== 'set' && args[0].toLowerCase() !== 'create' && args[0].toLowerCase() !== 'remove') return message.channel.send('Usage is `sm_muterole [set|create|remove] [@role/role_id]`')
       if (args[0].toLowerCase() === 'set') {
@@ -148,6 +137,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                                     return console.log(error);
                               message.channel.send('Set mute role.');
                         });
+                        client.muteroles.set(message.guild.id, role.id)
                   } else {
                         let query = `UPDATE serverconfigs SET details = ? WHERE type = ? && serverid = ?`;
                         let data = [role.id, 'muterole', message.guild.id];
@@ -156,10 +146,9 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                                     return console.log(error);
                               message.channel.send('Set mute role.');
                         });
+                        client.muteroles.set(message.guild.id, role.id)
                   }
             });
-
-
       } else if (args[0].toLowerCase() === 'create') {
             let muterole = await message.guild.roles.create({
                   name: "Muted",
@@ -191,6 +180,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                               if (error)
                                     return console.log(error);
                         });
+                        client.muteroles.set(message.guild.id, muterole.id)
                   } else {
                         let query = `UPDATE serverconfigs SET details = ? WHERE type = ? && serverid = ?`;
                         let data = [muterole.id, 'muterole', message.guild.id];
@@ -198,6 +188,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                               if (error)
                                     return console.log(error);
                         });
+                        client.muteroles.set(message.guild.id, muterole.id)
                   }
             });
             message.channel.send(`Created the <@&${muterole.id}> role and set permissions in all channels *that ozaibot has access to editing*. This is now the mute role for Ozaibot.`);
@@ -217,6 +208,7 @@ async function mute_role(message, cmd, args, userstatus, Discord) {
                                     return console.log(error);
                               message.channel.send('Removed the mute role for this server, the role still exists but Ozaibot will no longer use it for the mute command. You will need to set a new mute role in order to be able to mute again.');
                         });
+                        client.muteroles.delete(message.guild.id)
                   }
             });
       }

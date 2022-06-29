@@ -20,10 +20,14 @@ module.exports.Main_INIT = (client) => {
     client.userstatus = new Map()
     client.prefixes = new Map()
     client.currentcasenumber = new Map()
+    client.invites = new Map() // once up in the hundreds of servers this could overload because of size
+    client.muteroles = new Map()
 
     UserStatus_INIT(client)
     Prefixes_INIT(client)
     CurrentCaseNumber_INIT(client)
+    Invites_INIT(client)
+    MuteRole_INIT(client)
 }
 
 async function UserStatus_INIT(client) {
@@ -90,5 +94,36 @@ async function CurrentCaseNumber_INIT(client) {
             }
             client.currentcasenumber.set(guild.id, casenumber)
         })
+    })
+}
+
+async function Invites_INIT(client) {
+    client.guilds.cache.forEach(guild => {
+        if (guild.me.permissions.has('MANAGE_GUILD')) {
+            const invites = guild.invites.fetch()
+            client.invites.set(guild.id, invites)
+        } else {
+            client.invites.set(guild.id, null)
+        }
+    })
+}
+
+async function MuteRole_INIT(client) {
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['muterole']
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.log('**** MUTEROLES FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            exec(`forever stopall`)
+            console.log(error)
+            return thisisafunctionthatwillcrashthebot
+        }
+        for (row of results) {
+            let serverid = row["serverid"]
+            let muterole = row["details"]
+            client.muteroles.set(serverid, muterole)
+        }
     })
 }

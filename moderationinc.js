@@ -181,7 +181,7 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
  * @param {Object} message Message object
  * @param {Object} client Client object
  * @param {Object} memberid The target of the command's ID
- * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban,
+ * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn,
  * @param {integer} length duration of the punishment, if any
  * @param {String} reason reason for the command, inputed by the user
  */
@@ -205,6 +205,7 @@ punishmentnames.set(3, 'Mute')
 punishmentnames.set(4, 'Un-Mute')
 punishmentnames.set(5, 'Kick')
 punishmentnames.set(6, 'Soft-Ban')
+punishmentnames.set(7, 'Warn')
 
 /**
  * Returns the proper name of the punishment
