@@ -155,7 +155,7 @@ module.exports = async (Discord, client, member) => {
                             connection.query(query, data, function (error, results, fields) {
                                 if (error) return console.log(error);
                             })
-                            return invfound(member, invite)
+                            return invfound(member, invite, client)
                         }
                     }
                 }
@@ -204,7 +204,7 @@ module.exports = async (Discord, client, member) => {
                                 invite2.code = invcode
                                 invite2.uses = uses
                                 invite2.inviter = await client.users.fetch(inviterid)
-                                invfound(member, invite2)
+                                invfound(member, invite2, client)
                                 query = `DELETE FROM activeinvites WHERE id = ?`;
                                 data = [rowid];
                                 connection.query(query, data, function (error, results, fields) {
@@ -232,7 +232,7 @@ module.exports = async (Discord, client, member) => {
     }
 }
 
-async function invfound(member, invite) {
+async function invfound(member, invite, client) {
     const guild = member.guild
     query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
     data = [member.id, guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];

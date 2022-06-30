@@ -35,7 +35,6 @@ module.exports = {
                               let alllogs = client.channels.cache.get('986882651921190932')
                               if (message.author.id == '508847949413875712') return
                               alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been blacklisted as per the above message, they were blacklisted by ${message.author.tag}`)
-                              return
                         })
                   } else {
                         if (status == 0) return message.channel.send('That user is already blacklisted.')// they already blacklisted
@@ -50,7 +49,6 @@ module.exports = {
                                     let alllogs = client.channels.cache.get('986882651921190932')
                                     if (message.author.id == '508847949413875712') return
                                     alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been blacklisted & has had their botadmin removed as per the above message, they were blacklisted by ${message.author.tag}`)
-                                    return
                               })
                         }
                   }

@@ -3,7 +3,6 @@ const fs = require('fs');
 const { unix } = require('moment');
 const { Player } = require('discord-player');
 const Discord = require('discord.js');
-const moment = require('moment');
 
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
 const { Main_INIT } = require('./INIT')

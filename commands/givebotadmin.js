@@ -25,7 +25,8 @@ module.exports = {
             let data = [member.id]
             connection.query(query, data, function (error, results, fields) {//check what theyre current status is
                 if (error) return console.log(error)
-                if (results == ``) { // if they not in db, they get blacklisted
+                if (results == ``) {
+                    client.userstatus.set(member.id, 1)
                     query = "INSERT INTO userstatus (username, userid, status) VALUES (?, ?, ?)";
                     data = [member.username, member.id, 1]
                     connection.query(query, data, function (error, results, fields) {//check what theyre current status is
@@ -35,9 +36,7 @@ module.exports = {
                         let alllogs = client.channels.cache.get('986882651921190932')
                         if (message.author.id !== '508847949413875712'){
                         alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin as per the above message, they were given botadmin by ${message.author.tag}`)}
-                        return
                     })
-                    client.userstatus.set(member.id, 1)
                 } else {
                     for (row of results) {
                         var status = row["status"];
@@ -45,6 +44,7 @@ module.exports = {
                             message.channel.send('That user is already a botadmin.')
                             return
                         } else if (status == 0) {// add botadmin & remove blacklist
+                            client.userstatus.set(member.id, 1)
                             query = "UPDATE userstatus SET status = ? WHERE userid = ?";
                             data = [1, member.id]
                             connection.query(query, data, function (error, results, fields) {// remove blacklist & add botadmin
@@ -54,9 +54,7 @@ module.exports = {
                                 let alllogs = client.channels.cache.get('986882651921190932')
                                 if (message.author.id !== '508847949413875712'){
                                 alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin & had their blacklist removed as per the above message, they were given botadmin by by ${message.author.tag}`)}
-                                return
                             })
-                            client.userstatus.set(member.id, 1)
                         }
                     }
                 }

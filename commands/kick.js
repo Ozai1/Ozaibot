@@ -18,7 +18,7 @@ module.exports = {
       description: 'Kicks a user from a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-            if (cmd === 'skick') return skick(message, args, userstatus, Discord)
+            if (cmd === 'skick') return skick(message, args, userstatus, Discord, client)
             if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!args[0]) return message.channel.send('You must add a member to kick.')
             member = await GetMember(message, client, args[0], Discord, true, false);
@@ -53,7 +53,7 @@ module.exports = {
             LogPunishment(message, client, member.id, 5, null, reason)
       }
 }
-async function skick(message, args, userstatus, Discord) {
+async function skick(message, args, userstatus, Discord, client) {
       if (userstatus == 1) {
             if (!args[0]) return message.member.send('You must add a member to kick.')
             const member = await GetMember(message, client, args[0], Discord, true, false)
