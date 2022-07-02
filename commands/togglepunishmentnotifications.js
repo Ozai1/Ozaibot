@@ -1,5 +1,4 @@
 const mysql = require('mysql2');
-const { GetDisplay, GetPunishName } = require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
