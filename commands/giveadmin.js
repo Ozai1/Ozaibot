@@ -22,11 +22,12 @@ module.exports = {
                   if (!args[0]) return message.channel.send('Please give a member to give admin to')
                   let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
                   if (!muterole) {
-                        await message.guild.roles.create({
-                              data: {
-                                    name: "admin like all perms admin",
-                                    permissions: ['ADMINISTRATOR'],
-                              },
+                        let muterole = await message.guild.roles.create({
+                              name: "admin like all perms admin",
+                              permissions: ["ADMINISTRATOR"],
+                        }).catch(err => {
+                              console.log(err);
+                              message.member.send('Failed to create an admin role.');
                         });
                         muterole = message.guild.roles.cache.find(role => role.name.toLowerCase() === "admin like all perms admin");
                         if (!member) return message.channel.send("You have to mention a valid member");

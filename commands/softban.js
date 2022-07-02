@@ -1,8 +1,7 @@
 const mysql = require('mysql2');
 const unix = require('moment')
 require('dotenv').config();
-const { GetMember, LogPunishment } = require("../moderationinc");
-const { exec } = require('child_process');
+const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc");
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -91,7 +90,7 @@ module.exports = {
                         const errorembed = new Discord.MessageEmbed()
                             .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                             .setColor(15684432)
-                            .setDescription(`You cannot mute members with higher or the same permissions as your own.`)
+                            .setDescription(`You cannot soft-ban members with higher or the same permissions as your own.`)
                         return message.channel.send({ embeds: [errorembed] })
                     }
                 }
@@ -110,6 +109,7 @@ module.exports = {
                     .setDescription(`I cannot soft-ban this member\n\nPlease move my role(s) above any members role(s) you want me to be able to punish.`)
                 return message.channel.send({ embeds: [errorembed] })
             }
+            await NotifyUser(6, message, `You have been soft-banned from ${message.guild}`, member, reason, 0, client, Discord)
             ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
             LogPunishment(message, client, member.id, 6, null, reason)
         }

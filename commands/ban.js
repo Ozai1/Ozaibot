@@ -1,4 +1,4 @@
-const { GetMember, LogPunishment} = require("../moderationinc")
+const { GetMember, LogPunishment, NotifyUser} = require("../moderationinc")
 const mysql = require('mysql2');
 
 require('dotenv').config();
@@ -95,17 +95,7 @@ module.exports = {
             message.channel.send({ embeds: [returnembed] })
             console.log(`${member.user.tag} has been banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}${message.author.id} and has had ${days} days of they're messages deleted.`)
             if (offserver === false) {
-                const bannedembed = new Discord.MessageEmbed()
-                    .setColor('RED')
-                    .setTitle(`You have been banned from ${message.guild}`)
-                    .setTimestamp()
-                if (reason) {
-                    bannedembed.setDescription(`**Banned by:** ${message.author}\n**Reason:** ${reason}`)
-                } else {
-                    bannedembed.setDescription(`**Banned by:** ${message.author}`)
-                }
-                member.send({ embeds: [bannedembed] }).catch(err => { console.log(`The following message failed to send to the user.`) })
-                console.log(`Confirmation message sent to ${member.user.tag}(${member.id}) for being banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}(${message.author.id})`)
+                await NotifyUser(1, message, `You have been banned from ${message.guild}`, member, reason, 0, client, Discord)
             }
             await message.guild.members.ban(member, { days: days, reason: `${reason} - ${message.author.tag} (${message.author.id})`, }).catch(err => {
                 console.log(err)
@@ -123,17 +113,7 @@ module.exports = {
             .setColor("GREEN")
         message.channel.send({ embeds: [returnembed] })
         if (offserver === false) {
-            const bannedembed = new Discord.MessageEmbed()
-                .setColor('RED')
-                .setTitle(`You have been banned from ${message.guild}`)
-                .setTimestamp()
-            if (reason) {
-                bannedembed.setDescription(`**Banned by:** ${message.author}\n**Reason:** ${reason}`)
-            } else {
-                bannedembed.setDescription(`**Banned by:** ${message.author}`)
-            }
-            member.send({ embeds: [bannedembed] }).catch(err => { })
-            console.log(`Confirmation message sent to ${member.user.tag} for being banned from ${message.guild}`)
+            await NotifyUser(1, message, `You have been banned from ${message.guild}`, member, reason, 0, client, Discord)
         }
         await message.guild.members.ban(member, { reason: `${reason} - ${message.author.tag} (${message.author.id})` }).catch(err => {
             console.log(err)

@@ -1,6 +1,7 @@
 const { GetAlias, GetTime } = require('./functions')
 const { unix } = require('moment');
 const mysql = require('mysql2');
+const { getDefaultSettings } = require('http2');
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -40,7 +41,7 @@ module.exports.GetPunishmentDuration = async (string) => {
 * @error if some dumb shit is inputed
 */
 
-module.exports.GetDisplay = (timelength, includeFor = false) => {
+const GetDisplay = (timelength, includeFor = false) => {
     if (isNaN(timelength)) return
     if (timelength < 0) return
     let display = ''
@@ -71,6 +72,7 @@ module.exports.GetDisplay = (timelength, includeFor = false) => {
     return display
 }
 
+module.exports.GetDisplay = GetDisplay
 /**
  * Retreves a member from the guild of command origin
  * @param {Object} message Message object
@@ -215,4 +217,54 @@ punishmentnames.set(7, 'Warn')
 
 module.exports.GetPunishName = (type) => {
     return punishmentnames.get(parseInt(type))
+}
+
+const punishmentcolours = new Map()
+punishmentcolours.set(1, 15684432) // ban
+punishmentcolours.set(2, 6732650)  // unban
+punishmentcolours.set(3, 16747777) // mute
+punishmentcolours.set(4, 6732650)  // unmute
+punishmentcolours.set(5, 16747777) // kick
+punishmentcolours.set(6, 16747777) // softban
+punishmentcolours.set(7, 16771899) // warn
+
+/**
+ * Returns the colour of the punishment
+ * @param {integer} type The type of punishment in number form
+ * @returns {any} colour
+ */
+const GetPunishColour = (type) => {
+    return punishmentcolours.get(parseInt(type))
+}
+
+module.exports.GetPunishColour = GetPunishColour
+
+/**
+ * Sends a message to the member informing them of whatever is happening
+ * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn,
+ * @param {Object} message Message object
+ * @param {String} title The title of the embed: "AKA X has been banned from Y"
+ * @param {Object} member The target of the command's ID
+ * @param {String} reason reason for the command, inputed by the user
+ * @param {integer} length duration of the punishment, if any
+ * @param {Object} client Client object
+ * @param {Object} Discord Discord object
+ */
+
+module.exports.NotifyUser = async (type, message, title, member, reason, length, client, Discord) => {
+    if (client.punishnotification.includes(message.guild.id)) return
+    const bannedembed = new Discord.MessageEmbed()
+        .setColor(GetPunishColour(type))
+        .setTitle(`${title}`)
+        .setTimestamp()
+    if (length && reason) {
+        bannedembed.setDescription(`**Actioned by:** ${message.author} ${message.author.tag}\n**Duration:** ${GetDisplay(length, false)}\n**Reason:** ${reason}`)
+    } if (length && !reason) {
+        bannedembed.setDescription(`**Actioned by:** ${message.author} ${message.author.tag}\n**Duration:** ${GetDisplay(length, false)}`)
+    } if (reason && !length) {
+        bannedembed.setDescription(`**Actioned by:** ${message.author} ${message.author.tag}\n**Reason:** ${reason}`)
+    } if (!reason && !length) {
+        bannedembed.setDescription(`**Actioned by:** ${message.author} ${message.author.tag}`)
+    }
+    await member.send({ embeds: [bannedembed] }).catch(err => { console.log(err) })
 }

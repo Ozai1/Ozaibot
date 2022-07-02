@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const { GetDisplay, GetPunishName} = require('../moderationinc')
+const { GetDisplay, GetPunishName } = require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -23,77 +23,34 @@ module.exports = {
                 .setDescription(`Missing permissions.`)
             return message.channel.send({ embeds: [errorembed] })
         }
-        if (!args[0]) {
-            const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`Missing arguments.\nProper usage: \`case <case number>\``)
-            return message.channel.send({ embeds: [errorembed] })
-        }
-        let casenumber = args[0]
-        if (casenumber.startsWith('#')) {
-            casenumber = casenumber.slice(1)
-        }
-        if (isNaN(casenumber)) {
-            const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`Invalid case.\nProper usage: \`case <case number>\``)
-            return message.channel.send({ embeds: [errorembed] })
-        }
-        let query = `SELECT * FROM serverpunishments WHERE serverid = ? && casenumber = ?`;
-        let data = [message.guild.id, casenumber];
-        connection.query(query, data, async function (error, results, fields) {
-            if (error) {
-                message.channel.send('Error fetching case. Please try again later.');
+        let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+        let data = ['punishnotification', message.guild.id];
+        connection.query(query, data, function (error, results, fields) {
+            if (error)
                 return console.log(error);
-            }
-            if (results == '') {
-                const errorembed = new Discord.MessageEmbed()
-                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                    .setColor(15684432)
-                    .setDescription(`That case does not exist yet.`)
-                return message.channel.send({ embeds: [errorembed] })
+            if (results == `` || results === undefined) {
+                client.punishnotification.push(message.guild.id)
+                let query = `INSERT INTO serverconfigs (type, serverid) VALUES (?, ?)`;
+                let data = ['punishnotification', message.guild.id];
+                connection.query(query, data, function (error, results, fields) {
+                    if (error)
+                        return console.log(error);
+                    message.channel.send('Users will no longer receve a direct message when a punishing command is used against them.')
+                });
             } else {
-                for (row of results) {
-                    if (row["deleted"] == 1) {
-                        const errorembed = new Discord.MessageEmbed()
-                            .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                            .setColor(15684432)
-                            .setDescription(`This case has been deleted.`)
-                        return message.channel.send({ embeds: [errorembed] })
+                for (let i = 0; i < client.punishnotification.length; i++) {
+                    if (client.punishnotification[i] === message.guild.id) {
+                        delete client.punishnotification[i]
                     }
-                    casenumber = row["casenumber"]
-                    let punishtype = row["type"]
-                    punishtype = GetPunishName(punishtype)
-                    const length = row["length"]
-                    const userid = row["userid"]
-                    const adminid = row["adminid"]
-                    const reason = row["reason"]
-                    let timeexecuted = row["timeexecuted"]
-                    timeexecuted = timeexecuted + '000'
-                    timeexecuted = Date.now() - timeexecuted
-                    const member = await client.users.fetch(userid)
-                    const adminperson = await client.users.fetch(adminid)
-                    let embedstring = ''
-                    if (length && reason) {
-                        embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}\n**Duration:** ${GetDisplay(length, false)}\n**Reason:** ${reason}`
-                    } if (length && !reason) {
-                        embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}\n**Duration:** ${GetDisplay(length, false)}`
-                    } if (reason && !length) {
-                        embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}\n**Reason:** ${reason}`
-                    } if (!reason && !length) {
-                        embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}`
-                    }
-                    const caseembed = new Discord.MessageEmbed()
-                        .setAuthor({ name: `${adminperson.tag}`, iconURL: adminperson.avatarURL() })
-                        .setColor('BLUE')
-                        .setDescription(embedstring)
-                        .setTimestamp(Date.now() - timeexecuted)
-                        .setFooter({ text: `Case #${casenumber}` })
-                    message.channel.send({ embeds: [caseembed] });
                 }
+                let query = `DELETE FROM serverconfigs WHERE type = ? && serverid = ?`;
+                let data = ['punishnotification', message.guild.id];
+                connection.query(query, data, function (error, results, fields) {
+                    if (error)
+                        return console.log(error);
+                    message.channel.send('Users will again receve a direct message when a punishing command is used against them.')
+                });
             }
-        })
+        });
     }
 }

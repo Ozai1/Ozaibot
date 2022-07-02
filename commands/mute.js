@@ -1,7 +1,7 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
 
-const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment } = require("../moderationinc")
+const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment, NotifyUser } = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -144,6 +144,7 @@ module.exports = {
                   .setDescription(`<:check:988867881200652348> ${member} has been **muted**${display}.`)
                   .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
+            NotifyUser(3, message, `You have been muted in ${message.guild}`, member, reason, muteduration, client, Discord)
             let query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
             let data = [member.id, message.guild.id, timeunban, 'mute']
             connection.query(query, data, function (error, results, fields) {

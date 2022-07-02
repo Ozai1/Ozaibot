@@ -29,7 +29,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['searchembed','getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -53,9 +53,26 @@ module.exports = {
             if (cmd === 'steamid') return convert_steam_id(message, args);
             if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord);
             if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
+            if (cmd === 'searchembed') return search_embed(message, args, userstatus, client)
             if (userstatus == 1) {
             }
       }
+}
+async function search_embed(message, args, userstatus, client) {
+      if (userstatus == 1) {
+            if (!args[0]) return message.author.send('add a message link idiot')
+            let channel = client.channels.cache.get(args[0].slice(48, -19))
+            if (!channel) return message.author.send('could not find that channel, invalid link or the bot isnt in that server')
+            let message2 = await channel.messages.fetch(args[0].slice(67));
+            if (!message2) return message.author.send('could not find that message, channel was found though')
+            message.react('✅').catch(err => { console.log(err) });
+            if (message2.embeds.length > 0) {
+                  message.channel.send(`Embed:\ncolour: ${message2.embeds[0].color}`)
+            } else {
+                  return message.channel.send('That message has no embeds')
+            }
+
+      } 
 }
 
 async function Command_GetYTVideoAudio(message, args, userstatus) {

@@ -11,7 +11,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-const { GetMember, LogPunishment } = require("../moderationinc")
+const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
 module.exports = {
       name: 'kick',
       aliases: ['k', 'skick'],
@@ -39,11 +39,7 @@ module.exports = {
                   .setDescription(`<:check:988867881200652348> ${member} has been **kicked**.`)
                   .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
-            const kickedembed = new Discord.MessageEmbed()
-                  .addField(`**You have been kicked from**: ${message.guild}.`, `**Kicked by**: ${message.author} \n **For**: "${reason}".`)
-                  .setColor('ORANGE')
-                  .setTimestamp()
-            member.send({ embeds: [kickedembed] }).catch(err => { })
+            await NotifyUser(5, message, `You have been kicked from ${message.guild}`, member, reason, 0, client, Discord)
             console.log(`confirmation message sent to ${member.tag} for being kicked from ${message.guild} by ${message.author.tag}`)
             await member.kick({ reason: `${reason} - ${message.author.tag}` }).catch(err => {
                   console.log(err)

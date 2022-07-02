@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const { GetDisplay, GetPunishName} = require('../moderationinc')
+const { GetDisplay, GetPunishName, GetPunishColour} = require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -85,9 +85,10 @@ module.exports = {
                     } if (!reason && !length) {
                         embedstring = `**Member:** ${member.tag} (${member.id})\n**Action:** ${punishtype}`
                     }
+                    let colour = GetPunishColour(row["type"])
                     const caseembed = new Discord.MessageEmbed()
                         .setAuthor({ name: `${adminperson.tag}`, iconURL: adminperson.avatarURL() })
-                        .setColor('BLUE')
+                        .setColor(colour)
                         .setDescription(embedstring)
                         .setTimestamp(Date.now() - timeexecuted)
                         .setFooter({ text: `Case #${casenumber}` })

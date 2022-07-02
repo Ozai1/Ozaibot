@@ -18,6 +18,9 @@ module.exports = {
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.member.permissions.has('MANAGE_MESSAGES')) return message.channel.send('You do not have permission to use this command.')
+        if (!args[0]) {
+            return message.channel.send('Missing arguments')
+        }
         const member = await GetMember(message, client, args[0], Discord, true, true)
         if (!member) return message.channel.send('Invalid member.')
         let query = `SELECT * FROM serverpunishments WHERE userid = ? && serverid = ? && deleted = 0`;

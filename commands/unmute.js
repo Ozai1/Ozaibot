@@ -11,7 +11,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-const { GetMember, LogPunishment } = require("../moderationinc")
+const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
 module.exports = {
       name: 'unmute',
       aliases: ['muterole', 'unm', 'un-mute'],
@@ -62,6 +62,7 @@ module.exports = {
                                                 .setDescription(`<:check:988867881200652348> ${member} has had the muterole removed.`)
                                                 .setColor("GREEN")
                                           message.channel.send({ embeds: [returnembed] })
+                                          NotifyUser(1, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
                                     })
                               } else {
                                     for (row of results) {
@@ -71,12 +72,12 @@ module.exports = {
                                                 if (error) return console.log(error)
                                           })
                                           if (!member.roles.cache.some(role => role.id == muterole.id)) {
-
                                                 const returnembed = new Discord.MessageEmbed()
                                                       .setTitle(`Case #${casenumber}`)
                                                       .setDescription(`<:check:988867881200652348> ${member} has been unmuted. The mute role was not removed as they don't currently have the role.`)
                                                       .setColor("GREEN")
                                                 message.channel.send({ embeds: [returnembed] })
+                                                NotifyUser(1, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
                                           } else {
                                                 member.roles.remove(muterole).catch(err => {
                                                       console.log(err)
@@ -87,9 +88,9 @@ module.exports = {
                                                             .setDescription(`<:check:988867881200652348> ${member} has been **un-muted**.`)
                                                             .setColor("GREEN")
                                                       message.channel.send({ embeds: [returnembed] })
+                                                      NotifyUser(2, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
                                                 })
                                           }
-
                                     }
                               }
                         })

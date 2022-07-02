@@ -25,7 +25,7 @@ module.exports.Main_INIT = (client) => {
     client.welcomechannels = new Map()
     client.welcomechannelstext = new Map()
     client.welcomechannelstext2 = new Map()
-    client.punishnotification = new Map()
+    client.punishnotification = []
 
     UserStatus_INIT(client)
     Prefixes_INIT(client)
@@ -127,23 +127,7 @@ async function MuteRole_INIT(client) {
         }
     })
 }
-async function PunishNotif_INIT(client) {
-    let query = "SELECT * FROM serverconfigs WHERE type = ?";
-    let data = ['punishnotification']
-    connection.query(query, data, function (error, results, fields) {
-        if (error) {
-            for (let i = 0; i < 10; i++) {
-                console.log('**** punishnotif FAILED TO INIT **** ABORTING BOT START ****')
-            }
-            exec(`forever stopall`)
-            console.log(error)
-            return thisisafunctionthatwillcrashthebot
-        }
-        for (row of results) {
-            client.punishnotification.set(row["serverid"], row["details"])
-        }
-    })
-}
+
 async function WelcomeChannels_INIT(client) {
     let query = "SELECT * FROM serverconfigs WHERE type = ?";
     let data = ['welcomechannel']
@@ -166,6 +150,24 @@ async function WelcomeChannels_INIT(client) {
             } if (!row["details3"] == '') {
                 client.welcomechannelstext2.set(serverid, row["details3"])
             }
+        }
+    })
+}
+
+async function PunishNotif_INIT(client) {
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['punishnotification']
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.log('**** punishnotif FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            exec(`forever stopall`)
+            console.log(error)
+            return thisisafunctionthatwillcrashthebot
+        }
+        for (row of results) {
+            client.punishnotification.push(row["serverid"])
         }
     })
 }
