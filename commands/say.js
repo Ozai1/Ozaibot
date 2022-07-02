@@ -20,7 +20,6 @@ module.exports = {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
         if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
             if (cmd === 'embedsay') {
-                if (message.content.toLocaleLowerCase().includes('<@&')) return
                 if (message.deletable) message.delete().catch(err => { console.log(err) });
                 if (!args[0]) return;
                 let content = args.slice(0).join(" ");
@@ -31,7 +30,7 @@ module.exports = {
                 return
             }
             if (!userstatus == 1) {
-                if (message.content.toLocaleLowerCase().includes('<@&')) return
+                if (message.content.toLocaleLowerCase().includes('<@&') || message.content.toLocaleLowerCase().includes('@everone') || message.content.toLocaleLowerCase().includes('@here')) return
             }
             if (message.deletable) message.delete().catch(err => { console.log(err) });
             if (!args[0]) return;

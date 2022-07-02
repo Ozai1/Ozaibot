@@ -22,12 +22,18 @@ module.exports.Main_INIT = (client) => {
     client.currentcasenumber = new Map()
     client.invites = new Map() // once up in the hundreds of servers this could overload because of size
     client.muteroles = new Map()
+    client.welcomechannels = new Map()
+    client.welcomechannelstext = new Map()
+    client.welcomechannelstext2 = new Map()
+    client.punishnotification = new Map()
 
     UserStatus_INIT(client)
     Prefixes_INIT(client)
     CurrentCaseNumber_INIT(client)
     Invites_INIT(client)
     MuteRole_INIT(client)
+    WelcomeChannels_INIT(client)
+    PunishNotif_INIT(client)
 }
 
 async function UserStatus_INIT(client) {
@@ -43,9 +49,7 @@ async function UserStatus_INIT(client) {
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
-            let userid = row["userid"]
-            let status = row["status"]
-            client.userstatus.set(userid, status)
+            client.userstatus.set(row["userid"], row["status"])
         }
     })
 }
@@ -63,9 +67,7 @@ async function Prefixes_INIT(client) {
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
-            let serverid = row["serverid"]
-            let prefix = row["prefix"]
-            client.prefixes.set(serverid, prefix)
+            client.prefixes.set(row["serverid"], row["prefix"])
         }
     })
 }
@@ -121,9 +123,49 @@ async function MuteRole_INIT(client) {
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
+            client.muteroles.set(row["serverid"], row["details"])
+        }
+    })
+}
+async function PunishNotif_INIT(client) {
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['punishnotification']
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.log('**** punishnotif FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            exec(`forever stopall`)
+            console.log(error)
+            return thisisafunctionthatwillcrashthebot
+        }
+        for (row of results) {
+            client.punishnotification.set(row["serverid"], row["details"])
+        }
+    })
+}
+async function WelcomeChannels_INIT(client) {
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['welcomechannel']
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.log('**** WELCOMECHANNELSTEXT FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            exec(`forever stopall`)
+            console.log(error)
+            return thisisafunctionthatwillcrashthebot
+        }
+        for (row of results) {
             let serverid = row["serverid"]
-            let muterole = row["details"]
-            client.muteroles.set(serverid, muterole)
+            if (row["details3"] == '' && row["details2"] == '') continue
+            if (row['details'] == '') continue
+            client.welcomechannels.set(serverid, row["details"])
+            if (!row['details2'] == ''){
+                client.welcomechannelstext.set(serverid, row["details2"])
+            } if (!row["details3"] == '') {
+                client.welcomechannelstext2.set(serverid, row["details3"])
+            }
         }
     })
 }

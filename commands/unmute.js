@@ -124,8 +124,8 @@ async function mute_role(message, client, args, userstatus, Discord) {
             let role = message.guild.roles.cache.get(args[1].slice(3, -1)) || message.guild.roles.cache.get(args[1]);
             if (!role)
                   return message.channel.send('Invalid role.');
-            let query = `SELECT * FROM serverconfigs WHERE type = ?`;
-            let data = ['muterole'];
+            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid =  ?`;
+            let data = ['muterole', message.guild.id];
             connection.query(query, data, function (error, results, fields) {
                   if (error)
                         return console.log(error);

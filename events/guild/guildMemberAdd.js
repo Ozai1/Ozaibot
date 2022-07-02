@@ -13,6 +13,20 @@ const connection = mysql.createPool({
 const { unix } = require('moment');
 module.exports = async (Discord, client, member) => {
     const guild = member.guild;
+    let welcomechannelid = client.welcomechannels.get(member.guild.id)
+    let welcomechannel = guild.channels.cache.get(welcomechannelid)
+    if (welcomechannel) {
+        console.log('welcomechannel found.')
+        let welcomemessage = client.welcomechannelstext.get(guild.id)
+        if (!welcomemessage) return
+        welcomemessage = welcomemessage.replace(/\[user]/g, `${member}`)
+        welcomemessage = welcomemessage.replace(/\[user.username]/g, `**${member.user.username}**`)
+        welcomemessage = welcomemessage.replace(/\[user.tag]/g, `**${member.user.tag}**`)
+        welcomechannel.send(`${welcomemessage}`).catch(err =>{
+            console.log('welcomemessage failed to send in guild ' + guild)
+            console.log(err)
+        })
+    }
     console.log(`${member.user.tag} joined ${guild}`);
     if (!guild.me.permissions.has('MANAGE_GUILD')) return;
     let query = `SELECT * FROM serverconfigs WHERE serverid = ? && type = ?`;
