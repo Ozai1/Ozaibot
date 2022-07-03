@@ -37,7 +37,7 @@ module.exports = {
                 }
                 const logsembed = new Discord.MessageEmbed()
                     .setTitle(`Last 4000 characters of logs:`)
-                    .setDescription(`.${logs}`)
+                    .setDescription(`${logs}`)
                 message.channel.send({ embeds: [logsembed] }).catch(err => { console.log(err) })
                 });
             }
