@@ -1,5 +1,6 @@
 const { Help_INIT2 } = require('./commands/help')
 const { Help_INIT } = require('./slashcommands/help')
+const {PunishmentExpire} = require('./punishexpire')
 const { exec } = require("child_process")
 const mysql = require('mysql2');
 const connection = mysql.createPool({
@@ -13,7 +14,7 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 
-module.exports.Main_INIT = (client) => {
+module.exports.Main_INIT = (client, Discord) => {
     Help_INIT()
     Help_INIT2()
 
@@ -26,6 +27,12 @@ module.exports.Main_INIT = (client) => {
     client.welcomechannelstext = new Map()
     client.welcomechannelstext2 = new Map()
     client.punishnotification = []
+    client.positiverolepermissions = new Map()
+    client.negativerolepermissions = new Map()
+    client.positiveuserpermissions = new Map()
+    client.negativeuserpermissions = new Map()
+    client.modlogs = new Map()
+    client.lockedvoicechannels = []
 
     UserStatus_INIT(client)
     Prefixes_INIT(client)
@@ -34,6 +41,9 @@ module.exports.Main_INIT = (client) => {
     MuteRole_INIT(client)
     WelcomeChannels_INIT(client)
     PunishNotif_INIT(client)
+    Permissions_INIT(client)
+    ModLogs_INIT(client)
+    PunishmentExpire(client, Discord)
 }
 
 async function UserStatus_INIT(client) {
@@ -60,10 +70,10 @@ async function Prefixes_INIT(client) {
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             for (let i = 0; i < 10; i++) {
-                console.log('**** PREFIXES FAILED TO INIT **** ABORTING BOT START ****')
+                console.error('**** PREFIXES FAILED TO INIT **** ABORTING BOT START ****')
             }
             exec(`forever stopall`)
-            console.log(error)
+            console.error(error)
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
@@ -79,10 +89,10 @@ async function CurrentCaseNumber_INIT(client) {
         connection.query(query, data, function (error, results, fields) {
             if (error) {
                 for (let i = 0; i < 10; i++) {
-                    console.log('**** CASENUMBERS FAILED TO INIT **** ABORTING BOT START ****')
+                    console.error('**** CASENUMBERS FAILED TO INIT **** ABORTING BOT START ****')
                 }
                 exec(`forever stopall`)
-                console.log(error)
+                console.error(error)
                 return thisisafunctionthatwillcrashthebot
             }
             let casenumber = undefined
@@ -116,10 +126,10 @@ async function MuteRole_INIT(client) {
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             for (let i = 0; i < 10; i++) {
-                console.log('**** MUTEROLES FAILED TO INIT **** ABORTING BOT START ****')
+                console.error('**** MUTEROLES FAILED TO INIT **** ABORTING BOT START ****')
             }
             exec(`forever stopall`)
-            console.log(error)
+            console.error(error)
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
@@ -134,10 +144,10 @@ async function WelcomeChannels_INIT(client) {
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             for (let i = 0; i < 10; i++) {
-                console.log('**** WELCOMECHANNELSTEXT FAILED TO INIT **** ABORTING BOT START ****')
+                console.error('**** WELCOMECHANNELSTEXT FAILED TO INIT **** ABORTING BOT START ****')
             }
             exec(`forever stopall`)
-            console.log(error)
+            console.error(error)
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
@@ -145,7 +155,7 @@ async function WelcomeChannels_INIT(client) {
             if (row["details3"] == '' && row["details2"] == '') continue
             if (row['details'] == '') continue
             client.welcomechannels.set(serverid, row["details"])
-            if (!row['details2'] == ''){
+            if (!row['details2'] == '') {
                 client.welcomechannelstext.set(serverid, row["details2"])
             } if (!row["details3"] == '') {
                 client.welcomechannelstext2.set(serverid, row["details3"])
@@ -160,14 +170,79 @@ async function PunishNotif_INIT(client) {
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             for (let i = 0; i < 10; i++) {
-                console.log('**** punishnotif FAILED TO INIT **** ABORTING BOT START ****')
+                console.error('**** punishnotif FAILED TO INIT **** ABORTING BOT START ****')
             }
             exec(`forever stopall`)
-            console.log(error)
+            console.error(error)
             return thisisafunctionthatwillcrashthebot
         }
         for (row of results) {
             client.punishnotification.push(row["serverid"])
+        }
+    })
+}
+
+async function Permissions_INIT(client) {
+    await client.guilds.cache.forEach(guild => {
+        client.positiverolepermissions.set(guild.id, new Map())
+        client.negativerolepermissions.set(guild.id, new Map())
+        client.positiveuserpermissions.set(guild.id, new Map())
+        client.negativeuserpermissions.set(guild.id, new Map())
+    })
+    let query = "SELECT * FROM permissions";
+    let data = []
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.error('**** PERMISSIONS FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            exec(`forever stopall`)
+            console.error(error)
+            return thisisafunctionthatwillcrashthebot
+        }
+        let serverid = undefined
+        let whateverid = undefined
+        for (row of results) {
+            serverid = row["serverid"]
+            whateverid = row["id2"]
+            if (row["type"] === 'r') {
+                if (!row["positive"] == '') {
+                    let posmap = client.positiverolepermissions.get(serverid)
+                    posmap.set(whateverid, row["positive"])
+                }
+                if (!row["negative"] == '') {
+                    let negmap = client.negativerolepermissions.get(serverid)
+                    negmap.set(whateverid, row["negative"])
+                }
+                
+            } else {
+                if (!row["positive"] == '') {
+                    let posmap = client.positiveuserpermissions.get(serverid)
+                    posmap.set(whateverid, row["positive"])
+                }
+                if (!row["negative"] == '') {
+                    let negmap = client.negativeuserpermissions.get(serverid)
+                    negmap.set(whateverid, row["negative"])
+                }
+            }
+        }
+    })
+}
+
+async function ModLogs_INIT(client) {
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['modlog']
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.error('**** MODLOGS FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            exec(`forever stopall`)
+            console.error(error)
+            return thisisafunctionthatwillcrashthebot
+        }
+        for (row of results) {
+            client.modlogs.set(row["serverid"], row["details"])
         }
     })
 }

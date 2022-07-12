@@ -69,9 +69,6 @@ module.exports = {
                     casenumber = row["casenumber"]
                     let punishtype = row["type"]
                     punishtype = GetPunishName(punishtype)
-                    if (!row["type"] == 3) {
-                        return message.channel.send('This type of punishment does not have a duration.')
-                    }
                     const length = await GetPunishmentDuration(args[1])
                     if (!length && !length == 0) {
                         return message.channel.send('Invalid time')

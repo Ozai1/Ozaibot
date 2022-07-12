@@ -71,7 +71,6 @@ module.exports = {
                 }
                 else {
                     ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
-                    LogPunishment(message, client, member.id, 6, null, reason)
                 }
             })
         } else {
@@ -83,9 +82,9 @@ module.exports = {
                     .setDescription(`You cannot soft-ban yourself.`)
                 return message.channel.send({ embeds: [errorembed] })
             }
-            if (message.guild.ownerID !== message.author.id) {
+            if (message.guild.ownerId !== message.author.id) {
                 if (message.author.id !== '508847949413875712') {
-                    if (message.member.roles.highest.position <= member.roles.highest.position) {
+                    if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
                         console.log('attempted mute against someone of higher rank, canceling')
                         const errorembed = new Discord.MessageEmbed()
                             .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
@@ -111,17 +110,19 @@ module.exports = {
             }
             await NotifyUser(6, message, `You have been soft-banned from ${message.guild}`, member, reason, 0, client, Discord)
             ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
-            LogPunishment(message, client, member.id, 6, null, reason)
+            
         }
     }
 }
 async function ExecuteBanAndUnBan(message, client, member, daystodelete, Discord) {
     let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+    client.currentcasenumber.set(message.guild.id, casenumber);
     const returnembed = new Discord.MessageEmbed()
         .setTitle(`Case #${casenumber}`)
         .setDescription(`<:check:988867881200652348> ${member} has been **soft-banned**.`)
         .setColor("GREEN")
     message.channel.send({ embeds: [returnembed] })
+    LogPunishment(message, client, member.id, 6, null, reason, Discord)
     await message.guild.members.ban(member, { days: daystodelete, reason: `soft-ban insigated by ${message.author.tag} (${message.author.id}), please check ozaibot logs for more info`, }).catch(err => {
         console.log(err)
         message.channel.send('Failed to ban.')

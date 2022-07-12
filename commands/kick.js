@@ -25,8 +25,8 @@ module.exports = {
             if (member === 'cancelled') return
             if (!userstatus == 1) {
                   if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have permissions to do this!');
-                  if (message.guild.ownerID !== message.author.id) {
-                        if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot kick someone with higher or the same roles as your own.');
+                  if (message.guild.ownerId !== message.author.id) {
+                        if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) return message.channel.send('You cannot kick someone with higher or the same roles as your own.');
                   }
             }
             if (!member) return message.reply("Invalid member.");
@@ -34,6 +34,7 @@ module.exports = {
             if (!member.kickable) return message.reply("I do not have high enough permissions to kick this member.");
             let reason = args.slice(1).join(" ");
             let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+            client.currentcasenumber.set(message.guild.id, casenumber);
             const returnembed = new Discord.MessageEmbed()
                   .setTitle(`Case #${casenumber}`)
                   .setDescription(`<:check:988867881200652348> ${member} has been **kicked**.`)
@@ -46,7 +47,7 @@ module.exports = {
                   message.channel.send('Failed to kick')
                   return
             });
-            LogPunishment(message, client, member.id, 5, null, reason)
+            LogPunishment(message, client, member.id, 5, null, reason, Discord)
       }
 }
 async function skick(message, args, userstatus, Discord, client) {

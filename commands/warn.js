@@ -44,9 +44,9 @@ module.exports = {
             offserver = true
         }
         if (member === 'cancelled') return
-        if (message.guild.ownerID !== message.author.id) {
+        if (message.guild.ownerId !== message.author.id) {
             if (message.author.id !== '508847949413875712') {
-                if (message.member.roles.highest.position <= member.roles.highest.position) {
+                if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
                     console.log('attempted warn against someone of higher rank, canceling')
                     const errorembed = new Discord.MessageEmbed()
                         .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
@@ -57,9 +57,10 @@ module.exports = {
             }
         }
         let reason = args.slice(1).join(" ");
-        LogPunishment(message, client, member.id, 7, null, reason)
+                let casenumber = client.currentcasenumber.get(message.guild.id)
+        client.currentcasenumber.set(message.guild.id, casenumber);
+        LogPunishment(message, client, member.id, 7, null, reason, Discord)
         NotifyUser(7, message, `You have been warned in ${message.guild}`, member, reason, 0, client, Discord)
-        let casenumber = client.currentcasenumber.get(message.guild.id)
         const returnembed = new Discord.MessageEmbed()
             .setTitle(`Case #${casenumber}`)
             .setDescription(`<:check:988867881200652348> ${member} has been **warned**.`)

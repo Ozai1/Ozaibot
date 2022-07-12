@@ -30,6 +30,9 @@ module.exports = {
                 .setDescription(`Missing arguments.\nProper usage: \`case <case number>\``)
             return message.channel.send({ embeds: [errorembed] })
         }
+        if (args[0].toLowerCase() === 'reason') {
+            //reason command
+        }
         let casenumber = args[0]
         if (casenumber.startsWith('#')) {
             casenumber = casenumber.slice(1)

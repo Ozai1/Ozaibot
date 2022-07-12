@@ -14,7 +14,7 @@ const { exec } = require("child_process");
 module.exports = {
     name: 'shutdown',
     description: 'turns the bot off',
-    aliases: ['restart', 'logs'],
+    aliases: ['restart', 'logs', 'errors'],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id == '174095706653458432') {
             if (cmd === 'shutdown') {
@@ -32,13 +32,28 @@ module.exports = {
                         return message.channel.send('Errored; Failed')
                     }
                     logs = logs.replace(/\[90mdata\[39m:undefined\[35mindex.js\[39m:/g, '')
-                if (logs.length > 4000) {
-                    logs = logs.slice(logs.length - 4000)
-                }
-                const logsembed = new Discord.MessageEmbed()
-                    .setTitle(`Last 4000 characters of logs:`)
-                    .setDescription(`${logs}`)
-                message.channel.send({ embeds: [logsembed] }).catch(err => { console.log(err) })
+                    if (logs.length > 4000) {
+                        logs = logs.slice(logs.length - 4000)
+                    }
+                    const logsembed = new Discord.MessageEmbed()
+                        .setTitle(`Last 4000 characters of logs:`)
+                        .setDescription(`${logs}`)
+                    message.channel.send({ embeds: [logsembed] }).catch(err => { console.log(err) })
+                });
+            } else if (cmd === 'errors') {
+                exec('forever logs 0', (error, stdlogs /*this is everything */, logs /*this will be only errors in the logs*/) => {
+                    if (error) {
+                        console.log(`exec error: ${error}`);
+                        return message.channel.send('Errored; Failed')
+                    }
+                    logs = logs.replace(/\[90mdata\[39m:undefined\[35mindex.js\[39m:/g, '')
+                    if (logs.length > 4000) {
+                        logs = logs.slice(logs.length - 4000)
+                    }
+                    const logsembed = new Discord.MessageEmbed()
+                        .setTitle(`Recent errors:`)
+                        .setDescription(`${logs}`)
+                    message.channel.send({ embeds: [logsembed] }).catch(err => { console.log(err) })
                 });
             }
         }

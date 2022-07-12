@@ -1,7 +1,6 @@
 const { GetAlias, GetTime } = require('./functions')
 const { unix } = require('moment');
 const mysql = require('mysql2');
-const { getDefaultSettings } = require('http2');
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -45,25 +44,124 @@ const GetDisplay = (timelength, includeFor = false) => {
     if (isNaN(timelength)) return
     if (timelength < 0) return
     let display = ''
-    let postfix = 's'; //60 3600 86400 604800 2592000
+    let postfix = ''; //60 3600 86400 604800 2592000
     if (timelength < 60) {
-        if (timelength == 1) { postfix = '' }
+        if (timelength > 1) { postfix = 's' }
         display = ` for **${timelength} second${postfix}**`
-    } if (timelength >= 60) {
-        if (timelength == 60) { postfix = '' }
-        display = ` for **${timelength / 60} minute${postfix}**`
-    } if (timelength >= 3600) {
-        if (timelength == 3600) { postfix = '' }
-        display = ` for **${timelength / 3600} hour${postfix}**`
-    } if (timelength >= 86400) {
-        if (timelength == 86400) { postfix = '' }
-        display = ` for **${timelength / 86400} day${postfix}**`
-    } if (timelength >= 604800) {
-        if (timelength == 604800) { postfix = '' }
-        display = `for **${timelength / 604800} week${postfix}**`
-    } if (timelength >= 2592000) {
-        if (timelength == 2592000) { postfix = '' }
-        display = ` for **${timelength / 2592000} month${postfix}**`
+    } if (timelength >= 60 && timelength < 3600) {
+        if (timelength == 60) {
+            display = ` for **1 minute**`
+        } else {
+            if (timelength > 60 * 2) { postfix = 's' }
+            let stillreducing = true
+            let howmany = 0
+            while (stillreducing) {
+                timelength = Number(timelength) - 60
+                howmany = howmany + 1
+                if (timelength < 60) {
+                    display = ` for **${howmany} minute${postfix}**`
+                    stillreducing = false
+                    if (!timelength == 0) {
+                        display = display.slice(0, -2) + ` and ${GetSecondDisplayUnit(timelength)}**`
+                    }
+                }
+            }
+        }
+    } if (timelength >= 3600 && timelength < 86400) {
+        if (timelength == 3600) {
+            display = ` for **1 hour**`
+        } else {
+            if (timelength > 3600 * 2) { postfix = 's' }
+            let stillreducing = true
+            let howmany = 0
+            while (stillreducing) {
+                timelength = Number(timelength) - 3600
+                howmany = howmany + 1
+                if (timelength < 3600) {
+                    display = ` for **${howmany} hour${postfix}**`
+                    stillreducing = false
+                    if (!timelength == 0) {
+                        display = display.slice(0, -2) + ` and ${GetSecondDisplayUnit(timelength)}**`
+                    }
+                }
+            }
+        }
+    } if (timelength >= 86400 && timelength < 604800) {
+        if (timelength == 86400) {
+            display = ` for **1 day**`
+        } else {
+            if (timelength > 86400 * 2) { postfix = 's' }
+            let stillreducing = true
+            let howmany = 0
+            while (stillreducing) {
+                timelength = Number(timelength) - 86400
+                howmany = howmany + 1
+                if (timelength < 86400) {
+                    display = ` for **${howmany} day${postfix}**`
+                    stillreducing = false
+                    if (!timelength == 0) {
+                        display = display.slice(0, -2) + ` and ${GetSecondDisplayUnit(timelength)}**`
+                    }
+                }
+            }
+        }
+    } if (timelength >= 604800 && timelength < 2592000) {
+        if (timelength == 604800) {
+            display = ` for **1 week**`
+        } else {
+            if (timelength > 604800 * 2) { postfix = 's' }
+            let stillreducing = true
+            let howmany = 0
+            while (stillreducing) {
+                timelength = Number(timelength) - 604800
+                howmany = howmany + 1
+                if (timelength < 604800) {
+                    display = ` for **${howmany} week${postfix}**`
+                    stillreducing = false
+                    if (!timelength == 0) {
+                        display = display.slice(0, -2) + ` and ${GetSecondDisplayUnit(timelength)}**`
+                    }
+                }
+            }
+        }
+    } if (timelength >= 2592000 && timelength < 31536000) {
+        if (timelength == 2592000) {
+            display = ` for **1 month**`
+        } else {
+            if (timelength > 2592000 * 2) { postfix = 's' }
+            let stillreducing = true
+            let howmany = 0
+            while (stillreducing) {
+                timelength = Number(timelength) - 2592000
+                howmany = howmany + 1
+                if (timelength < 2592000) {
+                    display = ` for **${howmany} month${postfix}**`
+                    stillreducing = false
+                    if (!timelength == 0) {
+                        display = display.slice(0, -2) + ` and ${GetSecondDisplayUnit(timelength)}**`
+                    }
+                }
+            }
+        }
+    } if (timelength >= 31536000) {
+        if (timelength == 31536000) {
+            display = ` for **1 year**`
+        } else {
+            if (timelength > 31536000 * 2) { postfix = 's' }
+            let stillreducing = true
+            let howmany = 0
+            while (stillreducing) {
+                timelength = Number(timelength) - 31536000
+                howmany = howmany + 1
+                if (timelength < 31536000) {
+                    display = ` for **${howmany} year${postfix}**`
+                    stillreducing = false
+                    if (!timelength == 0) {
+                        display = display.slice(0, -2) + ` and ${GetSecondDisplayUnit(timelength)}**`
+                    }
+                }
+            }
+        }
     }
     if (!includeFor) {
         display = display.slice(4)
@@ -71,8 +169,44 @@ const GetDisplay = (timelength, includeFor = false) => {
     }
     return display
 }
-
 module.exports.GetDisplay = GetDisplay
+
+const GetSecondDisplayUnit = (timelength) => {
+    let display = ''
+    let postfix = 's'; //60 3600 86400 604800 2592000
+    if (timelength < 60) {
+        if (timelength == 1) { postfix = '' }
+        display = `${timelength} second${postfix}`
+    } if (timelength >= 60) {
+        if (timelength == 60) { postfix = '' }
+        display = `${timelength / 60} minute${postfix}`
+    } if (timelength >= 3600) {
+        if (timelength == 3600) { postfix = '' }
+        display = `${timelength / 3600} hour${postfix}`
+    } if (timelength >= 86400) {
+        if (timelength == 86400) { postfix = '' }
+        display = `${timelength / 86400} day${postfix}`
+    } if (timelength >= 604800) {
+        if (timelength == 604800) { postfix = '' }
+        display = `${timelength / 604800} week${postfix}`
+    } if (timelength >= 2592000) {
+        if (timelength == 2592000) { postfix = '' }
+        display = `${timelength / 2592000} month${postfix}`
+    } if (timelength >= 31536000) {
+        if (timelength == 2592000) { postfix = '' }
+        display = `${timelength / 2592000} year${postfix}`
+
+    }
+    if (display.includes('.')) {
+        display = display.split('.')
+        console.log(display)
+        display[1] = display[1].replace(/[1-9]/g, '')
+        console.log(display)
+        display = display[0] + display[1]
+    }
+    return display
+}
+
 /**
  * Retreves a member from the guild of command origin
  * @param {Object} message Message object
@@ -83,6 +217,7 @@ module.exports.GetDisplay = GetDisplay
  * @param {boolean} AllowOffServer also searches for members outside of the guild, cannot use names
  * @returns {Object} member on success or undefined on fail
  */
+
 module.exports.GetMember = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
     try {
         let member = undefined;
@@ -120,15 +255,21 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
             return member
         }
         let possibleusers = []
-        message.guild.members.cache.forEach(member => {
-            if (member.user.tag.toLowerCase().includes(string.toLowerCase())) {
-                possibleusers.push(`\`#${possibleusers.length + 1} ${member.user.tag}\``)
+        await message.guild.members.cache.forEach(member => {
+            if (member.nickname) {
+                if (member.user.tag.toLowerCase().includes(string.toLowerCase()) || member.nickname.toLowerCase().includes(string.toLowerCase())) {
+                    possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
+                }
+            } else {
+                if (member.user.tag.toLowerCase().includes(string.toLowerCase())) {
+                    possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
+                }
             }
         })
         if (!possibleusers[0]) {
             return undefined
         } else if (!possibleusers[1]) {
-            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(4, -1));
+            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1));
             return member
         }
         if (AllowMultipleResults === false) return undefined
@@ -160,9 +301,10 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
                     message2.channel.send('Failed, that number isnt on the list.')
                     return
                 }
-                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(4, -1));
+                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(6, -1));
                 if (!member) {
                     message.channel.send('failed for whatever reason')
+                    console.error('Was unable to grab member in GetMember after multiple user embed and proper response')
                     return
                 }
                 return member;
@@ -173,7 +315,7 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
             });
         });
     } catch (err) {
-        console.log(err)
+        console.error(err)
         return;
     }
 }
@@ -186,28 +328,55 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
  * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn,
  * @param {integer} length duration of the punishment, if any
  * @param {String} reason reason for the command, inputed by the user
+ * @param {Object} Discord discord object
+ * @param {integer} casenumber the case number to be logged
  */
 
-module.exports.LogPunishment = async (message, client, memberid, type, length, reason) => {
-    let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+module.exports.LogPunishment = async (message, client, memberid, type, length, reason, Discord, casenumber) => {
+    if (!casenumber) {
+        casenumber = client.currentcasenumber.get(message.guild.id) + 1
+        client.currentcasenumber.set(message.guild.id, casenumber);
+    }
     let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
     let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type];
     connection.query(query, data, function (error, results, fields) {
         if (error) {
             message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.');
-            return console.log(error);
+            return console.error(error);
         }
     });
-    client.currentcasenumber.set(message.guild.id, casenumber);
+    let modlogschannel = client.modlogs.get(message.guild.id)
+    if (!modlogschannel) return
+    modlogschannel = message.guild.channels.cache.get(modlogschannel)
+    if (!modlogschannel) return
+    let theuser = client.users.cache.get(memberid)
+    const bannedembed = new Discord.MessageEmbed()
+        .setColor(GetPunishColour(type))
+        .setTitle(`Case #${casenumber} - ${GetPunishName(type)}`)
+        .setTimestamp()
+        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+    if (length && reason) {
+        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}\n**Reason:** ${reason}`)
+    } if (length && !reason) {
+        bannedembed.setDescription(`**Member:** <@${memberid}> (${memberid})\n**Duration:** ${GetDisplay(length, false)}`)
+    } if (reason && !length) {
+        bannedembed.setDescription(`**Member:** <@${memberid}> (${memberid})\n**Reason:** ${reason}`)
+    } if (!reason && !length) {
+        bannedembed.setDescription(`**Member:** <@${memberid}> (${memberid})\n`)
+    }
+    modlogschannel.send({ embeds: [bannedembed] }).catch(err => { 
+        console.warn(err)
+        console.warn('Mod logs channel could not be sent to.')
+     })
 }
 const punishmentnames = new Map()
-punishmentnames.set(1, 'Ban')
-punishmentnames.set(2, 'Un-Ban')
-punishmentnames.set(3, 'Mute')
-punishmentnames.set(4, 'Un-Mute')
-punishmentnames.set(5, 'Kick')
-punishmentnames.set(6, 'Soft-Ban')
-punishmentnames.set(7, 'Warn')
+    .set(1, 'Ban')
+    .set(2, 'Un-Ban')
+    .set(3, 'Mute')
+    .set(4, 'Un-Mute')
+    .set(5, 'Kick')
+    .set(6, 'Soft-Ban')
+    .set(7, 'Warn')
 
 /**
  * Returns the proper name of the punishment
@@ -215,24 +384,27 @@ punishmentnames.set(7, 'Warn')
  * @returns {String} name of the punishment
  */
 
-module.exports.GetPunishName = (type) => {
+const GetPunishName = (type) => {
     return punishmentnames.get(parseInt(type))
 }
 
+module.exports.GetPunishName = GetPunishName
+
 const punishmentcolours = new Map()
-punishmentcolours.set(1, 15684432) // ban
-punishmentcolours.set(2, 6732650)  // unban
-punishmentcolours.set(3, 16747777) // mute
-punishmentcolours.set(4, 6732650)  // unmute
-punishmentcolours.set(5, 16747777) // kick
-punishmentcolours.set(6, 16747777) // softban
-punishmentcolours.set(7, 16771899) // warn
+    .set(1, 15684432) // ban
+    .set(2, 6732650)  // unban
+    .set(3, 16747777) // mute
+    .set(4, 6732650)  // unmute
+    .set(5, 16747777) // kick
+    .set(6, 16747777) // softban
+    .set(7, 16771899) // warn
 
 /**
  * Returns the colour of the punishment
  * @param {integer} type The type of punishment in number form
  * @returns {any} colour
  */
+
 const GetPunishColour = (type) => {
     return punishmentcolours.get(parseInt(type))
 }
@@ -243,7 +415,7 @@ module.exports.GetPunishColour = GetPunishColour
  * Sends a message to the member informing them of whatever is happening
  * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn,
  * @param {Object} message Message object
- * @param {String} title The title of the embed: "AKA X has been banned from Y"
+ * @param {String} title The title of the embed: AKA "X has been banned from Y"
  * @param {Object} member The target of the command's ID
  * @param {String} reason reason for the command, inputed by the user
  * @param {integer} length duration of the punishment, if any
@@ -266,5 +438,68 @@ module.exports.NotifyUser = async (type, message, title, member, reason, length,
     } if (!reason && !length) {
         bannedembed.setDescription(`**Actioned by:** ${message.author} ${message.author.tag}`)
     }
-    await member.send({ embeds: [bannedembed] }).catch(err => { console.log(err) })
+    await member.send({ embeds: [bannedembed] }).catch(err => { console.log('Conf message failed to send; users permissions do not allow') })
+    console.log('Conf message sent')
+}
+
+const PermissionFlags = new Map()
+    .set('a', 'Ban')
+    .set('b', 'Un-Ban')
+    .set('c', 'Mute')
+    .set('d', 'Un-Mute')
+    .set('e', 'Kick')
+    .set('f', 'Soft-Ban')
+    .set('g', 'Warn')
+    .set('h', 'Edit-Case')
+    .set('i', 'Purge')
+    .set('j', 'Lockdown')
+    .set('k', 'Search/Case-Info')
+    .set('l', 'Moderation Command Usage')
+    .set('m', 'Administration Command Usage')
+    .set('n', 'Fun Command Usage')
+    .set('o', 'Utility Command Usage')
+    .set('p', 'General Command Usage')
+    .set('q', 'Any Command Usage')
+    .set('z', 'All-Permissions')
+
+//User > Role
+//Allow > Deny
+//if a user has permissions set on their account, that is absolute, roles are ignored for that permission.,
+//if a user has two roles, one positive and one negative, positive will take persidence over negative.
+//AKA if @everyone has negative for mute, @mods positive will take over and allow the command.
+
+module.exports.GetFlagName = (flag) => {
+    return PermissionFlags.get(flag)
+}
+
+const FlagNames = new Map()
+    .set('ban', 'a')
+    .set('un-ban', 'b')
+    .set('unban', 'b')
+    .set('mute', 'c')
+    .set('un-mute', 'd')
+    .set('unmute', 'd')
+    .set('kick', 'e')
+    .set('softban', 'f')
+    .set('soft-ban', 'f')
+    .set('warn', 'g')
+    .set('edit-case', 'h')
+    .set('editcase', 'h')
+    .set('reason', 'h')
+    .set('purge', 'i')
+    .set('lockdown', 'j')
+    .set('search', 'k')
+    .set('case', 'k')
+    .set('case-info', 'k')
+    .set('search/case-info', 'k')
+    .set('moderation', 'l')
+    .set('administration', 'm')
+    .set('fun', 'n')
+    .set('utility', 'o')
+    .set('general', 'p')
+    .set('any', 'q')
+    .set('all', 'z')
+
+module.exports.NameToFlag = (name) => {
+    return FlagNames.get(name.toLowerCase())
 }

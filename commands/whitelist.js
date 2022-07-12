@@ -82,7 +82,7 @@ module.exports = {
                 })
             } else return message.channel.send('you do not have permissions to interact with this server\'s whitelist')
         } else if (cmd === 'enablewhitelist') {
-            if (userstatus == 1 || message.author.id == message.guild.ownerID) {
+            if (userstatus == 1 || message.author.id == message.guild.ownerId) {
                 let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
                 let data = ['whitelist', message.guild.id]
                 connection.query(query, data, function (error, results, fields) {
@@ -128,7 +128,7 @@ module.exports = {
                 })
             } else return message.channel.send('Only the server owner may turn the whitelist on and off.')
         } else if (cmd === 'disablewhitelist') {
-            if (userstatus == 1 || message.author.id == message.guild.ownerID) {
+            if (userstatus == 1 || message.author.id == message.guild.ownerId) {
                 let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
                 let data = ['whitelist', message.guild.id]
                 connection.query(query, data, function (error, results, fields) {

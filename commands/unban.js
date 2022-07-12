@@ -56,6 +56,7 @@ module.exports = {
                   }
                   message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
                         let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+                        client.currentcasenumber.set(message.guild.id, casenumber);
                         const returnembed = new Discord.MessageEmbed()
                               .setTitle(`Case #${casenumber}`)
                               .setDescription(`<:check:988867881200652348> <@${args[0]}> has been **un-banned**.`)
@@ -63,7 +64,7 @@ module.exports = {
                         message.channel.send({ embeds: [returnembed] })
                   }).catch(err => { console.log(err) });
                   let reason = args.slice(1).join(" ");
-                  LogPunishment(message, client, args[0], 2,null, reason)
+                  LogPunishment(message, client, args[0], 2,null, reason, Discord)
             })
       }
 }

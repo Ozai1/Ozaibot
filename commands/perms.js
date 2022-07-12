@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 
 require('dotenv').config();
-const { GetMember, GetPunishName } = require("../moderationinc")
+const { GetMember } = require("../moderationinc")
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -14,16 +14,27 @@ const connection = mysql.createPool({
 });
 
 module.exports = {
-    name: 'search',
-    description: 'gets and displays a users past punishments',
+    name: 'perms',
+    description: 'Shows/sets a user\'s/role\'s permissions within the bot to allow/deny commands',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (!message.member.permissions.has('MANAGE_MESSAGES')) return message.channel.send('You do not have permission to use this command.')
-        if (!args[0]) {
-            return message.channel.send('Missing arguments')
-        }
-        const member = await GetMember(message, client, args[0], Discord, true, true)
+        if (!message.member.permissions.has('ADMINISTRATOR')) return message.channel.send('You do not have permission to use this command.')
+        if (!args[1]) return message.channel.send('Invalid usage.')
+        const member = await GetMember(message, client, args[1], Discord, true, true)
         if (!member) return message.channel.send('Invalid member.')
-        let query = `SELECT * FROM serverpunishments WHERE userid = ? && serverid = ?`;
+        if (args[0].toLowercase() === 'list') {
+            
+        } else if (args[0].toLowercase() === 'allow') {
+
+        } else if (args[0].toLowercase() === 'deny') {
+
+        } else {
+            return message.channel.send('Invalid usage.')
+        }
+    }
+}
+
+async function list_perms(message,client,args,Discord){
+    let query = `SELECT * FROM permissions WHERE id2 = ? && serverid = ?`;
         let data = [member.id, message.guild.id];
         connection.query(query, data,async function (error, results, fields) {
             if (error) {
@@ -86,5 +97,4 @@ module.exports = {
                 .setDescription(currentpagetext)
             return message.channel.send({ embeds: [caseembed] })
         });
-    }
 }

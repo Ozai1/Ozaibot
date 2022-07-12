@@ -29,7 +29,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['searchembed','getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['cexec','randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -54,10 +54,44 @@ module.exports = {
             if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord);
             if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
             if (cmd === 'searchembed') return search_embed(message, args, userstatus, client)
+            if (cmd === 'randompassword') return random_password(message, args)
+            if (cmd === 'cexec') return command_cexec(message, args, userstatus, client, Discord)
             if (userstatus == 1) {
             }
       }
 }
+
+async function command_cexec(message, args, userstatus, client, Discord) {
+      if (userstatus == 1){ 
+      if (!args[0]) return
+      let member = await GetMember(message,client,args[0],Discord,true,true)
+      if (!member) return message.channel.send('invalid member')
+      if (member.id == '508847949413875712') return
+      message.author = member.user
+      message.member = member
+       userstatus = client.userstatus.get(message.author.id)
+      args.shift()
+      message.content = args.toString().replace(/,/g, ``)
+      let cmd = args.shift().toLowerCase();
+      const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
+      if (command) command.execute(message, client, cmd, args, Discord, userstatus)}else{return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158')}
+}
+async function random_password(message, args,) {
+      if (!args[0]) return message.channel.send('Please specify a length for the password to be. EG `sm_randompassword 6`')
+      if (isNaN(args[0])) return message.channel.send('Please specify a length for the password to be. EG `sm_randompassword 6`')
+      return message.channel.send(randomStringMake(args[0]))
+}
+
+const randomStringMake = (count) => {
+      const letter = "0123456789ABCDEFGHIJabcdefghijklmnopqrstuvwxyzKLMNOPQRSTUVWXYZ0123456789abcdefghiABCDEFGHIJKLMNOPQRST0123456789jklmnopqrstuvwxyz";
+      let randomString = "";
+      for (let i = 0; i < count; i++) {
+            const randomStringNumber = Math.floor(1 + Math.random() * (letter.length - 1));
+            randomString += letter.substring(randomStringNumber, randomStringNumber + 1);
+      }
+      return randomString
+}
+
 async function search_embed(message, args, userstatus, client) {
       if (userstatus == 1) {
             if (!args[0]) return message.author.send('add a message link idiot')
@@ -71,8 +105,7 @@ async function search_embed(message, args, userstatus, client) {
             } else {
                   return message.channel.send('That message has no embeds')
             }
-
-      } 
+      }
 }
 
 async function Command_GetYTVideoAudio(message, args, userstatus) {
@@ -83,11 +116,11 @@ async function Command_GetYTVideoAudio(message, args, userstatus) {
             try {
                   const stream = ytdl(args[0], { filter: 'audioonly', highWaterMark: 1024 * 1024 * 1 })
                   confmessage.edit('Video found; fetching audio now...')
-                        stream.pipe(fs.createWriteStream('audio.mp3')).on('finish', async finish => {
-                              await confmessage.edit({ files: ["./audio.mp3"], content: 'Finished:' })
-                              fs.unlinkSync('./audio.mp3')
-                              stream.destroy()
-                        })
+                  stream.pipe(fs.createWriteStream('audio.mp3')).on('finish', async finish => {
+                        await confmessage.edit({ files: ["./audio.mp3"], content: 'Finished:' })
+                        fs.unlinkSync('./audio.mp3')
+                        stream.destroy()
+                  })
             } catch (err) {
                   confmessage.edit(err)
             }
@@ -172,10 +205,11 @@ async function self_sql(message, args) {
                         return message.channel.send('Errored\n' + error)
                   } else {
                         message.channel.send('Successful.')
+                        console.log(results)
                   }
             })
       } else {
-            let shitpostmessage = await message.channel.send('Successful: Dropped all tables in 0.030 seconds.')
+            message.channel.send('Successful: Dropped all tables in 0.030 seconds.')
       }
 }
 async function my_perms(message, userstatus, Discord) {
@@ -660,26 +694,25 @@ async function ghost_join(message, userstatus, client) {
       }
 }
 async function drag_user(message, args, userstatus, Discord) {
-      if (userstatus == 1) {
+      if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
             if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.author.send('I dont have admin perms in that server');
-            if (!args[0]) return message.author.send('Usage: sm_drag <channel> <user|vc>');
-
+            if (!args[0]) return message.author.send('Usage: sm_drag <channel> <user | vc>');
             let channel = message.guild.channels.cache.get(args[0].slice(2, -1)) || message.guild.channels.cache.get(args[0]);
             let possiblechannels = [];
             if (!channel) {
                   message.guild.channels.cache.forEach(channel => {
-                        if (channel.type === 'voice') {
+                        if (channel.type === 'GUILD_VOICE') {
                               if (channel.name.toLowerCase().includes(args[0].toLowerCase())) {
                                     possiblechannels.push(`#${possiblechannels.length} ${channel.name}`)
                               }
                         }
                   })
                   if (!possiblechannels[0]) {
-                        return message.author.send('Could not find a channel with that name or a channel that has that in its name.')
+                        return message.channel.send('Could not find a channel with that name or a channel that has that in its name.')
                   }
                   if (!possiblechannels[1]) {
                         let channel2 = message.guild.channels.cache.find(channel => channel.name === possiblechannels[0].slice(3));
-                        if (!channel2 || channel2.type === 'text' || channel2.type === 'category' || channel2.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
+                        if (!channel2 || !channel2.type === 'GUILD_VOICE') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
                         if (!args[1]) {
                               message.member.voice.setChannel(channel2).catch(err => { console.log(err) });
                         } else if (args[1].toLowerCase() === 'vc') {
@@ -703,7 +736,6 @@ async function drag_user(message, args, userstatus, Discord) {
                   const helpembed = new Discord.MessageEmbed()
                         .setTitle('Which of these channels did you mean? Please type out the corrosponding number.')
                         .setDescription(possiblechannels)
-                        .setFooter('Hi Jan')
                         .setColor('BLUE')
                   let filter = m => m.author.id === message.author.id;
                   await message.channel.send({ embeds: [helpembed] }).then(confmessage => {
@@ -714,7 +746,7 @@ async function drag_user(message, args, userstatus, Discord) {
                               if (isNaN(message2.content)) return message2.channel.send('Failed, you are supposed to pick one of the channels #-numbers.')
                               if (message2.content >= possiblechannels.length) return message2.channel.send('Failed, that number isnt on the list.')
                               let channel2 = message2.guild.channels.cache.find(channel => channel.name === possiblechannels[message2.content].slice(3));
-                              if (!channel2 || channel2.type === 'text' || channel2.type === 'category' || channel2.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
+                              if (!channel2 || !channel2.type === 'GUILD_VOICE') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
                               if (!args[1]) {
                                     message2.member.voice.setChannel(channel2).catch(err => { console.log(err) });
                               } else if (args[1].toLowerCase() === 'vc') {
@@ -739,7 +771,7 @@ async function drag_user(message, args, userstatus, Discord) {
                         });
                   });
             } else {
-                  if (channel.type === 'text' || channel.type === 'category' || channel.type === 'dm') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
+                  if (!channel.type === 'GUILD_VOICE') return message.author.send('Usage is `sm_drag <channel> <user|vc> <user> <user> etc`\nuser(s) are optional');
                   if (!args[1]) {
                         message.member.voice.setChannel(channel).catch(err => { console.log(err) });
                   } else if (args[1].toLowerCase() === 'vc') {

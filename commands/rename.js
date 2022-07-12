@@ -24,10 +24,17 @@ module.exports = {
             } if (!message.guild.me.permissions.has('MANAGE_NICKNAMES')) return message.channel.send('Ozaibot does not have permissions to change nicknames in this server.');
             if (!args[1]) return message.channel.send('Usage is `sm_rename <@user> <new_name>`');
             let member = await GetMember(message, client, args[0], Discord, true, false)
+            if (!member) {
+                  return message.channel.send('Invalid member.')
+            }
+            if (member === 'cancelled') return message.channel.send('Cancelled.')
             let name = args.slice(1).join(" ");
+            if (name.length > 32) {
+                  return message.channel.send('Name must be less than 32 characters long.')
+            }
             if (member.id == client.user.id) return botrename(message, userstatus, name)
-            if (message.guild.ownerID !== message.author.id) {
-                  if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerID) {
+            if (message.guild.ownerId !== message.author.id) {
+                  if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
                         const errorembed = new Discord.MessageEmbed()
                               .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                               .setColor(15684432)
@@ -35,8 +42,11 @@ module.exports = {
                         return message.channel.send({ embeds: [errorembed] })
                   }
             }
+            if (member.roles.highest.position > message.guild.me.roles.highest.position || member.id == message.guild.ownerId) {
+                  return message.channel.send('I cannot rename this member')
+            }
             await member.setNickname(name).catch(err => {
-                  console.log(err)
+                  console.error(err)
                   message.channel.send('Error when renaming, given name was probably to long.')
                   return
             }).then(() => {

@@ -25,8 +25,8 @@ module.exports = {
                         console.log("You don't have the permissions.")
                         return message.channel.send("You don't have the permissions.");
                   }
-                  if (message.guild.ownerID !== message.author.id) {
-                        if (message.member.roles.highest.position <= member.roles.highest.position) {
+                  if (message.guild.ownerId !== message.author.id) {
+                        if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
                               console.log('You cannot mute someone with higher or the same roles as your own.')
                               return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
                         }
@@ -82,8 +82,8 @@ module.exports = {
                         .setDescription(`Why do you want to mute me :(`)
                   return message.channel.send({ embeds: [errorembed] })
             }
-            if (message.guild.ownerID !== message.author.id) {
-                  if (member.id == message.guild.ownerID || member.permissions.has('ADMINISTRATOR')) {
+            if (message.guild.ownerId !== message.author.id) {
+                  if (member.id == message.guild.ownerId || member.permissions.has('ADMINISTRATOR')) {
                         console.log('attempted mute against administrator, canceling')
                         const errorembed = new Discord.MessageEmbed()
                               .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
@@ -92,7 +92,7 @@ module.exports = {
                         return message.channel.send({ embeds: [errorembed] })
                   }
                   if (message.author.id !== '508847949413875712') {
-                        if (message.member.roles.highest.position <= member.roles.highest.position) {
+                        if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
                               console.log('attempted mute against someone of higher rank, canceling')
                               const errorembed = new Discord.MessageEmbed()
                                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
@@ -137,16 +137,20 @@ module.exports = {
                   timeunban = muteduration + currenttime
                   display = GetDisplay(muteduration, true)
                   reason = args.slice(2).join(" ");
+            } else {
+                  muteduration = 0
             }
             let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+            client.currentcasenumber.set(message.guild.id, casenumber);
+            client.currentcasenumber.set(message.guild.id, casenumber);
             const returnembed = new Discord.MessageEmbed()
                   .setTitle(`Case #${casenumber}`)
                   .setDescription(`<:check:988867881200652348> ${member} has been **muted**${display}.`)
                   .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
             NotifyUser(3, message, `You have been muted in ${message.guild}`, member, reason, muteduration, client, Discord)
-            let query = "INSERT INTO activebans (userid, serverid, timeunban, type) VALUES (?, ?, ?, ?)";
-            let data = [member.id, message.guild.id, timeunban, 'mute']
+            let query = "INSERT INTO activebans (userid, adminid, serverid, timeunban, casenumber, length, type) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            let data = [member.id, message.author.id, message.guild.id, timeunban, casenumber, muteduration, 'mute']
             connection.query(query, data, function (error, results, fields) {
                   if (error) {
                         message.channel.send('Creating unmute time in database failed. User is still muted but will not be automatically unmuted.')
@@ -154,44 +158,7 @@ module.exports = {
                   }
                   return
             })
-            LogPunishment(message, client, member.id, 3, muteduration, reason)
+            LogPunishment(message, client, member.id, 3, muteduration, reason, Discord, casenumber)
             console.log(`user has been muted${display}.`)
-            if (!muteduration || muteduration == 0) return
-            if (muteduration < 86400) {
-                  setTimeout(() => {
-                        let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
-                        let data = ['muterole', message.guild.id]
-                        connection.query(query, data, function (error, results, fields) {
-                              if (error) return console.log(error)
-                              if (results == ``) {
-                                    return console.log('There is currently no mute role for this server. Please set a mute role to mute using `sm_muterole`.')
-                              }
-                              for (row of results) {
-                                    let muteroleid = row["details"];
-                                    const muterole = message.guild.roles.cache.get(muteroleid)
-                                    if (!muterole) return console.log('The mute role for this server could not be found, please set a new one with `sm_muterole` in order to mute')
-                                    if (message.guild.me.roles.highest.position <= muterole.position) return console.log('I do not have high enough permissions to interact with the mute role, please drag my permissions above the mute role in order to mute successfully.')
-                                    if (!message.guild.me.permissions.has('MANAGE_ROLES')) return console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
-                                    member.roles.remove(muterole).catch(err => { console.log(err) })
-                                    console.log(`User ${member.id} unmuted for mute from same life in ${message.guild}(${message.guild.id})`)
-                                    query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
-                                    data = [member.id, message.guild.id, 'mute']
-                                    connection.query(query, data, function (error, results, fields) {
-                                          if (error) {
-                                                console.log('backend error for checking active bans')
-                                                return console.log(error)
-                                          }
-                                          for (row of results) {
-                                                query = "DELETE FROM activebans WHERE id = ?";
-                                                data = [[row['id']]]
-                                                connection.query(query, data, function (error, results, fields) {
-                                                      if (error) return console.log(error)
-                                                })
-                                          }
-                                    })
-                              }
-                        })
-                  }, muteduration * 1000);
-            }
       }
 }

@@ -34,8 +34,8 @@ module.exports = {
                         const muterole = message.guild.roles.cache.get(muteroleid)
                         if (!userstatus == 1) {
                               if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You don't have the permissions.");
-                              if (message.guild.ownerID !== message.author.id) {
-                                    if (message.member.roles.highest.position <= member.roles.highest.position) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
+                              if (message.guild.ownerId !== message.author.id) {
+                                    if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }
                         }
                         let member = await GetMember(message, client, args[0], Discord, true, false);
@@ -44,6 +44,7 @@ module.exports = {
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
                         let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+                        client.currentcasenumber.set(message.guild.id, casenumber);
                         let query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
                         let data = [member.id, message.guild.id, 'mute']
                         connection.query(query, data, function (error, results, fields) {
@@ -62,7 +63,7 @@ module.exports = {
                                                 .setDescription(`<:check:988867881200652348> ${member} has had the muterole removed.`)
                                                 .setColor("GREEN")
                                           message.channel.send({ embeds: [returnembed] })
-                                          NotifyUser(1, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
+                                          NotifyUser(4, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
                                     })
                               } else {
                                     for (row of results) {
@@ -77,7 +78,7 @@ module.exports = {
                                                       .setDescription(`<:check:988867881200652348> ${member} has been unmuted. The mute role was not removed as they don't currently have the role.`)
                                                       .setColor("GREEN")
                                                 message.channel.send({ embeds: [returnembed] })
-                                                NotifyUser(1, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
+                                                NotifyUser(4, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
                                           } else {
                                                 member.roles.remove(muterole).catch(err => {
                                                       console.log(err)
@@ -88,14 +89,14 @@ module.exports = {
                                                             .setDescription(`<:check:988867881200652348> ${member} has been **un-muted**.`)
                                                             .setColor("GREEN")
                                                       message.channel.send({ embeds: [returnembed] })
-                                                      NotifyUser(2, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
+                                                      NotifyUser(4, message, `You have been un-muted in ${message.guild}`, member, reason, 0, client, Discord)
                                                 })
                                           }
                                     }
                               }
                         })
                         let reason = args.slice(1).join(" ");
-                        LogPunishment(message, client, member.id, 4, null, reason)
+                        LogPunishment(message, client, member.id, 4, null, reason, Discord)
                   }
             })
       }

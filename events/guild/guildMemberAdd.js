@@ -11,6 +11,7 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 const { unix } = require('moment');
+const moment = require('moment');
 module.exports = async (Discord, client, member) => {
     const guild = member.guild;
     let welcomechannelid = client.welcomechannels.get(member.guild.id)
@@ -22,7 +23,7 @@ module.exports = async (Discord, client, member) => {
         welcomemessage = welcomemessage.replace(/\[user]/g, `${member}`)
         welcomemessage = welcomemessage.replace(/\[user.username]/g, `**${member.user.username}**`)
         welcomemessage = welcomemessage.replace(/\[user.tag]/g, `**${member.user.tag}**`)
-        welcomechannel.send(`${welcomemessage}`).catch(err =>{
+        welcomechannel.send(`${welcomemessage}`).catch(err => {
             console.log('welcomemessage failed to send in guild ' + guild)
             console.log(err)
         })
@@ -126,7 +127,7 @@ module.exports = async (Discord, client, member) => {
                 const welcomeembed = new Discord.MessageEmbed()
                     .setTitle(`Hello ${member.user.username}!`)
                     .setThumbnail(member.user.avatarURL())
-                    .setDescription(`Please bare with us while we get someone to verify you and give you access to the rest of the server!\n\nWe apologise for any inconvenience.`)
+                    .setDescription(`Please bare with us while we get someone to verify you and give you access to the rest of the server!\n\nWe apologise for any inconvenience.\n\nIf you are only here to rob through dank memer: the rob command is disabled so you may as well just go.`)
                 await webhookclient.send(`<@&806533084442263552> <@&933455230950080642> ${member} <@508847949413875712>`).then(message => { message.delete() });
                 await webhookclient.send({ embeds: [welcomeembed] });
                 webhookclient.delete();
@@ -169,7 +170,7 @@ module.exports = async (Discord, client, member) => {
                             connection.query(query, data, function (error, results, fields) {
                                 if (error) return console.log(error);
                             })
-                            return invfound(member, invite, client)
+                            return invfound(member, invite, client, Discord)
                         }
                     }
                 }
@@ -218,7 +219,7 @@ module.exports = async (Discord, client, member) => {
                                 invite2.code = invcode
                                 invite2.uses = uses
                                 invite2.inviter = await client.users.fetch(inviterid)
-                                invfound(member, invite2, client)
+                                invfound(member, invite2, client, Discord)
                                 query = `DELETE FROM activeinvites WHERE id = ?`;
                                 data = [rowid];
                                 connection.query(query, data, function (error, results, fields) {
@@ -246,7 +247,7 @@ module.exports = async (Discord, client, member) => {
     }
 }
 
-async function invfound(member, invite, client) {
+async function invfound(member, invite, client, Discord) {
     const guild = member.guild
     query = `INSERT INTO usedinvites (userid, serverid, inviterid, time, invitecode) VALUES (?, ?, ?, ?, ?)`;
     data = [member.id, guild.id, invite.inviter.id, Number(Date.now(unix).toString().slice(0, -3).valueOf()), invite.code];

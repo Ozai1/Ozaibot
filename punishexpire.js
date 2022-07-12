@@ -1,0 +1,100 @@
+const mysql = require('mysql2');
+const connection = mysql.createPool({
+    host: 'vps01.tsict.com.au',
+    port: '3306',
+    user: 'root',
+    password: process.env.DATABASE_PASSWORD,
+    database: 'ozaibot',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+const { unix } = require('moment');
+const { LogPunishment, NotifyUser } = require('./moderationinc')
+module.exports.PunishmentExpire = async (client, Discord) => {
+    Mute_Expire(client, Discord)
+}
+
+async function Mute_Expire(client, Discord) {
+    setInterval(() => { // 2 second interval
+        let query = `SELECT * FROM activebans WHERE timeunban < ?`;
+        let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
+        connection.query(query, data, async  function (error, results, fields) {
+            if (error) {
+                console.log('backend error for checking active bans')
+                return console.log(error)
+            }
+            if (results !== ``) {
+                for (row of results) {
+                    query = "DELETE FROM activebans WHERE id = ?";
+                    data = [row["id"]]
+                    connection.query(query, data, function (error, results, fields) {
+                        if (error) return console.log(error)
+                    })
+                    var serverid = row["serverid"];
+                    var userid = row["userid"];
+                    const guild = client.guilds.cache.get(serverid);
+                    let member = guild.members.cache.get(userid);
+                    let casenumber = row["casenumber"]
+                    let adminid = row["adminid"]
+                    let duration = row["length"]
+                    if (!member) { member = searchmember(userid, guild) }
+                    if (!guild) return console.log(`Attempted to unmute ${userid} in guild ${serverid} but the server was not found`)
+                    if (!member) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the user was not found in the server`)
+                    query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+                    data = ['muterole', guild.id]
+                    connection.query(query, data,async function (error, results, fields) {
+                        if (error) return console.log(error)
+                        if (results == ``) {
+                            return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the mute role was not found in db.`)
+                        }
+                        for (row of results) {
+                            let muteroleid = row["details"];
+                            const muterole = guild.roles.cache.get(muteroleid)
+                            if (!muterole) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the mute role was not found.`)
+                            if (guild.me.roles.highest.position <= muterole.position) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the mute role was higher in perms than me.`)
+                            if (!guild.me.permissions.has('MANAGE_ROLES')) return console.log(`Attempted to unmute ${userid} in guild ${guild}(${guild.id}) but the i no longer have manage roles.`)
+                            member.roles.remove(muterole).catch(err => { console.log(err) })
+                            console.log(`unmuted ${userid} in ${guild}(${guild.id})`)
+                            let modlogschannel = client.modlogs.get(guild.id)
+                            if (!modlogschannel) return
+                            let modlogs = guild.channels.cache.get(modlogschannel)
+                            if (!modlogs) return
+                            let message = Object
+                            message.author = await client.users.fetch(adminid)
+                            message.guild = guild
+                            message.channel = modlogs
+                            LogPunishment(message, client, member.id, 4, duration, 'Automatic Un-Mute', Discord, casenumber)
+                            NotifyUser(4, message, `You have been un-muted in ${message.guild}`, member, 'Automatic Un-Mute', duration, client, Discord)
+                        }
+                    })
+                }
+            }
+        })
+        query = `SELECT * FROM reminders WHERE time < ?`;
+        data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                console.log('backend error for checking active bans')
+                return console.log(error)
+            }
+            if (results !== ``) {
+                for (row of results) {
+                    query = "DELETE FROM reminders WHERE id = ?";
+                    data = [row["id"]]
+                    connection.query(query, data, function (error, results, fields) {
+                        if (error) return console.log(error)
+                    })
+                    var channelid = row["channelid"];
+                    var userid = row["userid"];
+                    let text = row["text"];
+                    const channel = client.channels.cache.get(channelid);
+                    let member = channel.guild.members.cache.get(userid);
+                    if (!member) { member = searchmember(userid, channel.guild) }
+                    if (!member) { return console.log('failed to spit reminder because member could not be found') }
+                    channel.send(text).catch(err => console.log(err));
+                }
+            }
+        })
+    }, 2000);
+}
