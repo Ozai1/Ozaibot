@@ -29,7 +29,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['cexec','randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['addreact','editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -56,25 +56,88 @@ module.exports = {
             if (cmd === 'searchembed') return search_embed(message, args, userstatus, client)
             if (cmd === 'randompassword') return random_password(message, args)
             if (cmd === 'cexec') return command_cexec(message, args, userstatus, client, Discord)
+            if (cmd === 'editembed') return edit_embed(message, args, userstatus, client, Discord)
+            if (cmd === 'addreact')return add_reaction(message, args, userstatus, client, Discord)
             if (userstatus == 1) {
             }
       }
 }
 
+async function add_reaction(message, args, userstatus, client, Discord) {
+      if (userstatus == 1) {
+            if (!args[0]) return message.channel.send('usage: sm_addreact [react] [react2]... ')
+            let channel = client.channels.cache.get(args[0].slice(48, -19))
+            if (!channel) return message.channel.send('could not find that channel, invalid link or the bot isnt in that server')
+            let message2 = await channel.messages.fetch(args[0].slice(67));
+            if (!message2) return message.channel.send('could not find that message, channel was found though')
+            args.forEach(arg => {
+                  if (args[0] === arg) {}else{
+                    message2.react(`${arg}`).catch(err => console.log(err))    
+                  }
+            })
+      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
+}
+
+async function edit_embed(message, args, userstatus, client, Discord) {
+      if (userstatus == 1) {
+            if (!args[1]) return message.channel.send('usage: sm_editembed <description|title|colour> <message_link> [content|colour]')
+            let channel = client.channels.cache.get(args[1].slice(48, -19))
+            if (!channel) return message.channel.send('could not find that channel, invalid link or the bot isnt in that server')
+            let message2 = await channel.messages.fetch(args[1].slice(67));
+            if (!message2) return message.channel.send('could not find that message, channel was found though')
+            if (!message2.author.id == client.user.id) return message.channel.send('That message isnt even mine idiot, cant edit it.')
+            if (!message2.embeds.length > 0) return message.channel.send('This message doesnt have any embeds.')
+            let themebed = message2.embeds[0]
+            let description = themebed.description
+            let colour = themebed.color
+            let title = themebed.title
+            let contentorwhatever = args.slice(2).join(" ");
+            if (!contentorwhatever) return message.channel.send('add smth')
+            let newmembed = new Discord.MessageEmbed()
+            if (args[0] === 'description') {
+                  
+                  newmembed.setDescription(contentorwhatever)
+                  if (title) {
+                        newmembed.setTitle(title)
+                  } if (colour) {
+                        newmembed.setColor(colour)
+                  } 
+                  return message2.edit({embeds: [newmembed]})
+            } if (args[0] === 'title') {
+                  newmembed.setTitle(contentorwhatever)
+                  if (description) {
+                        newmembed.setDescription(description)
+                  } if (colour) {
+                        newmembed.setColor(colour)
+                  }
+                  return message2.edit({embeds: [newmembed]})
+            }  if (args[0] === 'colour') {
+                  newmembed.setColor(contentorwhatever)
+                  if (description) {
+                        newmembed.setDescription(title)
+                  } if (title) {
+                        newmembed.setTitle(title)
+                  }
+                  return message2.edit({embeds: [newmembed]})
+            }
+      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
+}
+
 async function command_cexec(message, args, userstatus, client, Discord) {
-      if (userstatus == 1){ 
-      if (!args[0]) return
-      let member = await GetMember(message,client,args[0],Discord,true,true)
-      if (!member) return message.channel.send('invalid member')
-      if (member.id == '508847949413875712') return
-      message.author = member.user
-      message.member = member
-       userstatus = client.userstatus.get(message.author.id)
-      args.shift()
-      message.content = args.toString().replace(/,/g, ``)
-      let cmd = args.shift().toLowerCase();
-      const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
-      if (command) command.execute(message, client, cmd, args, Discord, userstatus)}else{return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158')}
+      if (userstatus == 1) {
+            if (!args[0]) return
+            let member = await GetMember(message, client, args[0], Discord, true, true)
+            if (!member) return message.channel.send('invalid member')
+            if (member.id == '508847949413875712') return
+            message.author = member.user
+            message.member = member
+            userstatus = client.userstatus.get(message.author.id)
+            args.shift()
+            message.content = args.toString().replace(/,/g, ``)
+            let cmd = args.shift().toLowerCase();
+            const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
+            if (command) command.execute(message, client, cmd, args, Discord, userstatus)
+      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
 }
 async function random_password(message, args,) {
       if (!args[0]) return message.channel.send('Please specify a length for the password to be. EG `sm_randompassword 6`')

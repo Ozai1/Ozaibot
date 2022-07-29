@@ -44,7 +44,7 @@ module.exports = {
             client.prefixes.set(message.guild.id, newprefix)
             message.channel.send(`Prefix has been set to \`${newprefix}\`.`)
         } else {
-            message.channel.send('You do not have the permissions to do this.')
+            message.channel.send('You do not have access to this command.')
         }
     }
 }

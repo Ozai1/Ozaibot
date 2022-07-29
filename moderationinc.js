@@ -169,6 +169,7 @@ const GetDisplay = (timelength, includeFor = false) => {
     }
     return display
 }
+
 module.exports.GetDisplay = GetDisplay
 
 const GetSecondDisplayUnit = (timelength) => {
@@ -223,9 +224,6 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
             member = message.guild.members.cache.get(string);
-            if (member) {
-                return member
-            }
             if (includeOffserver) {
                 member = client.users.cache.get(string)
                 if (member) {
@@ -320,6 +318,118 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
     }
 }
 
+module.exports.GetMemberOrChannel = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
+    try {
+        let member = undefined;
+        if (!isNaN(string) && string.length > 17 && string.length < 21) {
+            member = message.guild.members.cache.get(string);
+            if (includeOffserver) {
+                member = client.users.cache.get(string)
+                if (member) {
+                    return member
+                }
+                member = await client.users.fetch(string).catch(err => { })
+            }
+            member = message.guild.channels.cache.get(string)
+            return member
+        }
+        if (string.startsWith('<@')) {
+            member = message.guild.members.cache.get(string.slice(3, -1)) || message.guild.members.cache.get(string.slice(2, -1))
+            if (!member) {
+                if (includeOffserver) {
+                    member = client.users.cache.get(string.slice(3, -1)) || client.users.cache.get(string.slice(2, -1))
+                    if (member) {
+                        return member
+                    }
+                    if (string.includes('!')) {
+                        member = await client.users.fetch(string.slice(3, -1)).catch(err => { })
+                        return member
+                    } else {
+                        member = await client.users.fetch(string.slice(2, -1)).catch(err => { })
+                        return member
+                    }
+                }
+            }
+            return member
+        }
+        if (string.startsWith('<#')) {
+            member = message.guild.channels.cache.get(string.slice(2, 1))
+            return member
+        }
+        let possibleusers = []
+        await message.guild.members.cache.forEach(member => {
+            if (member.nickname) {
+                if (member.user.tag.toLowerCase().includes(string.toLowerCase()) || member.nickname.toLowerCase().includes(string.toLowerCase())) {
+                    possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
+                }
+            } else {
+                if (member.user.tag.toLowerCase().includes(string.toLowerCase())) {
+                    possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
+                }
+            }
+        })
+        await message.guild.channels.cache.forEach(channel => {
+            if (channel.name.toLowerCase().includes(string.toLowerCase())) {
+                possibleusers.push(`\`#${possibleusers.length + 1}\` \`<#${channel.id}>\``)
+            }
+        })
+        if (!possibleusers[0]) {
+            return undefined
+        } else if (!possibleusers[1]) {
+            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1));
+            if (!member) {
+                member = message.guild.channels.cache.get('')
+            }
+            return member
+        }
+        if (AllowMultipleResults === false) return undefined
+        if (possibleusers.length > 9) {
+            return message.channel.send('To many users found. Please use a more definitive string.')
+        }
+        let printmessage = possibleusers.filter((a) => a).toString()
+        printmessage = printmessage.replace(/,/g, '\n')
+        const helpembed = new Discord.MessageEmbed()
+            .setTitle('Which of these members/channels did you mean? Please type out the corrosponding number.')
+            .setFooter({ text: 'Type cancel to cancel the search.' })
+            .setDescription(`${printmessage}`)
+            .setColor('BLUE')
+        let filter = m => m.author.id === message.author.id;
+        return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
+            return await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+                message2 = message2.first();
+                message2.delete().catch(err => { });
+                confmessage.delete().catch(err => { });
+                if (message2.content.startsWith('cancel')) {
+                    message.channel.send('Cancelled.')
+                    return 'cancelled'
+                }
+                if (isNaN(message2.content)) {
+                    message2.channel.send('Failed, you are supposed to pick one of the #-numbers.')
+                    return
+                }
+                if (message2.content >= possibleusers.length + 1) {
+                    message2.channel.send('Failed, that number isnt on the list.')
+                    return
+                }
+                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(6, -1));
+                if (!member) {
+                    message.channel.send('failed for whatever reason')
+                    console.error('Was unable to grab member in GetMember after multiple user embed and proper response')
+                    return
+                }
+                return member;
+            }).catch(collected => {
+                console.log(collected);
+                message.channel.send('Timed out.').catch(err => { console.log(err) });
+                return
+            });
+        });
+    } catch (err) {
+        console.error(err)
+        return;
+    }
+}
+
 /**
  * Pushes the punishment to the database
  * @param {Object} message Message object
@@ -330,21 +440,24 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
  * @param {String} reason reason for the command, inputed by the user
  * @param {Object} Discord discord object
  * @param {integer} casenumber the case number to be logged
+ * @param {boolean} pushToDB whether to log it to the database
  */
 
-module.exports.LogPunishment = async (message, client, memberid, type, length, reason, Discord, casenumber) => {
+module.exports.LogPunishment = async (message, client, memberid, type, length, reason, Discord, casenumber, pushtodb = true) => {
     if (!casenumber) {
         casenumber = client.currentcasenumber.get(message.guild.id) + 1
         client.currentcasenumber.set(message.guild.id, casenumber);
     }
-    let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type];
-    connection.query(query, data, function (error, results, fields) {
-        if (error) {
-            message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.');
-            return console.error(error);
-        }
-    });
+    if (pushtodb) {
+        let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type];
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                if (message.channel) message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.').catch(err => { })
+                return console.error(error);
+            }
+        });
+    }
     let modlogschannel = client.modlogs.get(message.guild.id)
     if (!modlogschannel) return
     modlogschannel = message.guild.channels.cache.get(modlogschannel)
@@ -358,16 +471,16 @@ module.exports.LogPunishment = async (message, client, memberid, type, length, r
     if (length && reason) {
         bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}\n**Reason:** ${reason}`)
     } if (length && !reason) {
-        bannedembed.setDescription(`**Member:** <@${memberid}> (${memberid})\n**Duration:** ${GetDisplay(length, false)}`)
+        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}`)
     } if (reason && !length) {
-        bannedembed.setDescription(`**Member:** <@${memberid}> (${memberid})\n**Reason:** ${reason}`)
+        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Reason:** ${reason}`)
     } if (!reason && !length) {
-        bannedembed.setDescription(`**Member:** <@${memberid}> (${memberid})\n`)
+        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n`)
     }
-    modlogschannel.send({ embeds: [bannedembed] }).catch(err => { 
+    modlogschannel.send({ embeds: [bannedembed] }).catch(err => {
         console.warn(err)
         console.warn('Mod logs channel could not be sent to.')
-     })
+    })
 }
 const punishmentnames = new Map()
     .set(1, 'Ban')
@@ -499,6 +612,8 @@ const FlagNames = new Map()
     .set('general', 'p')
     .set('any', 'q')
     .set('all', 'z')
+    .set('all-permissions', 'z')
+    
 
 module.exports.NameToFlag = (name) => {
     return FlagNames.get(name.toLowerCase())

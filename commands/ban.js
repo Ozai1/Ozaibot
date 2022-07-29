@@ -1,6 +1,5 @@
 const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
 const mysql = require('mysql2');
-
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -26,7 +25,7 @@ module.exports = {
                 const errorembed = new Discord.MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
-                    .setDescription(`Missing permissions.`)
+                    .setDescription(`You do not have access to this command.`)
                 return message.channel.send({ embeds: [errorembed] })
             }
         }
@@ -142,6 +141,7 @@ async function sban(message, args, userstatus, Discord) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
         const member = await GetMember(message, client, args[0], Discord, true, false)
         if (member === 'cancelled') return
+        let reason = args.slice(1).join(" ");
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')
         if (!member) return message.author.send('no member')
         if (!member.bannable) return message.author.send('I do not have high enough permissions for this or they\'re not on the server or smth')

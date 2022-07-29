@@ -24,7 +24,7 @@ module.exports = {
             member = await GetMember(message, client, args[0], Discord, true, false);
             if (member === 'cancelled') return
             if (!userstatus == 1) {
-                  if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have permissions to do this!');
+                  if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have access to this command.');
                   if (message.guild.ownerId !== message.author.id) {
                         if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) return message.channel.send('You cannot kick someone with higher or the same roles as your own.');
                   }
@@ -41,7 +41,6 @@ module.exports = {
                   .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
             await NotifyUser(5, message, `You have been kicked from ${message.guild}`, member, reason, 0, client, Discord)
-            console.log(`confirmation message sent to ${member.tag} for being kicked from ${message.guild} by ${message.author.tag}`)
             await member.kick({ reason: `${reason} - ${message.author.tag}` }).catch(err => {
                   console.log(err)
                   message.channel.send('Failed to kick')

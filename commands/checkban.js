@@ -23,7 +23,7 @@ module.exports = {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')
             if (!userstatus == 1) {
-                  if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('Missing permissions.')
+                  if (!message.member.permissions.has('BAN_MEMBERS')) return message.reply('You do not have access to this command.')
             }
             if (!args[0]) return message.channel.send('Ban found on... oh wait')
             message.guild.bans.fetch().then(bans => {

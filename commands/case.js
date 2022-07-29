@@ -20,7 +20,7 @@ module.exports = {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
-                .setDescription(`Missing permissions.`)
+                .setDescription(`You do not have access to this command.`)
             return message.channel.send({ embeds: [errorembed] })
         }
         if (!args[0]) {

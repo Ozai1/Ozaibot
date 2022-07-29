@@ -20,13 +20,13 @@ module.exports = {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
         if (message.member.permissions.has('MANAGE_CHANNELS') || userstatus == 1) {
             if (!message.channel.permissionsFor(message.guild.roles.everyone).has('SEND_MESSAGES')) {
-                await channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: true }).catch(err => { console.log(err) })
+                await message.channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: true }).catch(err => { console.log(err) })
                 const msgEmbed = new Discord.MessageEmbed()
                     .setDescription(`lockdown has ended.`)
                     .setColor('GREEN');
                 message.channel.send(msgEmbed);
             } else {
-                await channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
+                await message.channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
 
                 const msgEmbed = new Discord.MessageEmbed()
                     .setDescription(`Lockdown has started!`)
@@ -35,7 +35,7 @@ module.exports = {
             }
         } else {
             const warningEmbed = new Discord.MessageEmbed()
-                .setDescription('You do not have permissions to do this!')
+                .setDescription('You do not have access to this command.')
                 .setColor('YELLOW');
             message.channel.send({ embeds: [warningEmbed] })
         }

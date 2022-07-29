@@ -21,25 +21,52 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
         const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
-        if (!userstatus == 1) {
-            if (!message.member.permissionsIn(message.channel).has("MANAGE_MESSAGES")) {
-                console.log('You do not have permissions to use this command')
+        let hasperms = false
+        if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 1; }
+        if (message.member.permissions.has('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 2; }
+        if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 3; }
+        //if (message.member.permissions.has('ADMINISTRATOR')) { hasperms = 3; }
+        if (userstatus == 1) { hasperms = 3; }
+        if (hasperms == 1) {
+            console.log('You do not have permissions to use this command')
+            const errorembed = new Discord.MessageEmbed()
+                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                .setColor(15684432)
+                .setDescription(`You do not have access to this command.`)
+            return conformationmessage.edit({ embeds: [errorembed], content: null })
+        } else if (hasperms == 2) {
+            console.log('You do not have permissions to use this command')
+            const errorembed = new Discord.MessageEmbed()
+                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                .setColor(15684432)
+                .setDescription(`You do not have access to this command in this channel.`)
+            return conformationmessage.edit({ embeds: [errorembed], content: null })
+        }
+        if (!message.guild.me.permissionsIn(message.channel).has("MANAGE_MESSAGES")) {
+            if (!message.guild.me.permissions.has('MANAGE_MESSAGES')) { hasperms = 1; }
+            if (message.guild.me.permissions.has('MANAGE_MESSAGES') && !message.channel.permissionsFor(message.member).has('MANAGE_MESSAGES')) { hasperms = 2; }
+            if (hasperms == 1) {
+                console.log('I cannot delete messages in this server. Please grant me the Manage Messages permission in order to use this command.')
                 const errorembed = new Discord.MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
-                    .setDescription(`You do not hvae the permissions required to use this command.`)
-                return conformationmessage.edit({ embeds: [errorembed] })
+                    .setDescription(`I cannot delete messages in this server. Please grant me the Manage Messages permission in order to use this command.`)
+                return conformationmessage.edit({ embeds: [errorembed], content: null })
+            } else if (hasperms == 2) {
+                console.log('I cannot delete messages in this channel. Please grant me the Manage Messages permission in order to use this command.')
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`I cannot delete messages in this channel. Please grant me the Manage Messages permission in order to use this command.`)
+                return conformationmessage.edit({ embeds: [errorembed], content: null })
             }
         }
-        if (!message.guild.me.permissionsIn(message.channel).has("MANAGE_MESSAGES")) {
-            conformationmessage.edit('Ozaibot does not have permissions to delete messages in this channel.')
-        }
         let amount = args[0]
-        if (!amount) return conformationmessage.edit(`${message.author}, Usage is \`sm_purge\``).catch(err => { console.log(err) });
-        if (isNaN(amount)) return conformationmessage.edit(`${message.author}, Usage is \`sm_purge <amount>\``).catch(err => { console.log(err) });
+        if (!amount) return conformationmessage.edit('Usage: `sm_purge <amount> [<options]`').catch(err => { console.log(err) });
+        if (isNaN(amount)) return conformationmessage.edit('Usage: `sm_purge <amount> [<options]`').catch(err => { console.log(err) });
         if (amount <= 0) return conformationmessage.edit(`${message.author}, You cannot delete less than 1 message.`).catch(err => { console.log(err) });
         if (amount > 1000) return conformationmessage.edit(`${message.author}, You cannot delete more than 1000 messages.`).catch(err => { console.log(err) });
-        if (isNaN(args[0]) || !args[0]) return conformationmessage.edit('Usage: `sm_purge <amount> <options>`')
+        if (isNaN(args[0]) || !args[0]) return conformationmessage.edit('Usage: `sm_purge <amount> [<options]`')
         let members = [];
         let silent = false;
         let haslinks = false;

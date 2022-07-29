@@ -1,7 +1,9 @@
 const { Help_INIT2 } = require('./commands/help')
 const { Help_INIT } = require('./slashcommands/help')
-const {PunishmentExpire} = require('./punishexpire')
+const { PunishmentExpire } = require('./punishexpire')
 const { exec } = require("child_process")
+const synchronizeSlashCommands = require('discord-sync-commands-v14');
+const fs = require('fs');
 const mysql = require('mysql2');
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -33,6 +35,8 @@ module.exports.Main_INIT = (client, Discord) => {
     client.negativeuserpermissions = new Map()
     client.modlogs = new Map()
     client.lockedvoicechannels = []
+    client.antiscamspam = new Map()
+
 
     UserStatus_INIT(client)
     Prefixes_INIT(client)
@@ -44,6 +48,19 @@ module.exports.Main_INIT = (client, Discord) => {
     Permissions_INIT(client)
     ModLogs_INIT(client)
     PunishmentExpire(client, Discord)
+    AntiScamSpam_INIT(client)
+
+    fs.readdir("./slashcommands/", (_err, files) => {
+        synchronizeSlashCommands(client, client.slashcommands.map((command) => ({
+            name: command.name,
+            description: command.description,
+            options: command.options,
+            type: 'CHAT_INPUT'
+        })), {
+            debug: false
+        });
+    })
+    console.log(`Finished caching and updating`);
 }
 
 async function UserStatus_INIT(client) {
@@ -214,7 +231,7 @@ async function Permissions_INIT(client) {
                     let negmap = client.negativerolepermissions.get(serverid)
                     negmap.set(whateverid, row["negative"])
                 }
-                
+
             } else {
                 if (!row["positive"] == '') {
                     let posmap = client.positiveuserpermissions.get(serverid)
@@ -244,5 +261,39 @@ async function ModLogs_INIT(client) {
         for (row of results) {
             client.modlogs.set(row["serverid"], row["details"])
         }
+    })
+}
+
+async function AntiScamSpam_INIT(client) {
+    client.guilds.cache.forEach(guild => {
+        
+        client.antiscamspam.set(guild.id, new Map())
+        let current = client.antiscamspam.get(guild.id)
+        let query = "SELECT * FROM serverconfigs WHERE type = ?";
+        let data = ['linkspam']
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                for (let i = 0; i < 10; i++) {
+                    console.error('**** SCAMSPAM FAILED TO INIT **** ABORTING BOT START ****')
+                }
+                exec(`forever stopall`)
+                console.error(error)
+                return thisisafunctionthatwillcrashthebot
+            }
+            for (row of results) {
+                if (row["details"]) {
+                    current.set('punishtype', row["details"])
+                }
+                if (row["details2"]) {
+                    current.set('punishtypemass', row["details2"])
+                }
+                if (row["details3"]){
+                    current.set('punishlength', row["details3"])
+                }
+                if (row["details3"]){
+                    current.set('punishlengthmass', row["details4"])
+                }
+            }
+        })
     })
 }

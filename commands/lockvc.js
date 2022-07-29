@@ -18,7 +18,7 @@ module.exports = {
       aliases: ['unlockallvcs'],
       description: 'uibgk',
       async execute(message, client, cmd, args, Discord, channelstatus) {
-            if (!message.member.permissions.has('ADMINISTRATOR')) return message.channel.send('You do not have permission to use this command.')
+            if (!message.member.permissions.has('ADMINISTRATOR')) return message.channel.send('You do not have access to this command.')
             if (cmd === 'unlockallvcs') {
                   for (let i = 0; i < client.lockedvoicechannels.length; i++) {
                         delete client.lockedvoicechannels[i]

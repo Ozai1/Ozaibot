@@ -53,7 +53,7 @@ module.exports = {
                     }
 
                 })
-            } else return message.channel.send('you do not have permissions to interact with this server\'s whitelist')
+            } else return message.channel.send('You do not have access to this command.')
         } else if (cmd === 'unwhitelist') {
             if (userstatus == 1 || message.member.permissions.has('MANAGE_GUILD')) {
                 let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member

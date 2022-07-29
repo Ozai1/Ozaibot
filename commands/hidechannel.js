@@ -35,7 +35,7 @@ module.exports = {
                   }
             } else {
                   const msgEmbed = new Discord.MessageEmbed()
-                        .setDescription('You do not have permissions to do this!')
+                        .setDescription('You do not have access to this command.')
                         .setColor('YELLOW');
                   message.channel.send({ embeds: [msgEmbed] }).then(message => message.delete({ timeout: 5000 })).catch(err => { console.log(err) });
             }

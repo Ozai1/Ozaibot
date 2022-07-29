@@ -91,7 +91,7 @@ async function launchslashcommand(client, interaction, Discord, userstatus) {
         if (!interaction.member.voice.channel) return interaction.reply({ content: `You are not connected to an audio channel. ❌`, ephemeral: true });
         if (interaction.guild.me.voice.channel && interaction.member.voice.channel.id !== interaction.guild.me.voice.channel.id) return interaction.reply({ content: `You are not on the same audio channel as me. ❌`, ephemeral: true });
     }
-
+if (cmd)
     cmd.execute(client, interaction, Discord, userstatus)
     // let alllogs = client.channels.cache.get('986882651921190932');
     // const commandembed = new MessageEmbed()

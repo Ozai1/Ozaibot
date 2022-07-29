@@ -44,7 +44,6 @@ module.exports = {
                         if (!muterole) return message.channel.send('The mute role for this server could not be found.')
                         if (!member.roles.cache.some(role => role.id == muterole.id)) return message.channel.send('This member is not currently muted.')
                         let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-                        client.currentcasenumber.set(message.guild.id, casenumber);
                         let query = "SELECT * FROM activebans WHERE userid = ? && serverid = ? && type = ?";
                         let data = [member.id, message.guild.id, 'mute']
                         connection.query(query, data, function (error, results, fields) {

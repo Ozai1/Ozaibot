@@ -64,7 +64,7 @@ async function Mute_Expire(client, Discord) {
                             message.author = await client.users.fetch(adminid)
                             message.guild = guild
                             message.channel = modlogs
-                            LogPunishment(message, client, member.id, 4, duration, 'Automatic Un-Mute', Discord, casenumber)
+                            LogPunishment(message, client, member.id, 4, duration, 'Automatic Un-Mute', Discord, casenumber, false)
                             NotifyUser(4, message, `You have been un-muted in ${message.guild}`, member, 'Automatic Un-Mute', duration, client, Discord)
                         }
                     })
@@ -90,8 +90,6 @@ async function Mute_Expire(client, Discord) {
                     let text = row["text"];
                     const channel = client.channels.cache.get(channelid);
                     let member = channel.guild.members.cache.get(userid);
-                    if (!member) { member = searchmember(userid, channel.guild) }
-                    if (!member) { return console.log('failed to spit reminder because member could not be found') }
                     channel.send(text).catch(err => console.log(err));
                 }
             }

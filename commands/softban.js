@@ -18,7 +18,7 @@ module.exports = {
     aliases: ['sb', 'soft-ban'],
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send('You do not have permission to use this command.')
+        if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send('You do not have access to this command.')
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('I do not have ban permissions in this server.')
         if (!args[0]) {
             const errorembed = new Discord.MessageEmbed()

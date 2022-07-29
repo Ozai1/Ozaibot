@@ -53,11 +53,10 @@ module.exports = async (Discord, client, oldmember, newmember) => {
                 modlog = oldmember.guild.channels.cache.get(modlog)
                 if (!modlog) return
                 let message = Object
-                message.author = await client.users.fetch(adminid);
+                message.author = client.user
                 message.guild = oldmember.guild;
                 message.channel = modlog;
-                let casenumber = row["casenumber"]
-                LogPunishment(message, client, oldmember.id, 4, 0, 'Role manually removed by administrator.', Discord, casenumber);
+                LogPunishment(message, client, oldmember.id, 4, 0, 'Role manually removed by administrator.', Discord);
             }
         });
     }

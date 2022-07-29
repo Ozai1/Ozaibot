@@ -59,7 +59,7 @@ module.exports = {
                     }
                 }
             })
-        }
+        }else {message.channel.send("<https://youtu.be/sSI0WSCVHnU?t=42>")}
     }
 }
 

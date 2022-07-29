@@ -13,13 +13,14 @@ const connection = mysql.createPool({
 });
 module.exports = {
     name: 'warn',
+    aliases: ['w'],
     description: 'adds a warn to a users account',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.member.permissions.has("MANAGE_MESSAGES")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
-                .setDescription(`Missing permissions.`)
+                .setDescription(`You do not have access to this command.`)
             return message.channel.send({ embeds: [errorembed] })
         }
         if (!args[0]) {
@@ -57,8 +58,7 @@ module.exports = {
             }
         }
         let reason = args.slice(1).join(" ");
-                let casenumber = client.currentcasenumber.get(message.guild.id)
-        client.currentcasenumber.set(message.guild.id, casenumber);
+        let casenumber = client.currentcasenumber.get(message.guild.id) + 1
         LogPunishment(message, client, member.id, 7, null, reason, Discord)
         NotifyUser(7, message, `You have been warned in ${message.guild}`, member, reason, 0, client, Discord)
         const returnembed = new Discord.MessageEmbed()

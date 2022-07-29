@@ -116,7 +116,7 @@ module.exports = {
                   return message.channel.send('Failed; unable to add muterole to member')
             });
             const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
-            const muteduration = await GetPunishmentDuration(args[1])
+            let muteduration = await GetPunishmentDuration(args[1])
             if (muteduration === Infinity) {
                   console.log('attempted mute with some bullshit time inputed')
                   member.roles.remove(muterole).catch(err => {

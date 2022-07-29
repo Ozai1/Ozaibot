@@ -20,6 +20,6 @@ module.exports = {
     description: 'whatever i make at the time',
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
-console.log()
+        
     }
 }

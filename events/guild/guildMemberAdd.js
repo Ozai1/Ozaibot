@@ -1,5 +1,6 @@
 const mysql = require('mysql2')
 require('dotenv').config();
+const { LogPunishment, NotifyUser } = require('../../moderationinc')
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -17,7 +18,6 @@ module.exports = async (Discord, client, member) => {
     let welcomechannelid = client.welcomechannels.get(member.guild.id)
     let welcomechannel = guild.channels.cache.get(welcomechannelid)
     if (welcomechannel) {
-        console.log('welcomechannel found.')
         let welcomemessage = client.welcomechannelstext.get(guild.id)
         if (!welcomemessage) return
         welcomemessage = welcomemessage.replace(/\[user]/g, `${member}`)
@@ -71,29 +71,38 @@ module.exports = async (Discord, client, member) => {
             return console.log(error);
         }
         if (results == `` || results === undefined) return;
-        let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
-        let data = ['muterole', guild.id];
-        connection.query(query, data, function (error, results, fields) {
-            if (error) return console.log(error);
-            if (results == `` || results === undefined) {
-                return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was removed in db`);
-            }
-            for (row of results) {
-                let muteroleid = row["details"];
-                const muterole = guild.roles.cache.get(muteroleid);
-                if (!muterole) {
-                    return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was not found`);
+        for (row of results) {
+            let casenumber = row["casenumber"];
+            let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
+            let data = ['muterole', guild.id];
+            connection.query(query, data, function (error, results, fields) {
+                if (error) return console.log(error);
+                if (results == `` || results === undefined) {
+                    return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was removed in db`);
                 }
-                if (guild.me.roles.highest.position <= muterole.position) {
-                    console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but i have lower perms than muterole now`);
+                for (row of results) {
+                    let muteroleid = row["details"];
+
+                    const muterole = guild.roles.cache.get(muteroleid);
+                    if (!muterole) {
+                        return console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but muterole was not found`);
+                    }
+                    if (guild.me.roles.highest.position <= muterole.position) {
+                        console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, attempted to remute but i have lower perms than muterole now`);
+                    }
+                    member.roles.add(muterole, { reason: `AUTOMUTE: user has left and rejoined while muted, mute role auto added. if this user is not meant to be muted please unmute them through ozaibot so they do not get automuted for mute evading again.` }).catch(err => {
+                        console.log(err);
+                    })
+                    console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, remuted`);
+                    let message = Object
+                    message.author = client.user
+                    message.guild = member.guild;
+                    message.channel = undefined;
+                    LogPunishment(message, client, member.id, 3, null, 'Auto-Mute: User re-joined while muted.', Discord, casenumber, false)
+                    NotifyUser(3, message, `You have been auto-muted in ${member.guild}`, member, 'Auto-Mute: You re-joined while muted.', null, client, Discord)
                 }
-                member.roles.add(muterole, { reason: `AUTOMUTE: user has left and rejoined while muted, mute role auto added. if this user is not meant to be muted please unmute them through ozaibot so they do not get automuted for mute evading again.` }).catch(err => {
-                    console.log(err);
-                })
-                console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, remuted`);
-                member.send(`You have been auto muted from ${member.guild} due to a previous mute not expiring but you rejoining, you will still be unmuted when the mute expires or if you are manually unmuted.`);
-            }
-        })
+            })
+        }
     })
     if (guild.id == '942731536770428938') {
         let blossomrole = guild.roles.cache.get('942791591725252658');

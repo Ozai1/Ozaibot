@@ -23,7 +23,7 @@ module.exports = {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
-                .setDescription(`Missing permissions.`)
+                .setDescription(`You do not have access to this command.`)
             return message.channel.send({ embeds: [errorembed] })
         }
         if (args[0].toLowerCase() === 'null') {
@@ -72,7 +72,7 @@ async function setwelcomemessage(message, client, Discord, args) {
         const errorembed = new Discord.MessageEmbed()
             .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
             .setColor(15684432)
-            .setDescription(`Missing permissions.`)
+            .setDescription(`You do not have access to this command.`)
         return message.channel.send({ embeds: [errorembed] })
     }
     if (!args[0]) {
@@ -140,7 +140,7 @@ async function setfarewellmessage(message, client, Discord, args) {
         const errorembed = new Discord.MessageEmbed()
             .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
             .setColor(15684432)
-            .setDescription(`Missing permissions.`)
+            .setDescription(`You do not have access to this command.`)
         return message.channel.send({ embeds: [errorembed] })
     }
     if (!args[0]) {

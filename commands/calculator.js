@@ -41,7 +41,7 @@ module.exports = {
         }
         //end memes
         if (isNaN(args[0])) {
-            let operator = args[0]
+            let operator = args[0].toLowerCase()
             let total = args[1]
             if (operator === 'a' || operator === 'add' || operator === 'p' || operator === 'plus') {
                 for (let i = 0; i < args.length; i++) {
@@ -61,7 +61,7 @@ module.exports = {
                 }
                 returnmessage(message, Discord, `**Answer**:\n${total}`)
             }
-            else if (operator === 'm' || operator === 'multi' || operator === 'multiply' || operator === 'times' || operator === 't') {
+            else if (operator === 'm' || operator === 'multi' || operator === 'multiply' || operator === 'times' || operator === 't'|| operator === 'x') {
                 for (let i = 0; i < args.length; i++) {
                     if (!isNaN(args[i])) {
                         if (i == 0 || i == 1) continue
@@ -70,7 +70,7 @@ module.exports = {
                 }
                 returnmessage(message, Discord, `**Answer**:\n${total}`)
             }
-            else if (operator === 'd' || operator === 'div' || operator === 'divide'|| operator === 'divided') {
+            else if (operator === 'd' || operator === 'div' || operator === 'divide'|| operator === 'divided'|| operator === '÷') {
                 for (let i = 0; i < args.length; i++) {
                     if (!isNaN(args[i])) {
                         if (i == 0 || i == 1) continue
@@ -95,10 +95,10 @@ module.exports = {
                     if (operator === 's' || operator === 'sub' || operator === 'subtract' || operator === 'takeaway') {
                         args[i] = '-'
                     }
-                    if (operator === 'm' || operator === 'multi' || operator === 'multiply' || operator === 'times' || operator === 't') {
+                    if (operator === 'm' || operator === 'multi' || operator === 'multiply' || operator === 'times' || operator === 't'|| operator === 'x') {
                         args[i] = "*"
                     }
-                    if (operator === 'd' || operator === 'div' || operator === 'divide') {
+                    if (operator === 'd' || operator === 'div' || operator === 'divide'|| operator === '÷') {
                         args[i] = '/'
                     }
                 }
