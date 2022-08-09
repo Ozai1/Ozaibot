@@ -24,8 +24,9 @@ module.exports = {
                   message.channel.send(`Number: ${rating}`)
             } else if (args[0] === 'no0' && !isNaN(args[1])) {
                   rating = Math.floor(Math.random() * args[1]) + 1;
-                  message.channel.send(`your random number is ${rating}`)
+                  message.channel.send(`Your random number is ${rating}`)
             } else {
+                  if (message.content.toLowerCase.includes('@everyone') || message.content.toLowerCase.includes('@here') || message.content.toLowerCase.includes('<@&>')) return message.channel.send('Your random words must not contain mentions of roles, everyone or here')
                   let randomgenerator = [];
                   args.forEach(async (arg) => {
                         randomgenerator.push(arg)

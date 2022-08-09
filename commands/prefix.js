@@ -16,7 +16,7 @@ module.exports = {
     aliases: ['setprefix'],
     description: 'sets the bots prefix for a guild',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (userstatus == 1 || message.member.permissions.has('MANAGE_GUILD')) {
             let newprefix = args.slice(0).join(" ")
             if (!args[0]) return message.channel.send('You must add a prefix for the bot to use')

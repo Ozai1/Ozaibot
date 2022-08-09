@@ -1,5 +1,4 @@
 const mysql = require('mysql2');
-
 require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
@@ -32,7 +31,37 @@ module.exports = {
                 prefix = row["prefix"];
             }
             if (!args[0]) {
-                message.channel.send('dbdasf')
+                if (!args[0]) {
+                    const button1 = new Discord.MessageActionRow()
+                        .addComponents(
+                            new Discord.MessageButton()
+                                .setLabel('WebSite')
+                                .setStyle("LINK")
+                                .setURL('http://vps01.tsict.com.au')
+                        ).addComponents(
+                            new Discord.MessageButton()
+                                .setLabel('Commands')
+                                .setStyle("LINK")
+                                .setURL('http://vps01.tsict.com.au')
+                        ).addComponents(
+                            new Discord.MessageButton()
+                                .setLabel('Discord Server')
+                                .setStyle("LINK")
+                                .setURL('https://discord.gg/xxRMvmtJpX')
+                        )
+                    const helpembed = new Discord.MessageEmbed()
+                        .setTitle('Welcome to Ozaibot')
+                        .setDescription(`Checkout our website for more information.\nAlternatively use \`help modules\` for a list of modules.\n\nHelp command usage:\n\`help [command_name|module_name]\``)
+                        .setColor('BLUE')
+                    return message.channel.send({ embeds: [helpembed], components: [button1] })
+                } else {
+                    if (Help_Responses.has(args[0].toLowerCase())) {
+                        const returnmessage = Help_Responses.get(args[0].toLowerCase())
+                        returnmessage(message, Discord, userstatus)
+                    } else {
+                        message.channel.send({ content: `Command / module not found. Please check your spelling.` })
+                    }
+                }
             } else {
                 if (Help_Responses.has(args[0].toLowerCase())) {
                     const returnmessage = Help_Responses.get(args[0].toLowerCase())
@@ -51,8 +80,11 @@ const helpcommands = [
     'Mute',
     'Un-Mute',
     'Purge',
-    'durations',
-    'targeting'
+    'Durations',
+    'Targeting',
+    'Modules',
+    'Moderation',
+    'Administration'
 ]
 module.exports.Help_INIT2 = () => {
     //ban
@@ -91,7 +123,42 @@ module.exports.Help_INIT2 = () => {
     Help_Responses.set('times', HELP_EMBED_TIMES)
     Help_Responses.set('targeting', HELP_EMBED_TARGETING)
     Help_Responses.set('targets', HELP_EMBED_TARGETING)
+    Help_Responses.set('modules', HELP_EMBED_MODULES)
+    Help_Responses.set('module', HELP_EMBED_MODULES)
+    //modules
+    Help_Responses.set('moderation', HELP_EMBED_MODERATION)
+    Help_Responses.set('mod', HELP_EMBED_MODERATION)
+    Help_Responses.set('administration', HELP_EMBED_ADMINISTRATION)
+    Help_Responses.set('admin', HELP_EMBED_ADMINISTRATION)
+    Help_Responses.set('fun', HELP_EMBED_MODULES)
+    Help_Responses.set('utility', HELP_EMBED_MODULES)
+}
 
+async function HELP_EMBED_ADMINISTRATION(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+        .setTitle('Module - Administration')
+        .setDescription(`The administration module contains all of the server configuration, auto-moderation configuration and permission configuration.\n\n**Commands:**\n\`setwelcomechannel\`\n\`setwelcomemessage\`\n\`setfarewellmessage\`\n\`modlogs\`\n\`perms\`\n\`prefix\`\n\`setlinkspamaction\`\n\`setmasslinkspamaction\`\n\`togglepunishmentnotifications\`\nAnd lots more.\n\nSome more powerful yet abusable functions and modules are locked behind me manually allowing users/guilds to use them. These include but are not limited to: Server-Whitelist, Anti-Raid & server-wide purge. If you are interested in these, please contact me through the Ozaibot Discord server [here](https://discord.gg/xxRMvmtJpX).`)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_MODERATION(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+        .setTitle('Module - Moderation')
+        .setDescription(`The moderation module contains a suite of commands used for keeping a server safe, under control and orderly.\nThese commands are mostly aimed at moderators and as such some moderation commands (More specifically the Auto-moderation functions) are under the \`administration\` module.\n\n**Commands:**\n\`Ban\`\n\`Un-ban\`\n\`Mute\`\n\`Un-mute\`\n\`Kick\`\n\`Soft-ban\`\n\`Warn\`\n\`search\`\n\`view-case\`\n\n\n**Moderation Configuration Commands:**`)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
+}
+
+async function HELP_EMBED_MODULES(message, Discord, userstatus) {
+    const helpembed = new Discord.MessageEmbed()
+        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+        .setTitle('Modules')
+        .setDescription(`A module is a set of commands &/or functions.\nEach module is capable of being turned on and off through the \`perms\` command.\n\n**Modules:**\n\`Moderation\` \`Administration\` \`Fun\` \`Utility\` \`General\``)
+        .setColor('BLUE')
+    message.channel.send({ embeds: [helpembed] })
 }
 
 async function HELP_EMBED_SOFTBAN(message, Discord, userstatus) {
@@ -116,7 +183,7 @@ async function HELP_EMBED_TARGETING(message, Discord, userstatus) {
     const helpembed = new Discord.MessageEmbed()
         .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
         .setTitle('Targeting Users')
-        .setDescription(`Targets!\nIn commands, there is often an arguement called **member**, this is where you will use this knowledge.\n\n**There are 3 main ways of targeting a user:**\n\`#1\` Mentioning them. \`@user\`. simple.\n\`#2\` Using their ID. \`mute 862247858740789269 1d\` is a valid command.\n\`#3\` Using their names. \`mute ozaibot\` is a valid command.\n\n\n**Using names to target:**\nIf two people have overlapping names, you can add the # to their name like so: \`mute Ozaibot#3594\`.\nIt is recommended to just use IDs when name targeting becomes complicated.\nName targeting ignores capitalization completely.\nIf two people have overlapping names with the same tag but different capitalization it will select both of them.\nIf more than one user is found the bot can reply with an embed asking what member you meant.\nSimply follow the prompt and select the number next to the member to target them.\nIf more than 9 members are found, it will simply respond with invalid member.\n\nIf at any point mentioning members and using their names becomes impractical, it is recommended to use IDs.\nIDs are intangible, quick and easy to use.\n\nTo grab people's IDs you must enable developer mode through settings.\nYou can do that like this:\n\`Settings\` -> \`Advanced\` -> \`Developer Mode\`.\nOnce it is activated open someone's profile in a server, scroll to the bottom and there should be a \`Copy ID\` button.\n\nWith these three ways you will now be able to effectively target people.\nUsing IDs you can target people off server. \nSimply grab their ID and use it in the member argument and you can use some commands on them, such as ban.`)
+        .setDescription(`Targets!\nIn commands, there is often an arguement called **member**, member refers to this.\n\n**There are 3 main ways of targeting a user:**\n\`#1\` Mentioning them. \`@user\`. simple.\n\`#2\` Using their ID. \`mute 862247858740789269 1d\` is a valid command.\n\`#3\` Using their names. \`mute ozaibot\` is a valid command.\n\n\n**Using names to target:**\nIf two people have overlapping names, you can add the # to their name like so: \`mute Ozaibot#3594\`.\nIt is recommended to just use IDs when name targeting becomes complicated.\nName targeting ignores capitalization completely.\nIf two people have overlapping names with the same tag but different capitalization it will select both of them.\nIf more than one user is found the bot can reply with an embed asking what member you meant.\nSimply follow the prompt and select the number next to the member to target them.\nIf more than 9 members are found, it will simply respond with invalid member.\n\nIf at any point mentioning members and using their names becomes impractical, it is recommended to use IDs.\nIDs are intangible, quick and easy to use.\n\nTo grab people's IDs you must enable developer mode through settings.\nYou can do that like this:\n\`Settings\` -> \`Advanced\` -> \`Developer Mode\`.\nOnce it is activated open someone's profile in a server, scroll to the bottom and there should be a \`Copy ID\` button.\n\nWith these three ways you will now be able to effectively target people.\nUsing IDs you can target people off server. \nSimply grab their ID and use it in the member argument and you can use some commands on them, such as ban.`)
         .setColor('BLUE')
     message.channel.send({ embeds: [helpembed] })
 }

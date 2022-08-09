@@ -17,7 +17,7 @@ module.exports = {
     aliases: ['b', 'sban'],
     description: 'ban a user from a guild',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (cmd === 'sban') return sban(message, args, userstatus, Discord)
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
         if (!userstatus == 1) {
@@ -82,17 +82,12 @@ module.exports = {
             if (days > 7) return message.channel.send('The days of messages to be deleted cannot be more than 7.');
             if (days < 1) return message.channel.send('You cannot delete 0 days of messages.');
             let reason = args.slice(2).join(" ");
-            if (reason.length > 512) {
-                console.log('Reason must be less than 512 characters long.');
-            }
             let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-            client.currentcasenumber.set(message.guild.id, casenumber);
             const returnembed = new Discord.MessageEmbed()
                 .setTitle(`Case #${casenumber}`)
                 .setDescription(`<:check:988867881200652348> ${member} has been **banned**.`)
                 .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
-            console.log(`${member.user.tag} has been banned from ${message.guild}(${message.guild.id}) by ${message.author.tag}${message.author.id} and has had ${days} days of they're messages deleted.`)
             let banreason = reason
             if (banreason.length > 400) {
                 banreason = banreason.slice(0, -300)
@@ -109,10 +104,10 @@ module.exports = {
                 return
             })
             LogPunishment(message, client, member.id, 1, null, reason, Discord)
+            return
         }
         let reason = args.slice(1).join(" ");
         let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-        client.currentcasenumber.set(message.guild.id, casenumber);
         const returnembed = new Discord.MessageEmbed()
             .setTitle(`Case #${casenumber}`)
             .setDescription(`<:check:988867881200652348> ${member} has been **banned**.`)

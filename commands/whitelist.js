@@ -17,7 +17,7 @@ module.exports = {
     aliases: ['unwhitelist', 'enablewhitelist', 'disablewhitelist'],
     description: 'whitelist functionality',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DM\'s')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (cmd === 'whitelist') {
             if (userstatus == 1 || message.member.permissions.has('MANAGE_GUILD')) {
                 if (!args[0]) return message.channel.send('You must add a memeber to whitelist.')

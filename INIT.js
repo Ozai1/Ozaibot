@@ -19,7 +19,7 @@ const connection = mysql.createPool({
 module.exports.Main_INIT = (client, Discord) => {
     Help_INIT()
     Help_INIT2()
-
+return
     client.userstatus = new Map()
     client.prefixes = new Map()
     client.currentcasenumber = new Map()
@@ -266,9 +266,8 @@ async function ModLogs_INIT(client) {
 
 async function AntiScamSpam_INIT(client) {
     client.guilds.cache.forEach(guild => {
-        
         client.antiscamspam.set(guild.id, new Map())
-        let current = client.antiscamspam.get(guild.id)
+    })
         let query = "SELECT * FROM serverconfigs WHERE type = ?";
         let data = ['linkspam']
         connection.query(query, data, function (error, results, fields) {
@@ -281,6 +280,7 @@ async function AntiScamSpam_INIT(client) {
                 return thisisafunctionthatwillcrashthebot
             }
             for (row of results) {
+                let current = client.antiscamspam.get(row["serverid"])
                 if (row["details"]) {
                     current.set('punishtype', row["details"])
                 }
@@ -295,5 +295,4 @@ async function AntiScamSpam_INIT(client) {
                 }
             }
         })
-    })
 }

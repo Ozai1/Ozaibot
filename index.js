@@ -17,7 +17,7 @@ const connection = mysql.createPool({
 });
 
 const client = new Discord.Client({
-      intents: 98047/* doesnt include status intents*/, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
+      intents: 3276799/* All intents because I have come to use them all :)*/, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
 });
 client.musicConfig = require('./musicconfig');
 client.player = new Player(client, client.musicConfig.opt.discordPlayer);
@@ -32,6 +32,7 @@ client.events = new Discord.Collection();
 
 client.on('ready', async () => {
       console.log(`Signed into ${client.user.tag}`);
+      Main_INIT(client, Discord)
       let alllogs = client.channels.cache.get('986882651921190932');
       alllogs.send(`Bot started up <@!508847949413875712>`);
       let rating = Math.floor(Math.random() * 2) + 1;
@@ -48,23 +49,6 @@ client.on('ready', async () => {
       connection.query(query, data, function (error, results, fields) {
             if (error) return console.log(error);
       });
-      client.guilds.cache.forEach(async guild => {
-            guild.members.fetch();
-            if (guild.me.permissions.has('MANAGE_GUILD')) {
-                  const newinvites = await guild.invites.fetch();
-                  newinvites.forEach(async invite => {
-                        if (invite.inviter) {
-                              query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
-                              data = [guild.id, invite.inviter.id, invite.code, invite.uses];
-                              connection.query(query, data, function (error, results, fields) {
-                                    if (error) return console.log(error);
-                              })
-                        } else {
-                              console.log(invite)
-                        }
-                  })
-            }
-      })
       setInterval(() => { // 1 min interval, being used for blacklisted invites checking
             let query = `SELECT * FROM lockdownlinks WHERE timeremove < ?`;
             let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
@@ -89,7 +73,23 @@ client.on('ready', async () => {
                   }
             })
       }, 60000);
-      Main_INIT(client, Discord)
+      await client.guilds.cache.forEach(async guild => {
+            await guild.members.fetch();
+            if (guild.me.permissions.has('MANAGE_GUILD')) {
+                  const newinvites = await guild.invites.fetch();
+                  newinvites.forEach(async invite => {
+                        if (invite.inviter) {
+                              query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
+                              data = [guild.id, invite.inviter.id, invite.code, invite.uses];
+                              connection.query(query, data, function (error, results, fields) {
+                                    if (error) return console.log(error);
+                              })
+                        } else {
+                              console.log(invite)
+                        }
+                  })
+            }
+      })
 });
 
 client.login(process.env.DISCORD_TOKEN);

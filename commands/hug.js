@@ -16,7 +16,7 @@ module.exports = {
     name: 'hug',
     description: 'gibes a hug <3',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!args[0]) return message.channel.send('You must ping someone to hug.')
         let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]);
         if (!member) return message.channel.send('Invalid member silly')

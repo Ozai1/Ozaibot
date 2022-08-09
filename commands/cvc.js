@@ -17,7 +17,7 @@ module.exports = {
       description: 'creates a public vc',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (userstatus == 1) {
-                  if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+                  if (!message.guild) return message.channel.send('This command must be used in a server.')
                   if (!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
                   let channelName = args.slice(0).join(' ');
                   message.guild.channels.create(channelName, {

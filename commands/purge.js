@@ -19,7 +19,7 @@ module.exports = {
     aliases: ['clear', 'prune'],
     description: 'Deletes messages in bulk',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
         let hasperms = false
         if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 1; }

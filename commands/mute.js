@@ -19,17 +19,11 @@ module.exports = {
       aliases: ['m'],
       description: 'mutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (!userstatus == 1) {
                   if (!message.member.permissions.has("MANAGE_CHANNELS")) {
-                        console.log("You don't have the permissions.")
-                        return message.channel.send("You don't have the permissions.");
-                  }
-                  if (message.guild.ownerId !== message.author.id) {
-                        if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
-                              console.log('You cannot mute someone with higher or the same roles as your own.')
-                              return message.channel.send('You cannot mute someone with higher or the same roles as your own.');
-                        }
+                        console.log("You do not have access to this command.")
+                        return message.channel.send("You do not have access to this command.");
                   }
             } if (!message.guild.me.permissions.has('MANAGE_ROLES')) {
                   console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.')
@@ -141,8 +135,6 @@ module.exports = {
                   muteduration = 0
             }
             let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-            client.currentcasenumber.set(message.guild.id, casenumber);
-            client.currentcasenumber.set(message.guild.id, casenumber);
             const returnembed = new Discord.MessageEmbed()
                   .setTitle(`Case #${casenumber}`)
                   .setDescription(`<:check:988867881200652348> ${member} has been **muted**${display}.`)

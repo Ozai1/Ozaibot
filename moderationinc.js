@@ -216,7 +216,7 @@ const GetSecondDisplayUnit = (timelength) => {
  * @param {Object} Discord Used for embeds
  * @param {boolean} AllowMultipleResults If a name instead of an ID or a mention is supplied it is possible to have multiple members with overlapping names found. This boolean is whether to allow the embed which will allow the admin to select which user out of the users found they intended to target.
  * @param {boolean} AllowOffServer also searches for members outside of the guild, cannot use names
- * @returns {Object} member on success or undefined on fail
+ * @returns {Object} member on success or undefined/cancelled/timed_out on fail (undefined is user error AKA no one found, cancelled means that they cancelled the command and timed out means that they left the embed for more than thirty seconds.)
  */
 
 module.exports.GetMember = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
@@ -253,13 +253,14 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
             return member
         }
         let possibleusers = []
+        let pattern =new RegExp(string.toLowerCase(), 'g')
         await message.guild.members.cache.forEach(member => {
             if (member.nickname) {
-                if (member.user.tag.toLowerCase().includes(string.toLowerCase()) || member.nickname.toLowerCase().includes(string.toLowerCase())) {
+                if (member.user.tag.toLowerCase().match(pattern) || member.nickname.toLowerCase().match(pattern)) {
                     possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
                 }
             } else {
-                if (member.user.tag.toLowerCase().includes(string.toLowerCase())) {
+                if (member.user.tag.toLowerCase().match(pattern)) {
                     possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
                 }
             }
@@ -285,8 +286,6 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
         return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
             return await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                 message2 = message2.first();
-                message2.delete().catch(err => { });
-                confmessage.delete().catch(err => { });
                 if (message2.content.startsWith('cancel')) {
                     message.channel.send('Cancelled.')
                     return 'cancelled'
@@ -318,17 +317,30 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
     }
 }
 
+/**
+ * Retreves a member OR channel from the guild of command origin
+ * @param {Object} message Message object
+ * @param {Object} client Discord client object
+ * @param {string} string The string that is used to find the member or channel
+ * @param {Object} Discord Used for embeds
+ * @param {boolean} AllowMultipleResults If a name instead of an ID or a mention is supplied it is possible to have multiple members with overlapping names found. This boolean is whether to allow the embed which will allow the admin to select which user out of the users found they intended to target.
+ * @param {boolean} AllowOffServer also searches for members outside of the guild, cannot use names
+ * @returns {Object} member/channel on success or undefined/cancelled/timed_out on fail (undefined is user error AKA no one found, cancelled means that they cancelled the command and timed out means that they left the embed for more than thirty seconds.)
+ */
+
 module.exports.GetMemberOrChannel = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
     try {
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
             member = message.guild.members.cache.get(string);
+            if (member) return member
             if (includeOffserver) {
                 member = client.users.cache.get(string)
                 if (member) {
                     return member
                 }
                 member = await client.users.fetch(string).catch(err => { })
+                if (member) return member
             }
             member = message.guild.channels.cache.get(string)
             return member
@@ -370,15 +382,15 @@ module.exports.GetMemberOrChannel = async (message, client, string, Discord, All
         })
         await message.guild.channels.cache.forEach(channel => {
             if (channel.name.toLowerCase().includes(string.toLowerCase())) {
-                possibleusers.push(`\`#${possibleusers.length + 1}\` \`<#${channel.id}>\``)
+                if (channel.type === 'GUILD_VOICE' || channel.type === 'GUILD_TEXT') possibleusers.push(`\`#${possibleusers.length + 1}\` \`${channel.name}\``)
             }
         })
         if (!possibleusers[0]) {
             return undefined
         } else if (!possibleusers[1]) {
-            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1));
+            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1)) || message.guild.channels.cache.find(channel => channel.name === possibleusers[0].slice(6, -1))
             if (!member) {
-                member = message.guild.channels.cache.get('')
+                member = message.guild.channels.cache.get()
             }
             return member
         }
@@ -397,8 +409,6 @@ module.exports.GetMemberOrChannel = async (message, client, string, Discord, All
         return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
             return await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                 message2 = message2.first();
-                message2.delete().catch(err => { });
-                confmessage.delete().catch(err => { });
                 if (message2.content.startsWith('cancel')) {
                     message.channel.send('Cancelled.')
                     return 'cancelled'
@@ -411,9 +421,134 @@ module.exports.GetMemberOrChannel = async (message, client, string, Discord, All
                     message2.channel.send('Failed, that number isnt on the list.')
                     return
                 }
-                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(6, -1));
+                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(6, -1)) || message.guild.channels.cache.find(channel => channel.name === possibleusers[message2.content - 1].slice(6, -1))
                 if (!member) {
-                    message.channel.send('failed for whatever reason')
+                    member =
+                        message.channel.send('failed for whatever reason')
+                    console.error('Was unable to grab member in GetMember after multiple user embed and proper response')
+                    return
+                }
+                return member;
+            }).catch(collected => {
+                console.log(collected);
+                message.channel.send('Timed out.').catch(err => { console.log(err) });
+                return
+            });
+        });
+    } catch (err) {
+        console.error(err)
+        return;
+    }
+}
+
+/**
+ * Retreves a member OR role from the guild of command origin
+ * @param {Object} message Message object
+ * @param {Object} client Discord client object
+ * @param {string} string The string that is used to find the member or role
+ * @param {Object} Discord Used for embeds
+ * @param {boolean} AllowMultipleResults If a name instead of an ID or a mention is supplied it is possible to have multiple members with overlapping names found. This boolean is whether to allow the embed which will allow the admin to select which user out of the users found they intended to target.
+ * @param {boolean} AllowOffServer also searches for members outside of the guild, cannot use names
+ * @returns {Object} member/role on success or undefined/cancelled/timed_out on fail (undefined is user error AKA no one found, cancelled means that they cancelled the command and timed out means that they left the embed for more than thirty seconds.)
+ */
+
+module.exports.GetMemberOrRole = async (message, client, string, Discord, AllowMultipleResults = true, includeOffserver = false) => {
+    try {
+        let member = undefined;
+        if (!isNaN(string) && string.length > 17 && string.length < 21) {
+            member = message.guild.members.cache.get(string);
+            if (member) return member
+            if (includeOffserver) {
+                member = client.users.cache.get(string)
+                if (member) {
+                    return member
+                }
+                member = await client.users.fetch(string).catch(err => { })
+                if (member) return member
+            }
+            member = message.guild.roles.cache.get(string)
+            return member
+        }
+        if (string.startsWith('<@')) {
+            member = message.guild.members.cache.get(string.slice(3, -1)) || message.guild.members.cache.get(string.slice(2, -1))
+            if (!member) {
+                if (includeOffserver) {
+                    member = client.users.cache.get(string.slice(3, -1)) || client.users.cache.get(string.slice(2, -1))
+                    if (member) {
+                        return member
+                    }
+                    if (string.includes('!')) {
+                        member = await client.users.fetch(string.slice(3, -1)).catch(err => { })
+                        return member
+                    } else {
+                        member = await client.users.fetch(string.slice(2, -1)).catch(err => { })
+                        return member
+                    }
+                }
+            }
+            return member
+        }
+        if (string.startsWith('<@&')) {
+            member = message.guild.roles.cache.get(string.slice(3, 1))
+            return member
+        }
+        let possibleusers = []
+        await message.guild.members.cache.forEach(member => {
+            if (member.nickname) {
+                if (member.user.tag.toLowerCase().includes(string.toLowerCase()) || member.nickname.toLowerCase().includes(string.toLowerCase())) {
+                    possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
+                }
+            } else {
+                if (member.user.tag.toLowerCase().includes(string.toLowerCase())) {
+                    possibleusers.push(`\`#${possibleusers.length + 1}\` \`${member.user.tag}\``)
+                }
+            }
+        })
+        await message.guild.roles.cache.forEach(role => {
+            if (role.name.toLowerCase().includes(string.toLowerCase())) {
+                possibleusers.push(`\`#${possibleusers.length + 1}\` \`${role.name}\``)
+            }
+        })
+        if (!possibleusers[0]) {
+            return undefined
+        } else if (!possibleusers[1]) {
+            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1)) || message.guild.roles.cache.find(role => role.name === possibleusers[0].slice(6, -1))
+            if (!member) {
+                member = message.guild.roles.cache.get()
+            }
+            return member
+        }
+        if (AllowMultipleResults === false) return undefined
+        if (possibleusers.length > 9) {
+            return message.channel.send('To many users found. Please use a more definitive string.')
+        }
+        let printmessage = possibleusers.filter((a) => a).toString()
+        printmessage = printmessage.replace(/,/g, '\n')
+        const helpembed = new Discord.MessageEmbed()
+            .setTitle('Which of these members/roles did you mean? Please type out the corrosponding number.')
+            .setFooter({ text: 'Type cancel to cancel the search.' })
+            .setDescription(`${printmessage}`)
+            .setColor('BLUE')
+        let filter = m => m.author.id === message.author.id;
+        return await message.channel.send({ embeds: [helpembed] }).then(async confmessage => {
+            return await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+                message2 = message2.first();
+                if (message2.content.startsWith('cancel')) {
+                    message.channel.send('Cancelled.')
+                    return 'cancelled'
+                }
+                if (isNaN(message2.content)) {
+                    message2.channel.send('Failed, you are supposed to pick one of the #-numbers.')
+                    return
+                }
+                if (message2.content >= possibleusers.length + 1) {
+                    message2.channel.send('Failed, that number isnt on the list.')
+                    return
+                }
+                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(6, -1)) || message.guild.roles.cache.find(channel => channel.name === possibleusers[message2.content - 1].slice(6, -1))
+                if (!member) {
+                    member =
+                        message.channel.send('failed for whatever reason')
                     console.error('Was unable to grab member in GetMember after multiple user embed and proper response')
                     return
                 }
@@ -435,7 +570,7 @@ module.exports.GetMemberOrChannel = async (message, client, string, Discord, All
  * @param {Object} message Message object
  * @param {Object} client Client object
  * @param {Object} memberid The target of the command's ID
- * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn,
+ * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn, 8:tempban,
  * @param {integer} length duration of the punishment, if any
  * @param {String} reason reason for the command, inputed by the user
  * @param {Object} Discord discord object
@@ -448,39 +583,51 @@ module.exports.LogPunishment = async (message, client, memberid, type, length, r
         casenumber = client.currentcasenumber.get(message.guild.id) + 1
         client.currentcasenumber.set(message.guild.id, casenumber);
     }
-    if (pushtodb) {
-        let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type];
-        connection.query(query, data, function (error, results, fields) {
-            if (error) {
-                if (message.channel) message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.').catch(err => { })
-                return console.error(error);
-            }
-        });
-    }
     let modlogschannel = client.modlogs.get(message.guild.id)
-    if (!modlogschannel) return
     modlogschannel = message.guild.channels.cache.get(modlogschannel)
-    if (!modlogschannel) return
-    let theuser = client.users.cache.get(memberid)
-    const bannedembed = new Discord.MessageEmbed()
-        .setColor(GetPunishColour(type))
-        .setTitle(`Case #${casenumber} - ${GetPunishName(type)}`)
-        .setTimestamp()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-    if (length && reason) {
-        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}\n**Reason:** ${reason}`)
-    } if (length && !reason) {
-        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}`)
-    } if (reason && !length) {
-        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Reason:** ${reason}`)
-    } if (!reason && !length) {
-        bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n`)
+    if (modlogschannel) {
+        let theuser = client.users.cache.get(memberid)
+        const bannedembed = new Discord.MessageEmbed()
+            .setColor(GetPunishColour(type))
+            .setTitle(`Case #${casenumber} - ${GetPunishName(type)}`)
+            .setTimestamp()
+            .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+        if (length && reason) {
+            bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}\n**Reason:** ${reason}`)
+        } if (length && !reason) {
+            bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Duration:** ${GetDisplay(length, false)}`)
+        } if (reason && !length) {
+            bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n**Reason:** ${reason}`)
+        } if (!reason && !length) {
+            bannedembed.setDescription(`**Member:** ${theuser.tag} (${memberid})\n`)
+        }
+        let logmessage = await modlogschannel.send({ embeds: [bannedembed] }).catch(err => {
+            console.warn(err)
+            console.warn('Mod logs channel could not be sent to.')
+        })
+        if (pushtodb) {
+            let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type, logmessageid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type, logmessage.id];
+            connection.query(query, data, function (error, results, fields) {
+                if (error) {
+                    if (message.channel) message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.').catch(err => { })
+                    return console.error(error);
+                }
+            });
+        }
+    } else {
+        if (pushtodb) {
+            let query = `INSERT INTO serverpunishments (serverid, casenumber, userid, adminid, timeexecuted, length, reason, type, logmessageid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type, null];
+            connection.query(query, data, function (error, results, fields) {
+                if (error) {
+                    if (message.channel) message.channel.send('Error logging. The punishment will still be instated but will not show up in punishment searches.').catch(err => { })
+                    return console.error(error);
+                }
+            });
+        }
     }
-    modlogschannel.send({ embeds: [bannedembed] }).catch(err => {
-        console.warn(err)
-        console.warn('Mod logs channel could not be sent to.')
-    })
+
 }
 const punishmentnames = new Map()
     .set(1, 'Ban')
@@ -490,6 +637,7 @@ const punishmentnames = new Map()
     .set(5, 'Kick')
     .set(6, 'Soft-Ban')
     .set(7, 'Warn')
+    .set(8, 'Temp-Ban')
 
 /**
  * Returns the proper name of the punishment
@@ -503,6 +651,37 @@ const GetPunishName = (type) => {
 
 module.exports.GetPunishName = GetPunishName
 
+const punishmentnumbers = new Map()
+    .set('ban', 1)
+    .set('b', 1)
+    .set('un-ban', 2)
+    .set('unban', 2)
+    .set('mute', 3)
+    .set('m', 3)
+    .set('un-mute', 4)
+    .set('unmute', 4)
+    .set('kick', 5)
+    .set('k', 5)
+    .set('soft-ban', 6)
+    .set('softban', 6)
+    .set('sb', 6)
+    .set('warn', 7)
+    .set('w', 7)
+    .set('tempban', 8)
+    .set('temp-ban', 7)
+    .set('tb', 7)
+/**
+ * Returns number assigned to the punishment name given
+ * @param {String} string name of the punishment
+ * @returns {integer} type The type of punishment in number form
+ */
+
+const GetPunishNumber = (type) => {
+    return punishmentnumbers.get(type.toLowerCase())
+}
+
+module.exports.GetPunishNumber = GetPunishNumber
+
 const punishmentcolours = new Map()
     .set(1, 15684432) // ban
     .set(2, 6732650)  // unban
@@ -511,6 +690,7 @@ const punishmentcolours = new Map()
     .set(5, 16747777) // kick
     .set(6, 16747777) // softban
     .set(7, 16771899) // warn
+    .set(8, 15684432) // tempban
 
 /**
  * Returns the colour of the punishment
@@ -526,7 +706,7 @@ module.exports.GetPunishColour = GetPunishColour
 
 /**
  * Sends a message to the member informing them of whatever is happening
- * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn,
+ * @param {integer} type 1:ban, 2:unban, 3:mute, 4:unmute, 5:kick, 6:softban, 7:warn, 8:tempban,
  * @param {Object} message Message object
  * @param {String} title The title of the embed: AKA "X has been banned from Y"
  * @param {Object} member The target of the command's ID
@@ -538,6 +718,7 @@ module.exports.GetPunishColour = GetPunishColour
 
 module.exports.NotifyUser = async (type, message, title, member, reason, length, client, Discord) => {
     if (client.punishnotification.includes(message.guild.id)) return
+    if (!message.guild.members.cache.get(member.id)) return
     const bannedembed = new Discord.MessageEmbed()
         .setColor(GetPunishColour(type))
         .setTitle(`${title}`)
@@ -613,7 +794,7 @@ const FlagNames = new Map()
     .set('any', 'q')
     .set('all', 'z')
     .set('all-permissions', 'z')
-    
+
 
 module.exports.NameToFlag = (name) => {
     return FlagNames.get(name.toLowerCase())

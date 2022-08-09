@@ -16,12 +16,16 @@ module.exports = {
     aliases: ['w'],
     description: 'adds a warn to a users account',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (!message.member.permissions.has("MANAGE_MESSAGES")) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
+        //this way of botadmin checking actually fucking works zzzz
+        if (userstatus !== 1){
+             if (!message.member.permissions.has("MANAGE_MESSAGES")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)
                 .setDescription(`You do not have access to this command.`)
             return message.channel.send({ embeds: [errorembed] })
+        }
         }
         if (!args[0]) {
             const errorembed = new Discord.MessageEmbed()
@@ -31,7 +35,6 @@ module.exports = {
             return message.channel.send({ embeds: [errorembed] })
         }
         let member = await GetMember(message, client, args[0], Discord, true, false)
-        let offserver = false
         if (!member) {
             member = await GetMember(message, client, args[0], Discord, false, true)
             if (!member) {
@@ -42,10 +45,9 @@ module.exports = {
                     .setDescription(`Invalid member.\nProper usage: \`warn <@member|member_id> <reason>\``)
                 return message.channel.send({ embeds: [errorembed] });
             }
-            offserver = true
         }
         if (member === 'cancelled') return
-        if (message.guild.ownerId !== message.author.id) {
+        if (message.guild.ownerId !== message.author.id && userstatus !== 1) {
             if (message.author.id !== '508847949413875712') {
                 if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) {
                     console.log('attempted warn against someone of higher rank, canceling')

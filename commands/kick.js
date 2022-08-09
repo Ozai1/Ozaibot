@@ -17,7 +17,7 @@ module.exports = {
       aliases: ['k', 'skick'],
       description: 'Kicks a user from a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (cmd === 'skick') return skick(message, args, userstatus, Discord, client)
             if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!args[0]) return message.channel.send('You must add a member to kick.')
@@ -34,7 +34,6 @@ module.exports = {
             if (!member.kickable) return message.reply("I do not have high enough permissions to kick this member.");
             let reason = args.slice(1).join(" ");
             let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-            client.currentcasenumber.set(message.guild.id, casenumber);
             const returnembed = new Discord.MessageEmbed()
                   .setTitle(`Case #${casenumber}`)
                   .setDescription(`<:check:988867881200652348> ${member} has been **kicked**.`)

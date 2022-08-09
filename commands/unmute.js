@@ -17,7 +17,7 @@ module.exports = {
       aliases: ['muterole', 'unm', 'un-mute'],
       description: 'unmutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (cmd === 'muterole') return mute_role(message, client, args, userstatus, Discord)
             if (!args[0]) {
                   return message.channel.send('Please give a member.')
@@ -33,7 +33,7 @@ module.exports = {
                         let muteroleid = row["details"];
                         const muterole = message.guild.roles.cache.get(muteroleid)
                         if (!userstatus == 1) {
-                              if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You don't have the permissions.");
+                              if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You do not have access to this command.");
                               if (message.guild.ownerId !== message.author.id) {
                                     if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }

@@ -19,6 +19,7 @@ module.exports = {
       aliases: ['totalbans'],
       description: 'checks if a user is banned from a guild and what theyre ban reason is',
       async execute(message, client, cmd, args, Discord, userstatus) {
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (cmd === 'totalbans') return total_bans(message, client, userstatus)
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server. (This also means I cannot check bans.)')

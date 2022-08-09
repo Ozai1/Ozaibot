@@ -16,7 +16,7 @@ module.exports = {
     description: 'adds a role to a user',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (userstatus == 1) {
-            if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (!member) return message.reply('Usage is "sm_addrole <@user> <role name>')
             let rolename = args.slice(1).join(" ").toLowerCase();

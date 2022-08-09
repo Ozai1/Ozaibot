@@ -17,6 +17,7 @@ module.exports = {
     aliases: ['editreason', 'edit-reason'],
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!message.member.permissions.has("MANAGE_GUILD")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
@@ -72,6 +73,7 @@ module.exports = {
                     const adminid = row["adminid"]
                     const reason = args.slice(1).join(" ");
                     let timeexecuted = row["timeexecuted"]
+                    let logsmessage = row["logmessageid"]
                     timeexecuted = timeexecuted + '000'
                     timeexecuted = Date.now() - timeexecuted
                     const member = await client.users.fetch(userid)
@@ -95,17 +97,21 @@ module.exports = {
                         .setFooter({ text: `Case #${casenumber}` })
                     message.channel.send({ embeds: [caseembed], content: "Case edited, now looks like:" });
                     let query = `UPDATE serverpunishments SET reason = ? WHERE serverid = ? && casenumber = ?`;
-                    let data = [args.slice(1).join(" "),message.guild.id, casenumber];
+                    let data = [args.slice(1).join(" "), message.guild.id, casenumber];
                     connection.query(query, data, async function (error, results, fields) {
                         if (error) {
                             message.channel.send('Error fetching case. Please try again later.');
                             return console.log(error);
                         }
                     })
-
+                    let modlogs = client.modlogs.get(message.guild.id)
+                    modlogs = message.guild.channels.cache.get(modlogs)
+                    if (!modlogs) return
+                    logsmessage = await modlogs.messages.fetch(logsmessage);
+                    if (!logsmessage) return
+                    logsmessage.edit({ embeds: [caseembed] }).catch(err => { console.error(err) })
                 }
             }
-            })
-        
+        })
     }
 }

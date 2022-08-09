@@ -17,6 +17,7 @@ module.exports = {
     aliases: ['setwelcomemessage', 'setfarewellmessage'],
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (cmd === 'setwelcomemessage') return setwelcomemessage(message, client, Discord, args)
         if (cmd === 'setfarewellmessage') return setfarewellmessage(message, client, Discord, args)
         if (!message.member.permissions.has("MANAGE_GUILD")) {

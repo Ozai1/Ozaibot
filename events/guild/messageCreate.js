@@ -13,7 +13,7 @@ const connection = mysql.createPool({
 });
 
 module.exports = async (Discord, client, message) => {
-    if (!message.author.id == '940296225947799603') {
+    if (message.author.id !== '940296225947799603') {
         if (message.author.bot) return
     }
     if (message.channel.name === undefined) {
@@ -26,11 +26,24 @@ module.exports = async (Discord, client, message) => {
     }
     let prefix = 'sm_';
     if (message.guild) {
+        if (!message.guild.me.permissionsIn(message.channel).has("SEND_MESSAGES")) {
+            if (message.member.permissions.has('MANAGE_CHANNELS')) {
+                return message.author.send('I do not have permission to **send messages** in the channel you just sent a command in.\nThis means **i cannot respond to you**.\n\nPlease give me Send Messages permissions so I can work properly. You can do this by editing my role\'s permissions.').catch(err => { })
+            } else {
+                return message.author.send('I do not have permission to **send messages** in the channel you just sent a command in.\nThis means **i cannot respond to you**.\n\nPlease contact an administrator to give me permissions to send messages.').catch(err => { })
+            }
+        } if (!message.guild.me.permissionsIn(message.channel).has("EMBED_LINKS")) {
+            if (message.member.permissions.has('MANAGE_CHANNELS')) {
+                return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease give me Embed link permissions so I can work properly. You can do this by editing my role\'s permissions.').catch(err => { })
+            } else {
+                return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease contact an administrator to give me permissions to embed links.').catch(err => { })
+            }
+        }
         prefix = client.prefixes.get(message.guild.id)
         if (prefix === undefined) {
             prefix = 'sm_'
         }
-        if (message.content.toLowerCase().includes('https://') || message.content.toLowerCase().includes('http://')) {
+        if (message.content.toLowerCase().includes('https://') || message.content.toLowerCase().includes('http://') || message.content.toLowerCase().includes('www.') || message.content.toLowerCase().includes('discord.gg/')) {
             LinkDetected(message, client, Discord)
         }
     }

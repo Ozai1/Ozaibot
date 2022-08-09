@@ -268,12 +268,24 @@ async function invfound(member, invite, client, Discord) {
         return;
     })
     if (guild.id == '806532573042966528') {
+        const button1 = new Discord.MessageActionRow()
+        .addComponents(
+            new Discord.MessageButton()
+                .setLabel(`Verify ${member.user.username}`)
+                .setStyle("PRIMARY")
+                .setCustomId(`katver${member.id}`)
+        ).addComponents(
+            new Discord.MessageButton()
+                .setLabel(`Ban ${member.user.username}`)
+                .setStyle("DANGER")
+                .setCustomId(`katban${member.id}`)
+        )
         let verchannel = client.channels.cache.get('922511452185694258');
         const verembed = new Discord.MessageEmbed()
             .setAuthor(`${member.user.tag} (${member.id}) has joined`, member.user.avatarURL())
             .setColor('BLUE')
             .setDescription(`Account age: <t:${Number(moment(member.user.createdAt).unix())}:R>\nInvite link used: \`${invite.code}\`,\nThis invite has been used ${invite.uses} times.\nThis invite was created by ${invite.inviter.tag} (${invite.inviter.id})`)
-        verchannel.send({ embeds: [verembed] });
+        verchannel.send({ embeds: [verembed], components: [button1] });
     }
     query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
     data = [invite.code, guild.id];

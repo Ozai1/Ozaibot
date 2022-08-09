@@ -17,7 +17,7 @@ module.exports = {
       aliases: ['un-ban'],
       description: 'unbans a user from a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (!message.guild.me.permissions.has('BAN_MEMBERS')) {
                   console.log('attempted to unban while ozaibot does not have unban perms')
                   const errorembed = new Discord.MessageEmbed()
@@ -56,7 +56,6 @@ module.exports = {
                   }
                   message.guild.members.unban(args[0], 'Unbanned by ' + message.author.tag).then(() => {
                         let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-                        client.currentcasenumber.set(message.guild.id, casenumber);
                         const returnembed = new Discord.MessageEmbed()
                               .setTitle(`Case #${casenumber}`)
                               .setDescription(`<:check:988867881200652348> <@${args[0]}> has been **un-banned**.`)

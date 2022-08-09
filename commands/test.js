@@ -1,6 +1,7 @@
 const { GetMember, GetDisplay, GetPunishmentDuration } = require("../moderationinc")
 const { unix } = require("moment");
 const fs = require('fs')
+const { QueryType } = require('discord-player');
 const ytdl = require('ytdl-core');
 const { joinVoiceChannel } = require('@discordjs/voice');
 const DISCORD_EPOCH = 1420070400000
@@ -29,7 +30,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['addreact','editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['rickroll', 'addreact', 'editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -57,10 +58,34 @@ module.exports = {
             if (cmd === 'randompassword') return random_password(message, args)
             if (cmd === 'cexec') return command_cexec(message, args, userstatus, client, Discord)
             if (cmd === 'editembed') return edit_embed(message, args, userstatus, client, Discord)
-            if (cmd === 'addreact')return add_reaction(message, args, userstatus, client, Discord)
+            if (cmd === 'addreact') return add_reaction(message, args, userstatus, client, Discord)
+            if (cmd === 'rickroll') return rick_roll_channel(message, args, userstatus, client, Discord)
             if (userstatus == 1) {
             }
       }
+}
+
+async function rick_roll_channel(message, args, userstatus, client, Discord) {
+      if (userstatus == 1) {
+            if (!args[0]) return message.channel.send('Idiot')
+            let channel = message.guild.channels.cache.get(args[0]) || message.guild.channels.cache.get(args[0].slice(2, -1))
+            if (!channel) return message.channel.send('Invalid channel.')
+            const res = await client.player.search('https://www.youtube.com/watch?v=dQw4w9WgXcQ', {
+                  requestedBy: message.member,
+                  searchEngine: QueryType.AUTO
+            });
+
+            const queue = await client.player.createQueue(message.guild, {
+                  leaveOnEnd: client.musicConfig.opt.voiceConfig.leaveOnEnd,
+                  autoSelfDeaf: false,
+                  metadata: channel
+            });
+
+            await queue.connect(channel)
+            queue.addTrack(res.tracks[0]);
+            queue.setVolume(50);
+            await queue.play();
+      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
 }
 
 async function add_reaction(message, args, userstatus, client, Discord) {
@@ -71,8 +96,8 @@ async function add_reaction(message, args, userstatus, client, Discord) {
             let message2 = await channel.messages.fetch(args[0].slice(67));
             if (!message2) return message.channel.send('could not find that message, channel was found though')
             args.forEach(arg => {
-                  if (args[0] === arg) {}else{
-                    message2.react(`${arg}`).catch(err => console.log(err))    
+                  if (args[0] === arg) { } else {
+                        message2.react(`${arg}`).catch(err => console.log(err))
                   }
             })
       } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
@@ -95,14 +120,14 @@ async function edit_embed(message, args, userstatus, client, Discord) {
             if (!contentorwhatever) return message.channel.send('add smth')
             let newmembed = new Discord.MessageEmbed()
             if (args[0] === 'description') {
-                  
+
                   newmembed.setDescription(contentorwhatever)
                   if (title) {
                         newmembed.setTitle(title)
                   } if (colour) {
                         newmembed.setColor(colour)
-                  } 
-                  return message2.edit({embeds: [newmembed]})
+                  }
+                  return message2.edit({ embeds: [newmembed] })
             } if (args[0] === 'title') {
                   newmembed.setTitle(contentorwhatever)
                   if (description) {
@@ -110,15 +135,15 @@ async function edit_embed(message, args, userstatus, client, Discord) {
                   } if (colour) {
                         newmembed.setColor(colour)
                   }
-                  return message2.edit({embeds: [newmembed]})
-            }  if (args[0] === 'colour') {
+                  return message2.edit({ embeds: [newmembed] })
+            } if (args[0] === 'colour') {
                   newmembed.setColor(contentorwhatever)
                   if (description) {
                         newmembed.setDescription(title)
                   } if (title) {
                         newmembed.setTitle(title)
                   }
-                  return message2.edit({embeds: [newmembed]})
+                  return message2.edit({ embeds: [newmembed] })
             }
       } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
 }

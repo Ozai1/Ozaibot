@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-
+const {GetMember}= require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -16,10 +16,10 @@ module.exports = {
     name: 'channelban',
     description: 'removes a user from the channel',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (message.member.permissions.has('ADMINISTRATOR') || userstatus == 1) {
             if (!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
-            let pinguser = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+            let pinguser = await GetMember(message,client,args[0],Discord,true,true)
 
             if (!pinguser) return message.reply('Invalid user.')
             if (message.channel.permissionsFor(pinguser).has('VIEW_CHANNEL')) {

@@ -1,5 +1,6 @@
 const mysql = require('mysql2')
 require('dotenv').config();
+const {GetMember}= require('../moderationinc')
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -18,7 +19,7 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.author.id == '508847949413875712') {
             if (!args[0]) return message.channel.send('Please give a member to give botadmin to.')
-            let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
+            let member =await GetMember(message,client,args[0],Discord,true,true)
             if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
             if (!member) return message.channel.send('Invalid member') // still no member
             let query = "SELECT * FROM userstatus WHERE userid = ?";
@@ -28,14 +29,14 @@ module.exports = {
                 if (results == ``) {
                     client.userstatus.set(member.id, 1)
                     query = "INSERT INTO userstatus (username, userid, status) VALUES (?, ?, ?)";
-                    data = [member.username, member.id, 1]
+                    data = [member.user.username, member.id, 1]
                     connection.query(query, data, function (error, results, fields) {//check what theyre current status is
                         if (error) return console.log(error)
                         message.channel.send(`${member} has been given botadmin status.`)
                         console.log(`${member.tag}(${member.id}) has been given botadmin by ${message.author.tag}.`)
                         let alllogs = client.channels.cache.get('986882651921190932')
                         if (message.author.id !== '508847949413875712'){
-                        alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin as per the above message, they were given botadmin by ${message.author.tag}`)}
+                        alllogs.send(`<@!508847949413875712>\n${member}(${member.user.tag}) has been given botadmin as per the above message, they were given botadmin by ${message.author.tag}`)}
                     })
                 } else {
                     for (row of results) {
@@ -53,7 +54,7 @@ module.exports = {
                                 console.log(`${member.tag}(${member.id}) has been guven botadmin by ${message.author.tag}, they also had their blacklist removed removed.`)
                                 let alllogs = client.channels.cache.get('986882651921190932')
                                 if (message.author.id !== '508847949413875712'){
-                                alllogs.send(`<@!508847949413875712>\n${member}(${member.tag}) has been given botadmin & had their blacklist removed as per the above message, they were given botadmin by by ${message.author.tag}`)}
+                                alllogs.send(`<@!508847949413875712>\n${member.user.tag}(${member.id}) has been given botadmin & had their blacklist removed as per the above message, they were given botadmin by by ${message.author.tag}`)}
                             })
                         }
                     }

@@ -18,6 +18,7 @@ module.exports = {
     aliases: ['editduration', 'edit-duration'],
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!userstatus == 1) return message.channel.send('This command is currently disabled because it is able to break some systems under certain use cases, currently being tested')
         if (!message.member.permissions.has("MANAGE_GUILD")) {
             const errorembed = new Discord.MessageEmbed()

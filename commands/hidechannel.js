@@ -16,7 +16,7 @@ module.exports = {
       name: 'hidechannel',
       description: 'changes the @ everyone permission for VIEW_CHANNEL to the opposet of its current state',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (message.member.permissions.has('MANAGE_CHANNELS') || userstatus == 1) {
                   if (!message.guild.me.permissions.has('MANAGE_CHANNELS')) return message.author.send('Ozaibot does not have permissions to edit channels in this server.');
                   message.delete().catch(err => { console.log(err) });

@@ -18,6 +18,7 @@ module.exports = {
     aliases: ['sb', 'soft-ban'],
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send('You do not have access to this command.')
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('I do not have ban permissions in this server.')
         if (!args[0]) {
@@ -116,7 +117,6 @@ module.exports = {
 }
 async function ExecuteBanAndUnBan(message, client, member, daystodelete, Discord) {
     let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-    client.currentcasenumber.set(message.guild.id, casenumber);
     const returnembed = new Discord.MessageEmbed()
         .setTitle(`Case #${casenumber}`)
         .setDescription(`<:check:988867881200652348> ${member} has been **soft-banned**.`)

@@ -18,13 +18,16 @@ module.exports = {
       aliases: ['unlockallvcs'],
       description: 'uibgk',
       async execute(message, client, cmd, args, Discord, channelstatus) {
-            if (!message.member.permissions.has('ADMINISTRATOR')) return message.channel.send('You do not have access to this command.')
+            if (!message.guild) return message.channel.send('This command must be used in a server.')
+            if (!message.member.permissions.has('ADMINISTRATOR') && userstatus !== 1) return message.channel.send('You do not have access to this command.')
             if (cmd === 'unlockallvcs') {
-                  for (let i = 0; i < client.lockedvoicechannels.length; i++) {
-                        delete client.lockedvoicechannels[i]
+                  if (userstatus == 1) {
+                        for (let i = 0; i < client.lockedvoicechannels.length; i++) {
+                              delete client.lockedvoicechannels[i]
+                        }
+                        message.channel.send('yes')
+                        return
                   }
-                  message.channel.send('yes')
-                  return
             }
             if (!args[0]) {
                   if (!message.member.voice.channel) return message.channel.send('You are not in a voice channel.\nUsage: \`lockvc [channel]\`')
@@ -46,6 +49,27 @@ module.exports = {
                         message.channel.send({ embeds: [returnembed] })
                   }
             } else {
+                  let channel = message.guild.channels.cache.get(args[0]) || message.guild.channels.cache.get(args[0].slice(2, -1))
+                  if (channel) {
+                        if (client.lockedvoicechannels.includes(channel.id)) {
+                              for (let i = 0; i < client.lockedvoicechannels.length; i++) {
+                                    if (client.lockedvoicechannels[i] === channel.id) {
+                                          delete client.lockedvoicechannels[i]
+                                    }
+                              }
+                              const returnembed = new Discord.MessageEmbed()
+                                    .setDescription(`<:check:988867881200652348> ${channel.name} has been un-locked.`)
+                                    .setColor("GREEN")
+                              message.channel.send({ embeds: [returnembed] })
+                        } else {
+                              client.lockedvoicechannels.push(channel.id)
+                              const returnembed = new Discord.MessageEmbed()
+                                    .setDescription(`<:check:988867881200652348> ${channel.name} has been locked.\nTo unlock, use the command again.\nUsage: \`lockvc [channel]\``)
+                                    .setColor("GREEN")
+                              message.channel.send({ embeds: [returnembed] })
+                        }
+                        return
+                  }
                   let possiblechannels = []
                   await message.guild.channels.cache.forEach(channel => {
                         if (channel.name.toLowerCase().includes(args[0].toLowerCase())) {

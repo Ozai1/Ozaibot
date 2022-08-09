@@ -1,7 +1,6 @@
-const { getPackedSettings } = require('http2');
 const mysql = require('mysql2');
 
-const { GetDisplay, GetPunishmentDuration } = require('../moderationinc')
+const { GetDisplay, GetPunishmentDuration, GetMemberOrChannel, GetMemberOrRole } = require('../moderationinc')
 const util = require('minecraft-server-util')
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -20,6 +19,15 @@ module.exports = {
     description: 'whatever i make at the time',
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
-        
+        // let str = message.content
+        // let pattern = new RegExp("[ozai]");
+        // let newParams = "";
+        // for (let i = 0; i < str.length; i++) {
+        //   newParams += str.substr(i, 1).replace(pattern, '');
+        // }
+        // message.channel.send(newParams)
+        const regex = /[A-Z]/g;
+        const found = message.content.match(regex);
+        message.channel.send(`FOUND: ${found}`)
     }
 }

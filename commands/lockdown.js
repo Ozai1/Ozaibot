@@ -17,14 +17,14 @@ module.exports = {
     aliases: ['ld'],
     description: 'changes the @ everyone permission of SEND_MESSAGES to the opposet of what it was before',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (message.member.permissions.has('MANAGE_CHANNELS') || userstatus == 1) {
             if (!message.channel.permissionsFor(message.guild.roles.everyone).has('SEND_MESSAGES')) {
                 await message.channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: true }).catch(err => { console.log(err) })
                 const msgEmbed = new Discord.MessageEmbed()
                     .setDescription(`lockdown has ended.`)
                     .setColor('GREEN');
-                message.channel.send(msgEmbed);
+                    message.channel.send({ embeds: [msgEmbed] })
             } else {
                 await message.channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
 

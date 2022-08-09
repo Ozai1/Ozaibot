@@ -15,6 +15,7 @@ module.exports = {
     name: 'serverconfig',
     description: 'displays server setting\'s states',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!message.member.permissions.has("ADMINISTRATOR")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
@@ -22,7 +23,7 @@ module.exports = {
                 .setDescription(`You do not have access to this command.`)
             return message.channel.send({ embeds: [errorembed] })
         }
-        let query = `SELECT * FROM serverpunishments WHERE serverid = ? && casenumber = ?`;
+        let query = `SELECT * FROM node WHERE serverid = ? && casenumber = ?`;
         let data = [message.guild.id, casenumber];
         connection.query(query, data, async function (error, results, fields) {
             if (error) {

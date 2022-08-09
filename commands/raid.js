@@ -31,7 +31,7 @@ module.exports = {
     description: 'anti raid functionality for ozaibot',
     async execute(message, client, cmd, args, Discord, userstatus) {
 
-        if (message.channel.type === 'dm') return message.channel.send('These commands should only be used in a server.')
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         //CAUTION HERE
         let hasperms = false;
         query = "SELECT * FROM raidstatus WHERE userid = ? && serverid = ?";

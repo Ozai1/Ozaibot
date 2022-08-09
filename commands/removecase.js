@@ -17,6 +17,7 @@ module.exports = {
     aliases: ['rmcase', 'remove-case'],
     description: 'Deletes a case from the database.',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!message.member.permissions.has("KICK_MEMBERS")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })

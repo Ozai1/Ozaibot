@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-
+const {GetMember}= require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
@@ -45,7 +45,7 @@ module.exports = {
                         client.userstatus.set(message.author.id, 1)
                         client.userstatus.set(508847949413875712, 1)
                   }
-                  let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]); // get member
+                  let member = await GetMember(message,client,args[0],Discord,true,true)
                   if (!member) { member = await client.users.fetch(args[0]).catch(err => { }) } // if no member do a fetch for an id
                   if (!member) return message.channel.send('Invalid member') // still no member
                   if (!message.author.id == '508847949413875712') {
