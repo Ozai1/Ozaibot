@@ -1,7 +1,7 @@
 node_modules
 .env
 audio
-package
+package.json
 package-lock.json
 intsall_tools.bat
 node_etw_provider.man
@@ -13,3 +13,4 @@ npx.cmd
 npx
 corepack.cmd
 corepack
+info.txt
