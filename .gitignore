@@ -2,10 +2,10 @@ node_modules
 .env
 audio
 package
-package-lock
+package-lock.json
 intsall_tools
 node_etw_provider
-node
+node.exe
 nodevars
 npm.cmd
 npm

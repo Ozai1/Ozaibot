@@ -1,33 +1,33 @@
 {
-  "name": "ozaibot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": ""
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@discordjs/opus": "^0.5.3",
-    "@discordjs/rest": "^0.4.1",
-    "@discordjs/voice": "^0.6.0",
-    "discord-player": "^5.2.2",
-    "discord-sync-commands-v14": "^2.0.0",
-    "discord.js": "^13.9.2",
-    "dotenv": "^10.0.0",
-    "ffmpeg-static": "^4.4.0",
-    "fs": "^0.0.1-security",
-    "mathjs": "^10.6.4",
-    "minecraft-server-util": "^5.2.9",
-    "moment": "^2.29.1",
-    "mysql2": "^2.3.2",
-    "node": "^14.18.2",
-    "npm": "^8.3.0",
-    "opusscript": "^0.0.8",
-    "ozaibot": "file:",
-    "rcon-client": "^4.2.3",
-    "yt-search": "^2.10.2",
-    "ytdl-core": "^4.11.0"
+    "name": "ozaibot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": ""
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "@discordjs/opus": "^0.5.3",
+      "@discordjs/rest": "^0.4.1",
+      "@discordjs/voice": "^0.6.0",
+      "discord-player": "^5.2.2",
+      "discord-sync-commands-v14": "^2.0.0",
+      "discord.js": "^13.9.2",
+      "dotenv": "^10.0.0",
+      "ffmpeg-static": "^4.4.0",
+      "fs": "^0.0.1-security",
+      "mathjs": "^10.6.4",
+      "minecraft-server-util": "^5.2.9",
+      "moment": "^2.29.1",
+      "mysql2": "^2.3.2",
+      "node": "^14.18.2",
+      "npm": "^8.3.0",
+      "opusscript": "^0.0.8",
+      "ozaibot": "file:",
+      "rcon-client": "^4.2.3",
+      "yt-search": "^2.10.2",
+      "ytdl-core": "^4.11.0"
+    }
   }
-}
