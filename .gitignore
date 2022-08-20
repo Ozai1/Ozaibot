@@ -7,9 +7,9 @@ intsall_tools
 node_etw_provider
 node
 nodevars
+npm.cmd
 npm
-npm
+npx.cmd
 npx
-npx
-corepack
+corepack.cmd
 corepack
