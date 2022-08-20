@@ -3,10 +3,10 @@ node_modules
 audio
 package
 package-lock.json
-intsall_tools
-node_etw_provider
+intsall_tools.bat
+node_etw_provider.man
 node.exe
-nodevars
+nodevars.bat
 npm.cmd
 npm
 npx.cmd
