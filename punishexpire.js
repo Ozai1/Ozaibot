@@ -12,6 +12,7 @@ const connection = mysql.createPool({
 const { unix } = require('moment');
 const { LogPunishment, NotifyUser } = require('./moderationinc')
 module.exports.PunishmentExpire = async (client, Discord) => {
+    return
     THE_THING_THAT_DOES_EVERYTHING_YEET(client, Discord)
 }
 

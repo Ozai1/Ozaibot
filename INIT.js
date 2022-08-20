@@ -1,7 +1,4 @@
-const { Help_INIT2 } = require('./commands/help')
-const { Help_INIT } = require('./slashcommands/help')
 const { PunishmentExpire } = require('./punishexpire')
-const { exec } = require("child_process")
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
 const fs = require('fs');
 const mysql = require('mysql2');
@@ -15,11 +12,9 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
+let failed = '';
+module.exports.Main_INIT = async (client, Discord) => {
 
-module.exports.Main_INIT = (client, Discord) => {
-    Help_INIT()
-    Help_INIT2()
-return
     client.userstatus = new Map()
     client.prefixes = new Map()
     client.currentcasenumber = new Map()
@@ -33,11 +28,15 @@ return
     client.negativerolepermissions = new Map()
     client.positiveuserpermissions = new Map()
     client.negativeuserpermissions = new Map()
-    client.modlogs = new Map()
-    client.lockedvoicechannels = []
-    client.antiscamspam = new Map()
+    client.help = new Map()
+    client.modlogs = new Map();
+    client.lockedvoicechannels = [];
+    client.antiscamspam = new Map();
+    client.failedrequests = new Map();
+    client.isdatabasedown = false;
+    client.helpmessageownership = new Map()
 
-
+    Help_INIT(client, Discord)
     UserStatus_INIT(client)
     Prefixes_INIT(client)
     CurrentCaseNumber_INIT(client)
@@ -61,6 +60,26 @@ return
         });
     })
     console.log(`Finished caching and updating`);
+
+    setTimeout(() => {
+        if (failed) {
+            failed += failed.slice(5)
+            let alllogs = client.channels.cache.get('986882651921190932');
+            const cmdembed = new Discord.MessageEmbed()
+                .setDescription(`Failed:\n${failed}`)
+                .setColor('RED')
+            alllogs.send({ content: `INIT FAILLED <@!508847949413875712>, FAILED MODULES:`, embeds: [cmdembed] });
+        }
+    }, 40000);
+
+}
+
+async function Help_INIT(client, Discord) {
+    const command_files = fs.readdirSync('./help/').filter(file => file.endsWith('.js'));
+    for (const file of command_files) {
+        const command = require(`./help/${file}`);
+        command.execute(client, Discord)
+    }
 }
 
 async function UserStatus_INIT(client) {
@@ -71,9 +90,12 @@ async function UserStatus_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.log('**** USERSTATUS FAILED TO INIT **** ABORTING BOT START ****')
             }
-            console.log(error)
-            exec(`forever stopall`)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Userstatus')) {
+                failed += '<:cross:990176341708124160> Userstatus\n'
+            }
+
+            console.error(error)
+            return
         }
         for (row of results) {
             client.userstatus.set(row["userid"], row["status"])
@@ -89,9 +111,11 @@ async function Prefixes_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** PREFIXES FAILED TO INIT **** ABORTING BOT START ****')
             }
-            exec(`forever stopall`)
             console.error(error)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Prefixes')) {
+                failed += '<:cross:990176341708124160> Prefixes\n'
+            }
+            return
         }
         for (row of results) {
             client.prefixes.set(row["serverid"], row["prefix"])
@@ -108,9 +132,11 @@ async function CurrentCaseNumber_INIT(client) {
                 for (let i = 0; i < 10; i++) {
                     console.error('**** CASENUMBERS FAILED TO INIT **** ABORTING BOT START ****')
                 }
-                exec(`forever stopall`)
                 console.error(error)
-                return thisisafunctionthatwillcrashthebot
+                if (!failed.includes('CaseNumbers')) {
+                    failed += '<:cross:990176341708124160> CaseNumbers\n'
+                }
+                return
             }
             let casenumber = undefined
             if (!results == ``) {
@@ -145,9 +171,11 @@ async function MuteRole_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** MUTEROLES FAILED TO INIT **** ABORTING BOT START ****')
             }
-            exec(`forever stopall`)
             console.error(error)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Userstatus')) {
+                failed += '<:cross:990176341708124160> Mute-roles\n'
+            }
+            return
         }
         for (row of results) {
             client.muteroles.set(row["serverid"], row["details"])
@@ -163,9 +191,11 @@ async function WelcomeChannels_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** WELCOMECHANNELSTEXT FAILED TO INIT **** ABORTING BOT START ****')
             }
-            exec(`forever stopall`)
             console.error(error)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Welcome')) {
+                failed += '<:cross:990176341708124160> Welcome Channels\n'
+            }
+            return
         }
         for (row of results) {
             let serverid = row["serverid"]
@@ -189,9 +219,11 @@ async function PunishNotif_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** punishnotif FAILED TO INIT **** ABORTING BOT START ****')
             }
-            exec(`forever stopall`)
             console.error(error)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Punish')) {
+                failed += '<:cross:990176341708124160> Punish-Notifications\n'
+            }
+            return
         }
         for (row of results) {
             client.punishnotification.push(row["serverid"])
@@ -213,9 +245,11 @@ async function Permissions_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** PERMISSIONS FAILED TO INIT **** ABORTING BOT START ****')
             }
-            exec(`forever stopall`)
             console.error(error)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Permissions')) {
+                failed += '<:cross:990176341708124160> Permissions\n'
+            }
+            return
         }
         let serverid = undefined
         let whateverid = undefined
@@ -254,9 +288,11 @@ async function ModLogs_INIT(client) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** MODLOGS FAILED TO INIT **** ABORTING BOT START ****')
             }
-            exec(`forever stopall`)
             console.error(error)
-            return thisisafunctionthatwillcrashthebot
+            if (!failed.includes('Modlogs')) {
+                failed += '<:cross:990176341708124160> Modlogs-channels\n'
+            }
+            return
         }
         for (row of results) {
             client.modlogs.set(row["serverid"], row["details"])
@@ -268,31 +304,33 @@ async function AntiScamSpam_INIT(client) {
     client.guilds.cache.forEach(guild => {
         client.antiscamspam.set(guild.id, new Map())
     })
-        let query = "SELECT * FROM serverconfigs WHERE type = ?";
-        let data = ['linkspam']
-        connection.query(query, data, function (error, results, fields) {
-            if (error) {
-                for (let i = 0; i < 10; i++) {
-                    console.error('**** SCAMSPAM FAILED TO INIT **** ABORTING BOT START ****')
-                }
-                exec(`forever stopall`)
-                console.error(error)
-                return thisisafunctionthatwillcrashthebot
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['linkspam']
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.error('**** SCAMSPAM FAILED TO INIT **** ABORTING BOT START ****')
             }
-            for (row of results) {
-                let current = client.antiscamspam.get(row["serverid"])
-                if (row["details"]) {
-                    current.set('punishtype', row["details"])
-                }
-                if (row["details2"]) {
-                    current.set('punishtypemass', row["details2"])
-                }
-                if (row["details3"]){
-                    current.set('punishlength', row["details3"])
-                }
-                if (row["details3"]){
-                    current.set('punishlengthmass', row["details4"])
-                }
+            console.error(error)
+            if (!failed.includes('Anti-Spam')) {
+                failed += '<:cross:990176341708124160> Anti-Spam\n'
             }
-        })
+            return
+        }
+        for (row of results) {
+            let current = client.antiscamspam.get(row["serverid"])
+            if (row["details"]) {
+                current.set('punishtype', row["details"])
+            }
+            if (row["details2"]) {
+                current.set('punishtypemass', row["details2"])
+            }
+            if (row["details3"]) {
+                current.set('punishlength', row["details3"])
+            }
+            if (row["details3"]) {
+                current.set('punishlengthmass', row["details4"])
+            }
+        }
+    })
 }

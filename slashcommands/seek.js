@@ -1,5 +1,5 @@
 module.exports = {
-    description: "Seeks what part of the track to play at.",
+    description: "Moves the in-song time to a desired point",
     name: 'seek',
     options: [
         {

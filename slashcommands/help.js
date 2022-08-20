@@ -25,7 +25,7 @@ module.exports = {
     },
 };
 
-module.exports.Help_INIT = () => {
+module.exports.Help_INIT4234234 = () => {
     Help_Responses.set('ban', HELP_EMBED_BAN)
     Help_Responses.set('kick', HELP_EMBED_KICK)
     Help_Responses.set('mute', HELP_EMBED_MUTE)

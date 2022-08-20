@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 module.exports = {
-    description: "It helps you to get information about the speed of the bot.",
+    description: "poop",
     name: 'ping',
     options: [],
 

@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 
 module.exports = {
-    description: "It shows you the playlist.",
+    description: "Shows the upcoming songs",
     name: 'queue',
     options: [],
     voiceChannel: true,

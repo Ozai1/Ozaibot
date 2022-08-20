@@ -50,6 +50,7 @@ client.on('ready', async () => {
             if (error) return console.log(error);
       });
       setInterval(() => { // 1 min interval, being used for blacklisted invites checking
+            return
             let query = `SELECT * FROM lockdownlinks WHERE timeremove < ?`;
             let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
             connection.query(query, data, function (error, results, fields) {

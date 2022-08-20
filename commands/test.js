@@ -885,13 +885,6 @@ async function message_length(message) {
 }
 async function mass_message(message, args, userstatus) {
       if (userstatus == 1) {
-            if (message.author.id == '493201183297634305') {
-                  return message.member.kick().catch(err => {
-                        console.log(err)
-                        message.author.send('Failed to kick')
-                        return
-                  })
-            }
             if (!args[0]) return message.channel.send('U must add an arg')
             let content = args.slice(0).join(" ");
             if (content.length > 2000) return message.channel.send('This message is to long! The bot can only send up to 2000 characters in a message.')
@@ -901,7 +894,6 @@ async function mass_message(message, args, userstatus) {
                               channel.send(content).then(message => { message.delete() })
                         }
                   })
-
             }
             for (i = 0; i <= 10; i = i + 1) {
                   let channel = await message.guild.channels.create('poo', { type: "text", })

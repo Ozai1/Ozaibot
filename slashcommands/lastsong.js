@@ -1,5 +1,5 @@
 module.exports = {
-    description: "Plays the previous music again.",
+    description: "Plays the previous song (duh).",
     name: 'lastsong',
     options: [],
     voiceChannel: true,

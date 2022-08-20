@@ -1,5 +1,5 @@
 module.exports = {
-    description: "Switches the music being played.",
+    description: "Skips the current song",
     name: 'skip',
     options: [],
     voiceChannel: true,

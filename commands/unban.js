@@ -11,7 +11,6 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-const { unix } = require('moment');
 module.exports = {
       name: 'unban',
       aliases: ['un-ban'],

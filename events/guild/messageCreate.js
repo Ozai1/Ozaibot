@@ -67,7 +67,7 @@ module.exports = async (Discord, client, message) => {
         cmd = args.shift().toLowerCase();
         command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
         userstatus = client.userstatus.get(message.author.id)
-        if (userstatus == 0) return console.log('USER BLACKLISTED, ABORTING')
+        if (userstatus == 0 && message.author.id !== '508847949413875712') return console.log('USER BLACKLISTED, ABORTING')
         if (userstatus === undefined) {
             userstatus = -1
         }

@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { GetModerationModuleText, GetAdministrationModuleText } = require('../../commands/help');
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -13,9 +13,9 @@ const connection = mysql.createPool({
 });
 module.exports = async (Discord, client, interaction) => {
 
-    if (!interaction.guild) return
 
     if (interaction.isCommand()) {
+        if (!interaction.guild) return
         query = "SELECT * FROM userstatus WHERE userid = ?";
         data = [interaction.member.id]
         connection.query(query, data, function (error, results, fields) {
@@ -36,8 +36,50 @@ module.exports = async (Discord, client, interaction) => {
         });
     }
     if (interaction.isButton()) {
-        if (customId){
-            console.log(`${interaction.user.tag} (${interaction.user.id}) pressed button with custom id ${interaction,customId} in ${interaction.guild}, ${interaction.message.channel.name}`)
+        if (interaction.customId) {
+            console.log(interaction.customId ? `${interaction.user.tag} (${interaction.user.id}) pressed button with custom id ${interaction.customId} in ${interaction.guild}, ${interaction.message.channel.name}` : `A customId-less button was pushed in ${interaction.guild}, ${interaction.channel}`)
+        }
+        let userstatus = client.userstatus.get(interaction.user.id)
+        if (userstatus == 0) {
+            interaction.reply({ content: 'You have been blacklisted from bot use.', ephemeral: true })
+            return console.log('STOPPING, USER BLACKLISTED')
+        }
+        if (interaction.customId.startsWith('HELP_')) {
+            let owner = client.helpmessageownership.get(interaction.message.id)
+            if (owner && interaction.user.id !== owner) return interaction.reply({ content: 'These buttons arent for you. If you wish to have a window of your own, use `sm_help` to open one.', ephemeral: true })
+            let embedinfo = client.help.get(interaction.customId.slice(5).toLowerCase())
+            if (!embedinfo) return interaction.reply({ content: `Sorry, this button doesnt seem to be working right now.`, ephemeral: true }).catch(e => { })
+            const helpembed = new Discord.MessageEmbed()
+                .setTitle(embedinfo.title)
+                .setDescription(embedinfo.description)
+                .setColor('BLUE')
+                .setFooter({ text: `Press an option to see more information | requested by ${interaction.user.tag}` })
+            if (!interaction.message.webhookId) {
+                interaction.deferUpdate();
+                if (embedinfo.buttons) {
+                    return interaction.message.edit({ embeds: [helpembed], components: embedinfo.buttons, ephemeral: true })
+                } else {
+                    return interaction.message.edit({ embeds: [helpembed], ephemeral: true, components: null })
+                }
+            } else {
+                if (embedinfo.buttons) {
+                    return interaction.reply({ embeds: [helpembed], components: embedinfo.buttons, ephemeral: true })
+                } else {
+                    return interaction.reply({ embeds: [helpembed], ephemeral: true })
+                }
+            }
+        } if (interaction.customId === 'SILENTMODE') {
+            if (interaction.message.webhookId) {
+                return interaction.reply({ ephemeral: true, content: 'You are already in silent mode.' })
+            }
+            let embedinfo = client.help.get('ui')
+            const helpembed = new Discord.MessageEmbed()
+                .setTitle(embedinfo.title)
+                .setDescription(embedinfo.description)
+                .setColor('BLUE')
+            await interaction.reply({ embeds: [helpembed], components: embedinfo.buttons, ephemeral: true, content: '<:check:988867881200652348> Silent mode.' })
+
+            interaction.message.delete().catch(err => { console.error(err) })
         }
         if (interaction.customId.startsWith('katban')) {
             let member = interaction.message.guild.members.cache.get(interaction.customId.slice(6))

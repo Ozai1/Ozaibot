@@ -209,6 +209,64 @@ const GetSecondDisplayUnit = (timelength) => {
 }
 
 /**
+* Queues a query to be pushed into the database as soon as the database comes back online. This means that minor outages wont effect the database long term.
+* @param {string} Query The string that is the query, EG INSERT INTO poo (hi) VALUES ('seven')
+* @param {Array} Data The array of informtion for the query, the Data
+* @param {Object} client
+*/
+
+module.exports.QueueForDBPush = async (querystring, data, client) => {
+    let shit = Object
+    shit.query = querystring
+    shit.data = data
+    client.failedrequests.set(client.failedrequests.length + 1, shit)
+    if (!client.isdatabasedown) this.CheckForDatabaseRecovery(client)
+}
+
+/**
+* If the database has been detected to be offline, this function will check for it to come back online every thirty seconds and lauch the function to update the database when it has come back online
+* @param {Object} client
+*/
+
+module.exports.CheckForDatabaseRecovery = async (client) => {
+    setInterval(() => {
+        let query = `SELECT * FROM userstatus`;
+        let data = [message.guild.id, casenumber, memberid, message.author.id, Number(Date.now(unix).toString().slice(0, -3)), length, reason, type, logmessage.id];
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                return
+            } else {
+                for (let i = 0; i < 10; i++) {
+                    console.log('**DATABSE BACK ONLINE**')
+
+                }
+            }
+        });
+    }, 30000);
+}
+
+/**
+* Merges all queries stored in cache into the longterm database
+* @param {Object} client
+*/
+
+const UpdateDatabase = (client) => {
+    let query = ''
+    let data = []
+    for (let i = 0; i < client.failedrequests.length; i++) {
+        query = client.failedrequests[i].key
+        data = client.failedrequests[i].key
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                return console.error(error)
+            }
+        });
+    }
+    console.log('Updating database...')
+}
+
+module.exports.UpdateDatabase = UpdateDatabase
+/**
  * Retreves a member from the guild of command origin
  * @param {Object} message Message object
  * @param {Object} client Discord client object
@@ -253,7 +311,7 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
             return member
         }
         let possibleusers = []
-        let pattern =new RegExp(string.toLowerCase(), 'g')
+        let pattern = new RegExp(string.toLowerCase(), 'g')
         await message.guild.members.cache.forEach(member => {
             if (member.nickname) {
                 if (member.user.tag.toLowerCase().match(pattern) || member.nickname.toLowerCase().match(pattern)) {
@@ -794,8 +852,7 @@ const FlagNames = new Map()
     .set('any', 'q')
     .set('all', 'z')
     .set('all-permissions', 'z')
-
-
+    
 module.exports.NameToFlag = (name) => {
     return FlagNames.get(name.toLowerCase())
 }

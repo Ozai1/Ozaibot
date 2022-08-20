@@ -10,69 +10,45 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-const Help_Responses = new Map()
 module.exports = {
     name: 'help',
-    aliases: ['zhelp', 'invite', 'ahelp'],
+    aliases: ['invite', 'ahelp'],
     description: 'sends a help message',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (cmd === 'invite') return Command_Invite(message, Discord)
         if (cmd === 'ahelp') return Command_AHelp(message, userstatus, Discord, client)
-        let prefix = 'sm_';
-        query = "SELECT * FROM prefixes WHERE serverid = ?";
+        let prefix = undefined
         if (message.guild) {
-            data = [message.guild.id]
-        } else {
-            data = [7777]
+            prefix = client.prefixes.get(message.guild.id)
         }
-        connection.query(query, data, function (error, results, fields) {
-            if (error) return console.log(error)
-            for (row of results) {
-                prefix = row["prefix"];
-            }
-            if (!args[0]) {
-                if (!args[0]) {
-                    const button1 = new Discord.MessageActionRow()
-                        .addComponents(
-                            new Discord.MessageButton()
-                                .setLabel('WebSite')
-                                .setStyle("LINK")
-                                .setURL('http://vps01.tsict.com.au')
-                        ).addComponents(
-                            new Discord.MessageButton()
-                                .setLabel('Commands')
-                                .setStyle("LINK")
-                                .setURL('http://vps01.tsict.com.au')
-                        ).addComponents(
-                            new Discord.MessageButton()
-                                .setLabel('Discord Server')
-                                .setStyle("LINK")
-                                .setURL('https://discord.gg/xxRMvmtJpX')
-                        )
-                    const helpembed = new Discord.MessageEmbed()
-                        .setTitle('Welcome to Ozaibot')
-                        .setDescription(`Checkout our website for more information.\nAlternatively use \`help modules\` for a list of modules.\n\nHelp command usage:\n\`help [command_name|module_name]\``)
-                        .setColor('BLUE')
-                    return message.channel.send({ embeds: [helpembed], components: [button1] })
-                } else {
-                    if (Help_Responses.has(args[0].toLowerCase())) {
-                        const returnmessage = Help_Responses.get(args[0].toLowerCase())
-                        returnmessage(message, Discord, userstatus)
-                    } else {
-                        message.channel.send({ content: `Command / module not found. Please check your spelling.` })
-                    }
-                }
-            } else {
-                if (Help_Responses.has(args[0].toLowerCase())) {
-                    const returnmessage = Help_Responses.get(args[0].toLowerCase())
-                    returnmessage(message, Discord, userstatus)
-                } else {
-                    message.channel.send({ content: `Command / module not found. Please check your spelling.` })
-                }
-            }
-        })
+        if (!message.guild || !prefix) {
+            prefix = 'sm_'
+        }
+        let embedinfo = undefined
+        if (!args[0]) {
+            embedinfo = client.help.get('no_args_0')
+        } else {
+            embedinfo = client.help.get(args[0].toLowerCase())
+        }
+        if (!embedinfo || !embedinfo.description) return message.channel.send({ content: `Command / module not found. Please check your spelling.` })
+        const helpembed = new Discord.MessageEmbed()
+            .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+            .setTitle(embedinfo.title)
+            .setDescription(embedinfo.description)
+            .setColor('BLUE')
+            .setFooter({ text: `requested by ${message.author.tag}` })
+        if (embedinfo.buttons && embedinfo.displayButtonsWhenNonEphemeral) {
+            let helpmessage = await message.channel.send({ embeds: [helpembed], components: embedinfo.buttons })
+            client.helpmessageownership.set(helpmessage.id, message.author.id)
+            setTimeout(() => {
+                client.helpmessageownership.delete(helpmessage.id)
+            }, 600000);
+        } else {
+            message.channel.send({ embeds: [helpembed] })
+        }
     }
 }
+
 const helpcommands = [
     'Ban',
     'Un-Ban',
@@ -86,188 +62,6 @@ const helpcommands = [
     'Moderation',
     'Administration'
 ]
-module.exports.Help_INIT2 = () => {
-    //ban
-    Help_Responses.set('ban', HELP_EMBED_BAN)
-    Help_Responses.set('b', HELP_EMBED_BAN)
-    Help_Responses.set('unban', HELP_EMBED_UNBAN)
-    //kick
-    Help_Responses.set('kick', HELP_EMBED_KICK)
-    Help_Responses.set('k', HELP_EMBED_KICK)
-    //mute
-    Help_Responses.set('mute', HELP_EMBED_MUTE)
-    Help_Responses.set('m', HELP_EMBED_MUTE)
-    Help_Responses.set('unmute', HELP_EMBED_UNMUTE)
-    Help_Responses.set('un-mute', HELP_EMBED_UNMUTE)
-    Help_Responses.set('unm', HELP_EMBED_UNMUTE)
-
-    //rename
-    Help_Responses.set('rename', HELP_EMBED_RENAME)
-    //purge
-    Help_Responses.set('purge', HELP_EMBED_PURGE)
-    Help_Responses.set('clear', HELP_EMBED_PURGE)
-    Help_Responses.set('prune', HELP_EMBED_PURGE)
-    //user
-    Help_Responses.set('user', HELP_EMBED_USER_COMMAND)
-    Help_Responses.set('ui', HELP_EMBED_USER_COMMAND)
-    Help_Responses.set('who', HELP_EMBED_USER_COMMAND)
-    Help_Responses.set('whois', HELP_EMBED_USER_COMMAND)
-    Help_Responses.set('user-info', HELP_EMBED_USER_COMMAND)
-    Help_Responses.set('userinfo', HELP_EMBED_USER_COMMAND)
-    //softban
-    Help_Responses.set('softban', HELP_EMBED_SOFTBAN)
-    Help_Responses.set('soft-ban', HELP_EMBED_SOFTBAN)
-    Help_Responses.set('sb', HELP_EMBED_SOFTBAN)
-    //MISC
-    Help_Responses.set('help', HELP_EMBED_HELP)
-    Help_Responses.set('times', HELP_EMBED_TIMES)
-    Help_Responses.set('targeting', HELP_EMBED_TARGETING)
-    Help_Responses.set('targets', HELP_EMBED_TARGETING)
-    Help_Responses.set('modules', HELP_EMBED_MODULES)
-    Help_Responses.set('module', HELP_EMBED_MODULES)
-    //modules
-    Help_Responses.set('moderation', HELP_EMBED_MODERATION)
-    Help_Responses.set('mod', HELP_EMBED_MODERATION)
-    Help_Responses.set('administration', HELP_EMBED_ADMINISTRATION)
-    Help_Responses.set('admin', HELP_EMBED_ADMINISTRATION)
-    Help_Responses.set('fun', HELP_EMBED_MODULES)
-    Help_Responses.set('utility', HELP_EMBED_MODULES)
-}
-
-async function HELP_EMBED_ADMINISTRATION(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Module - Administration')
-        .setDescription(`The administration module contains all of the server configuration, auto-moderation configuration and permission configuration.\n\n**Commands:**\n\`setwelcomechannel\`\n\`setwelcomemessage\`\n\`setfarewellmessage\`\n\`modlogs\`\n\`perms\`\n\`prefix\`\n\`setlinkspamaction\`\n\`setmasslinkspamaction\`\n\`togglepunishmentnotifications\`\nAnd lots more.\n\nSome more powerful yet abusable functions and modules are locked behind me manually allowing users/guilds to use them. These include but are not limited to: Server-Whitelist, Anti-Raid & server-wide purge. If you are interested in these, please contact me through the Ozaibot Discord server [here](https://discord.gg/xxRMvmtJpX).`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_MODERATION(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Module - Moderation')
-        .setDescription(`The moderation module contains a suite of commands used for keeping a server safe, under control and orderly.\nThese commands are mostly aimed at moderators and as such some moderation commands (More specifically the Auto-moderation functions) are under the \`administration\` module.\n\n**Commands:**\n\`Ban\`\n\`Un-ban\`\n\`Mute\`\n\`Un-mute\`\n\`Kick\`\n\`Soft-ban\`\n\`Warn\`\n\`search\`\n\`view-case\`\n\n\n**Moderation Configuration Commands:**`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_MODULES(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Modules')
-        .setDescription(`A module is a set of commands &/or functions.\nEach module is capable of being turned on and off through the \`perms\` command.\n\n**Modules:**\n\`Moderation\` \`Administration\` \`Fun\` \`Utility\` \`General\``)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_SOFTBAN(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Soft-Ban')
-        .setDescription(` gbkhnjm`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_USER_COMMAND(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('User Information')
-        .setDescription(`nhnjl dfj`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_TARGETING(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Targeting Users')
-        .setDescription(`Targets!\nIn commands, there is often an arguement called **member**, member refers to this.\n\n**There are 3 main ways of targeting a user:**\n\`#1\` Mentioning them. \`@user\`. simple.\n\`#2\` Using their ID. \`mute 862247858740789269 1d\` is a valid command.\n\`#3\` Using their names. \`mute ozaibot\` is a valid command.\n\n\n**Using names to target:**\nIf two people have overlapping names, you can add the # to their name like so: \`mute Ozaibot#3594\`.\nIt is recommended to just use IDs when name targeting becomes complicated.\nName targeting ignores capitalization completely.\nIf two people have overlapping names with the same tag but different capitalization it will select both of them.\nIf more than one user is found the bot can reply with an embed asking what member you meant.\nSimply follow the prompt and select the number next to the member to target them.\nIf more than 9 members are found, it will simply respond with invalid member.\n\nIf at any point mentioning members and using their names becomes impractical, it is recommended to use IDs.\nIDs are intangible, quick and easy to use.\n\nTo grab people's IDs you must enable developer mode through settings.\nYou can do that like this:\n\`Settings\` -> \`Advanced\` -> \`Developer Mode\`.\nOnce it is activated open someone's profile in a server, scroll to the bottom and there should be a \`Copy ID\` button.\n\nWith these three ways you will now be able to effectively target people.\nUsing IDs you can target people off server. \nSimply grab their ID and use it in the member argument and you can use some commands on them, such as ban.`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_TIMES(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Time Durations')
-        .setDescription(`This is the way that the bot knows for how long to keep a punishemnt active on a user.\nAll commands that use custom durations will follow and use this system.\n\n**second:**\n\`seconds\` \`second\` \`secs\` \`sec\` \`s\`\n\n**minute:**\n\`minutes\` \`minute\` \`mins\` \`min\` \`m\`\n\n**hour:**\n\`hours\` \`hour\` \`h\`\n\n**day:**\n\`days\` \`day\` \`d\`\n\n**week:**\n\`weeks\` \`week\` \`w\`\n\n**month:**\n\`months\` \`month\` \`mon\`\n\n\nThese units of time are to be apended to a number.\n\n**Examples:**\n\`1mon\`\n\`3.4d\`\n\`0.875weeks\`\n\`mute @ozaibot 2h\``)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_BAN(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Ban')
-        .setDescription(`Removes a user from the server and prevents them from rejoining.\n\nHowever many days of the user's messages are specified will be deleted.\nMax of 7 days worth of messages can be deleted, defaults to 0 days.\n\n**Usage:**\n\`ban <@user|user_id> <days to delete> <reason>\`\n\n**Examples:**\n\`ban @user called me a no no name\`\n\`ban @user 1 unspeakable things\`\n\`ban 862247858740789269 off server ban so they cant join\`\n\n**Aliases:**\n\`b\`\n\n**Reversal Command:**\n\`unban\`\n\n**Permissions:**\nBan Members.\n`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_KICK(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('kick')
-        .setDescription(`Removes a user from the server.\nUsers who are kicked will need to be sent an invite in order to rejoin.\n\n**Usage:**\n\`kick <@user|user_id> <reason>\`\n\n**Examples:**\n\`kick @user\`\n\`kick @user spam\`\n\n**Aliases:**\n\`k\`\n\n**Permissions:**\nKick Members.\n`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_MUTE(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Mute')
-        .setDescription(`Prevents a user from speaking in text channels.\nCommand will not work until a mute role has been set,\nYou can set a muterole with the \`muterole\`command.\n\n**Usage:**\n\`mute <@user|user_id> <time> <reason>\`\n\n**Examples:**\n\`mute @user\`\n\`mute @user spam\`\n\`mute @user 1h bad words\`\n\n**Aliases:**\n\`m\`\n\n**Reversal Command:**\n\`unmute\`\n\n**Permissions:**\nManage Messages.\n`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_RENAME(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Re-Name')
-        .setDescription(`rthgg`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_UNBAN(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Un-Ban')
-        .setDescription(`fasd`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_UNMUTE(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Mute')
-        .setDescription(`tyh`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_PURGE(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Purge')
-        .setDescription(`Bulk deletes messages.\nMaximum amount of messages that can be deleted is 1000.\n\n**Usage:**\n\`purge <amount> <filters>\`\n\n**Purge filters**:\n\`@user\` \`silent\` \`links\` \`invites\` \`bots\` \`embeds\` \`files\` \`users\` \`images\` \`pins\` \`mentions\` \`stickers\`\n\nApplying options to the command will make the command search within the amount specified for messages that match the filer.\n*The bot will not look indefinitely until the amount is filled with messages that match.*\nAdding a user(s) will make the bot only search through those user(s) messages and ignore all others regardless of filters.\nThe silent filter will delete the command message and the bots confirmation after the purge is complete.\n\n**Examples:**\n\`purge 50\`\n\`purge 200 @user\`\n\`purge 25 links @user\`\n\`purge 400 @user links images invites silent\`\n\n**Aliases:**\n\`prune\`\n\`clear\`\n\n**Permissions:**\nManage Messages.\n`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
-
-async function HELP_EMBED_HELP(message, Discord, userstatus) {
-    const helpembed = new Discord.MessageEmbed()
-        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-        .setTitle('Help')
-        .setDescription(`gerdf`)
-        .setColor('BLUE')
-    message.channel.send({ embeds: [helpembed] })
-}
 
 async function Command_Invite(message, Discord) {
     const helpembed = new Discord.MessageEmbed()

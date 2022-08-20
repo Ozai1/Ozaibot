@@ -1,7 +1,7 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 
 module.exports = {
-    description: "Provides information about the music being played.",
+    description: "Shows what song is currently being played.",
     name: 'nowplaying',
     options: [],
     voiceChannel: true,

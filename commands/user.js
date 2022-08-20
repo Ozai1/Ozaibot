@@ -17,7 +17,7 @@ const connection = mysql.createPool({
 module.exports = {
     name: 'user',
     description: 'whatever i make at the time',
-    aliases: ['user', 'userinfo', 'who', 'whois', 'ui', 'user-info'],
+    aliases: ['user', 'userinfo', 'who', 'whois', 'user-info'],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!args[0]) {
             if (message.guild) {

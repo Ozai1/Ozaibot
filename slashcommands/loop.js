@@ -1,7 +1,7 @@
 const { QueueRepeatMode } = require('discord-player');
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 module.exports = {
-    description: "Turns the music loop mode on or off.",
+    description: "Toggles the current song looping.",
     name: 'loop',
     options: [],
     voiceChannel: true,
