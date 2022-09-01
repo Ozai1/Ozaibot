@@ -49,6 +49,5 @@ async function total_bans(message, client, userstatus) {
                   })
                   message.channel.send(`This server has a total of ${bancount} bans.`)
             })
-
       }
 }

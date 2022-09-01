@@ -17,4 +17,6 @@ module.exports = async (Discord, client, invite) => {
           if (error) return console.log(error);
     })
     console.log(`Invite ${invite.code} pushed to db for guild ${invite.guild} (${invite.guild.id})`)
+    let newinvites = await invite.guild.invites.fetch()
+    client.invites.set(invite.guild.id, newinvites)
 }

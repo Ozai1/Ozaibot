@@ -16,7 +16,7 @@ module.exports = {
     description: 'Whether to send a user a message notifying them of an action against them.',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (!message.member.permissions.has("MANAGE_MESSAGES")) {
+        if (!message.member.permissions.has("MANAGE_GUILD")) {
             const errorembed = new Discord.MessageEmbed()
                 .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                 .setColor(15684432)

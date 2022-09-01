@@ -28,7 +28,7 @@ const trackDuration = timestamp.progress == 'Forever' ? 'Endless (Live)' : track
 
         embed.setTimestamp();
 
-        const saveButton = new MessageButton();
+        const saveButton = new ButtonBuilder();
 
         saveButton.setLabel('Save Song');
         saveButton.setCustomId('saveTrack');

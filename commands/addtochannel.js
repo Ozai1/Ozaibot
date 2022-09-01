@@ -34,7 +34,7 @@ module.exports = {
                   let member = await GetMember(message, client,args[0], Discord, true, false)
                   if (member === 'cancelled') return
                   if (!member) return message.reply('Invalid user.');
-                  channelselected.permissionOverwrites.edit(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true, ADD_REACTIONS: true }).catch(err => {
+                  channelselected.permissionOverwrites.edit(member, { VIEW_CHANNEL: true }).catch(err => {
                         message.channel.send('failed')
                         console.log(err)
                   })

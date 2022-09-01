@@ -30,7 +30,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['rickroll', 'addreact', 'editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['punccheck','rickroll', 'addreact', 'editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -60,9 +60,39 @@ module.exports = {
             if (cmd === 'editembed') return edit_embed(message, args, userstatus, client, Discord)
             if (cmd === 'addreact') return add_reaction(message, args, userstatus, client, Discord)
             if (cmd === 'rickroll') return rick_roll_channel(message, args, userstatus, client, Discord)
+            if (cmd === 'punccheck') return Punctuation_check(message,args)
             if (userstatus == 1) {
+                  
             }
       }
+}
+let uppercase = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+async function Punctuation_check(message, args) {
+      let text = args.slice(0).join(" ");
+      let uppercasefound= 0;
+      let punctuationsymbolsfound= 0;
+      let fullstopsfound= 0;
+      let commasfound= 0;
+      let questionmarksfound= 0;
+      let esclimationmarksfound = 0;
+      text.split("").forEach(letter => {
+            if (uppercase.includes(letter)) {
+                  uppercasefound = Number(uppercasefound + 1)
+            }  else if (letter === '.') {
+                  punctuationsymbolsfound = Number(punctuationsymbolsfound + 1)
+                  fullstopsfound = fullstopsfound + 1
+            } else if (letter === ',') {
+                  punctuationsymbolsfound = Number(punctuationsymbolsfound) + 1
+                  commasfound = commasfound + 1
+            } else if (letter === '?') {
+                  questionmarksfound = questionmarksfound + 1
+                  punctuationsymbolsfound = punctuationsymbolsfound + 1
+            } else if (letter === '!') {
+                  esclimationmarksfound = esclimationmarksfound + 1
+                  punctuationsymbolsfound = punctuationsymbolsfound + 1
+            }
+      })
+      message.channel.send(`Total characters: ${text.length}.\nTotal uppercase characters: ${uppercasefound}\nTotal punctuation symbols: ${punctuationsymbolsfound}\nFull stops: ${fullstopsfound}\nCommas: ${commasfound}\nQuestionmarks: ${questionmarksfound}`)
 }
 
 async function rick_roll_channel(message, args, userstatus, client, Discord) {

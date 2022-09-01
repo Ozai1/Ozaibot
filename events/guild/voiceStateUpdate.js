@@ -3,13 +3,13 @@ module.exports = async (Discord, client, oldstate, newstate) => {
     if (newstate.channelId === null) return //console.log(`${oldstate.member.user.tag} left a channel`)
     if (oldstate.channelId === null) {
         if (client.lockedvoicechannels.includes(newstate.channelId)) {
-            newstate.member.voice.setChannel(null, 'Channel has been locked by command. Kicking from VC. To unlock channel, use `lockvc [channel]`').catch(err => { console.log(err) })
+            newstate.member.voice.setChannel(null, 'Channel has been locked by command, Kicking from VC. To unlock channel, use `lockvc [channel]`').catch(err => { console.log(err) })
         }
         return //console.log(`${oldstate.member.user.tag} joined a channel`)
     }
     if (oldstate.channelId !== newstate.channelId) {
         if (client.lockedvoicechannels.includes(newstate.channelId)) {
-            newstate.member.voice.setChannel(null, 'Channel has been locked by command. Kicking from VC. To unlock channel, use `lockvc [channel]`').catch(err => { console.log(err) })
+            newstate.member.voice.setChannel(null, 'Channel has been locked by command, Kicking from VC. To unlock channel, use `lockvc [channel]`').catch(err => { console.log(err) })
         }
         return //console.log(`${oldstate.member.user.tag} moved channels`)
     }

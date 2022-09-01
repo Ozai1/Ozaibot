@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 
 const { Main_INIT } = require('./INIT')
 const mysql = require('mysql2');
+require('dotenv').config();
 const connection = mysql.createPool({
       host: 'vps01.tsict.com.au',
       port: '3306',
@@ -50,7 +51,6 @@ client.on('ready', async () => {
             if (error) return console.log(error);
       });
       setInterval(() => { // 1 min interval, being used for blacklisted invites checking
-            return
             let query = `SELECT * FROM lockdownlinks WHERE timeremove < ?`;
             let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
             connection.query(query, data, function (error, results, fields) {

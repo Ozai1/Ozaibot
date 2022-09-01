@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+require('dotenv').config();
 const connection = mysql.createPool({
     host: 'vps01.tsict.com.au',
     port: '3306',
@@ -12,7 +13,6 @@ const connection = mysql.createPool({
 const { unix } = require('moment');
 const { LogPunishment, NotifyUser } = require('./moderationinc')
 module.exports.PunishmentExpire = async (client, Discord) => {
-    return
     THE_THING_THAT_DOES_EVERYTHING_YEET(client, Discord)
 }
 

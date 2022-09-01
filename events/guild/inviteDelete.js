@@ -15,8 +15,10 @@ module.exports = async (Discord, client, invite) => {
         let query = `DELETE FROM activeinvites WHERE invitecode = ?`;
         let data = [invite.code];
         connection.query(query, data, function (error, results, fields) {
-              if (error) return console.log(error);
+            if (error) return console.log(error);
         })
         console.log(`Invite ${invite.code} deleted from db for guild ${invite.guild} (${invite.guild.id})`)
-  }, 5000);
+    }, 5000);
+    let newinvites = await invite.guild.invites.fetch()
+    client.invites.set(invite.guild.id, newinvites)
 }

@@ -2,9 +2,20 @@ module.exports = {
     name: 'unban',
     async execute(client, Discord) {
         let object = Object()
-        object.displayButtonsWhenNonEphemeral = true
+        object.displayButtonsWhenNonEphemeral = false
         object.title = 'Moderation - Un-ban'
-        object.description = `The Un-ban command lifts a ban on a user, allowing them to join a server once again.\nIf a user is banned, they must be Un-banned to rejoin.\n\n**Usage:**\n\`Un-Ban <@user|user_id> <reason>\`\n\n**Example:**\n\`Un-ban 862247858740789269\`\n\`Un-Ban Ozaibot#3594\``
+        object.description = `The Un-ban command lifts a ban on a user, allowing them to join a server once again.
+        If a user is banned, they must be Un-banned to rejoin.
+        
+        **Usage:**
+        \`Un-Ban <@user|user_id> <reason>\`
+        
+        **Examples:**
+        \`Un-ban 862247858740789269\`
+        \`Un-Ban Ozaibot#3594\`
+        
+        **Permissions:**
+        Ban Members.`
         const button = new Discord.MessageActionRow()
             .addComponents(
                 new Discord.MessageButton()

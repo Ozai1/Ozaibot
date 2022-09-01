@@ -16,7 +16,7 @@ module.exports = {
     name: 'botadmins',
     description: 'bAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (userstatus !== 1) {
+        if (userstatus == 1) {
             let query = `SELECT * FROM userstatus WHERE status = ?`;
             let data = [1]
             connection.query(query, data, function (error, results, fields) {

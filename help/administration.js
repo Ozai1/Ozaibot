@@ -9,7 +9,7 @@ module.exports = {
         .addComponents(
             new Discord.MessageButton()
                 .setLabel('SetWelcomeChannel')
-                .setStyle("PRIMARY")
+                .setStyle('Primary')
                 .setCustomId('HELP_SETWELCOMECHANNEL')
         ).addComponents(
             new Discord.MessageButton()
