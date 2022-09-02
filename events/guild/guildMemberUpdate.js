@@ -52,7 +52,7 @@ module.exports = async (Discord, client, oldmember, newmember) => {
                 if (!modlog) return
                 modlog = oldmember.guild.channels.cache.get(modlog)
                 if (!modlog) return
-                let message = Object
+                let message = Object()
                 message.author = client.user
                 message.guild = oldmember.guild;
                 message.channel = modlog;

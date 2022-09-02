@@ -30,7 +30,6 @@ module.exports = {
             console.log('Ozaibot does not have Permissions to ban in this server.')
             return message.channel.send('Ozaibot does not have ban in this server.');
         }
-        let muteroleid = client.muteroles.get(message.guild.id)
         if (!args[0]) {
             console.log('Add a member arguement.')
             const errorembed = new Discord.MessageEmbed()

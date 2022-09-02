@@ -94,7 +94,7 @@ module.exports = async (Discord, client, member) => {
                         console.log(err);
                     })
                     console.log(`${member.user.tag}(${member.id}) has rejoined ${guild} (${guild.id}) while muted, remuted`);
-                    let message = Object
+                    let message = Object()
                     message.author = client.user
                     message.guild = member.guild;
                     message.channel = undefined;

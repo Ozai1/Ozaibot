@@ -4,12 +4,12 @@ module.exports = {
        let object = Object()
     object.displayButtonsWhenNonEphemeral = true
     object.title = 'Administration'
-    object.description = `The administration module contains all of the server configuration, auto-moderation configuration and permission configuration.\n\n**Commands:**\n\`setWelcomeChannel\`\n\`setWelcomeMessage\`\n\`setFarewellMessage\`\n\`Mod-logs\`\n\`Permissions\`\n\`Prefix\`\n\`SetLinkSpamAction\`\n\`SetMassLinkSpamAction\`\n\`TogglePunishmentNotifications\`\nAnd lots more.\n\nSome more powerful yet abusable functions and modules are locked behind me manually allowing users/guilds to use them. These include but are not limited to: Server-Whitelist, Anti-Raid & server-wide purge. If you are interested in these, please contact me through the Ozaibot Discord server [here](https://discord.gg/xxRMvmtJpX).`
+    object.description = `The administration module contains all of the server configuration, auto-moderation configuration and permission configuration.\n\n**Commands:**\n\`setWelcomeChannel\`\n\`setWelcomeMessage\`\n\`setFarewellMessage\`\n\`Mod-logs\`\n\`Permissions\`\n\`Prefix\`\n\`SetLinkSpamAction\`\n\`SetMassLinkSpamAction\`\n\`TogglePunishmentNotifications\`\nAnd lots more.\n\nSome more powerful yet abusable functions and modules are locked behind me manually allowing users/guilds to use them. These include but are not limited to: Server-Whitelist, Anti-Raid & server-wide purge. If you are interested in these, please contact me through the Ozaibot Discord server [here](https://discord.gg/xxRMvmtJpX 'Join server!')).`
     const button = new Discord.MessageActionRow()
         .addComponents(
             new Discord.MessageButton()
                 .setLabel('SetWelcomeChannel')
-                .setStyle('Primary')
+                .setStyle('PRIMARY')
                 .setCustomId('HELP_SETWELCOMECHANNEL')
         ).addComponents(
             new Discord.MessageButton()

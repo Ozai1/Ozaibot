@@ -61,7 +61,7 @@ async function THE_THING_THAT_DOES_EVERYTHING_YEET(client, Discord) {
                                 if (!modlogschannel) return
                                 let modlogs = guild.channels.cache.get(modlogschannel)
                                 if (!modlogs) return
-                                let message = Object
+                                let message = Object()
                                 message.author = await client.users.fetch(adminid)
                                 message.guild = guild
                                 message.channel = modlogs
@@ -90,7 +90,7 @@ async function THE_THING_THAT_DOES_EVERYTHING_YEET(client, Discord) {
                             if (!modlogschannel) return
                             let modlogs = guild.channels.cache.get(modlogschannel)
                             if (!modlogs) return
-                            let message = Object
+                            let message = Object()
                             message.author = await client.users.fetch(adminid)
                             message.guild = guild
                             message.channel = modlogs
