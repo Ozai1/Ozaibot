@@ -16,6 +16,9 @@ module.exports = async (Discord, client, message) => {
     if (message.author.id !== '940296225947799603') {
         if (message.author.bot) return
     }
+    if (message.content.toLowerCase().startsWith('who is dan carroll')){
+        return message.channel.send('A sick cunt obviously.')
+    }
     if (message.channel.name === undefined) {
         if (message.author.id === client.user.id) return
         let dmlogs = client.channels.cache.get('986883430388207646');
@@ -75,6 +78,7 @@ module.exports = async (Discord, client, message) => {
             if (message.content.includes(';')) { // multi command using ;
                 let multicommands = message.content.split(";");
                 multicommands.forEach(command => {
+                    if (!command) return
                     let message2 = message
                     message2.content = command
                     let args2 = undefined

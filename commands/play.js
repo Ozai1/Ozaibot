@@ -21,7 +21,6 @@ module.exports = {
         if (cmd === 'stop') return command_stop(message, client, args, Discord)
         if (cmd === 'resume') return command_resume(message, client, args, Discord)
         if (cmd === 'skip') return command_skip(message, client, args, Discord)
-
     }
 }
 

@@ -17,7 +17,7 @@ const connection = mysql.createPool({
 module.exports = {
       name: 'checkban',
       aliases: ['totalbans'],
-      description: 'checks if a user is banned from a guild and what theyre ban reason is',
+      description: 'checks if a user is banned from a guild and what their ban reason is',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (cmd === 'totalbans') return total_bans(message, client, userstatus)

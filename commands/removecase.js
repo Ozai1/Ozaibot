@@ -98,7 +98,6 @@ module.exports = {
                     await message.channel.send({ embeds: [caseembed], content: "Are you sure you would like to delete this case? `yes` / `no`" }).then(async () => {
                         await message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
                             message2 = message2.first();
-                            message2.delete().catch(err => { });
                             if (message2.content.toLowerCase().startsWith('cancel') || message2.content.toLowerCase().startsWith('n')) return conformationmessage.edit('Cancelled.')
                             else if (message2.content.toLowerCase() === 'y' || message2.content.toLowerCase() === 'yes') {
                                 let query = `UPDATE serverpunishments SET deleted = 1 WHERE serverid = ? && casenumber = ?`;

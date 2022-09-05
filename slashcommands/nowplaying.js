@@ -28,14 +28,6 @@ const trackDuration = timestamp.progress == 'Forever' ? 'Endless (Live)' : track
 
         embed.setTimestamp();
 
-        const saveButton = new ButtonBuilder();
-
-        saveButton.setLabel('Save Song');
-        saveButton.setCustomId('saveTrack');
-        saveButton.setStyle('SUCCESS');
-
-        const row = new MessageActionRow().addComponents(saveButton);
-
-        interaction.reply({ embeds: [embed], components: [row] }).catch(e => { })
+        interaction.reply({ embeds: [embed] }).catch(e => { })
     },
 };

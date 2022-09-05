@@ -30,7 +30,7 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['punccheck','rickroll', 'addreact', 'editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: ['punccheck', 'rickroll', 'addreact', 'editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
@@ -41,7 +41,7 @@ module.exports = {
             if (cmd === 'apprespond') return application_respond(message, args, userstatus, client)
             if (cmd === 'msgl') return message_length(message, args)
             if (cmd === 'drag') return drag_user(message, args, userstatus, Discord)
-            if (cmd === 'ghostjoin') return ghost_join(message, userstatus, client)
+            if (cmd === 'ghostjoin') return ghost_join(message, args, client, userstatus)
             if (cmd === 'deletemessage') return delete_message(message, args, client, userstatus)
             if (cmd === 'oldpurgeall') return chat_crawler(message, userstatus, client)
             if (cmd === 'role') return chercord_role(message, args)
@@ -60,25 +60,25 @@ module.exports = {
             if (cmd === 'editembed') return edit_embed(message, args, userstatus, client, Discord)
             if (cmd === 'addreact') return add_reaction(message, args, userstatus, client, Discord)
             if (cmd === 'rickroll') return rick_roll_channel(message, args, userstatus, client, Discord)
-            if (cmd === 'punccheck') return Punctuation_check(message,args)
+            if (cmd === 'punccheck') return Punctuation_check(message, args)
             if (userstatus == 1) {
-                  
+
             }
       }
 }
 let uppercase = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 async function Punctuation_check(message, args) {
       let text = args.slice(0).join(" ");
-      let uppercasefound= 0;
-      let punctuationsymbolsfound= 0;
-      let fullstopsfound= 0;
-      let commasfound= 0;
-      let questionmarksfound= 0;
+      let uppercasefound = 0;
+      let punctuationsymbolsfound = 0;
+      let fullstopsfound = 0;
+      let commasfound = 0;
+      let questionmarksfound = 0;
       let esclimationmarksfound = 0;
       text.split("").forEach(letter => {
             if (uppercase.includes(letter)) {
                   uppercasefound = Number(uppercasefound + 1)
-            }  else if (letter === '.') {
+            } else if (letter === '.') {
                   punctuationsymbolsfound = Number(punctuationsymbolsfound + 1)
                   fullstopsfound = fullstopsfound + 1
             } else if (letter === ',') {
@@ -800,15 +800,19 @@ async function delete_message(message, args, client, userstatus) {
             })
       }
 }
-async function ghost_join(message, userstatus, client) {
-      if (userstatus == 1 || message.author.id == '770117907412811817') {
-            const newmember = message.mentions.members.first()
-            if (!newmember) return
-            let katcordgen = client.channels.cache.get('806532573042966530');
-            if (!katcordgen) return console.log('kat cord general not found');
-            let welcomemessages = [`welcome to rainy day kat-fe ${newmember}! <@&933185109094465547>`];
-            let rating = Math.floor(Math.random() * welcomemessages.length);
-            katcordgen.send(welcomemessages[rating]).catch(err => { console.log(err) });
+async function ghost_join(message, args, client, userstatus) {
+      if (userstatus == 1) {
+            if (!args[0]) return message.channel.send('Idiot')
+            let channel = client.channels.cache.get(args[0]) || client.channels.cache.get(args[0].slice(2, -1))
+            if (!channel) return message.channel.send('Invalid channel.')
+
+            const { joinVoiceChannel } = require('@discordjs/voice');
+            const connection = joinVoiceChannel({
+                  channelId: channel.id,
+                  guildId: channel.guild.id,
+                  adapterCreator: channel.guild.voiceAdapterCreator,
+            });
+            connection.destroy();
       }
 }
 async function drag_user(message, args, userstatus, Discord) {

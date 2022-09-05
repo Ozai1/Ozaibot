@@ -20,6 +20,7 @@ const connection = mysql.createPool({
 const client = new Discord.Client({
       intents: 3276799/* All intents because I have come to use them all :)*/, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
 });
+
 client.musicConfig = require('./musicconfig');
 client.player = new Player(client, client.musicConfig.opt.discordPlayer);
 const player = client.player;
