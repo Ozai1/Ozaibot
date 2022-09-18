@@ -3,7 +3,6 @@ const { unix } = require("moment");
 const fs = require('fs')
 const { QueryType } = require('discord-player');
 const ytdl = require('ytdl-core');
-const { joinVoiceChannel } = require('@discordjs/voice');
 const DISCORD_EPOCH = 1420070400000
 let nextbumptime = '';
 let lastbumptime = '';
@@ -18,7 +17,7 @@ const mysql = require('mysql2');
 
 require('dotenv').config();
 const connection = mysql.createPool({
-      host: 'vps01.tsict.com.au',
+      host: '112.213.34.137',
       port: '3306',
       user: 'root',
       password: process.env.DATABASE_PASSWORD,
@@ -51,8 +50,8 @@ module.exports = {
             if (cmd === 'sql') return self_sql(message, args)
             if (cmd === 'slashcommands') return slash_command_invite(message)
             if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
-            if (cmd === 'steamid') return convert_steam_id(message, args);
-            if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord);
+            if (cmd === 'steamid') return convert_steam_id(message, args)
+            if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord)
             if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
             if (cmd === 'searchembed') return search_embed(message, args, userstatus, client)
             if (cmd === 'randompassword') return random_password(message, args)
@@ -243,8 +242,6 @@ async function Command_GetYTVideoAudio(message, args, userstatus) {
                   confmessage.edit(err)
             }
 
-      } else {
-            message.channel.send('You do not have permission to use this command')
       }
 }
 

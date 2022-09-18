@@ -2,7 +2,7 @@ const mysql = require('mysql2');
 require('dotenv').config();
 const { LinkDetected } = require('../../antiscamspam')
 const connection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
+    host: '112.213.34.137',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
@@ -16,9 +16,9 @@ module.exports = async (Discord, client, message) => {
     if (message.author.id !== '940296225947799603') {
         if (message.author.bot) return
     }
-    if (message.content.toLowerCase().startsWith('who is dan carroll')){
-        return message.channel.send('A sick cunt obviously.')
-    }
+    // if (message.content.toLowerCase().startsWith('who is ')){
+    //     return message.channel.send('A sick cunt obviously.')
+    // }
     if (message.channel.name === undefined) {
         if (message.author.id === client.user.id) return
         let dmlogs = client.channels.cache.get('986883430388207646');
@@ -55,7 +55,7 @@ module.exports = async (Discord, client, message) => {
         let cmd = undefined
         let command = undefined
         if (message.content.startsWith('<@')) {
-            console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(21)}`)
+            console.log(`CHATCMD | ${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(21)}`)
             args = message.content.slice(21).split(" ");
         } else if (message.content.startsWith('<@!')) {
             console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(22)}`)

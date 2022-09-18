@@ -3,7 +3,7 @@ const { GetDisplay, GetPunishName, GetPunishColour, GetPunishmentDuration, GetMe
 require('dotenv').config();
 const {unix} = require('moment')
 const connection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
+    host: '112.213.34.137',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,

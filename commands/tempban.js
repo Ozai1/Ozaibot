@@ -4,7 +4,7 @@ const mysql = require('mysql2');
 const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment, NotifyUser } = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
+    host: '112.213.34.137',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
@@ -47,6 +47,22 @@ module.exports = {
                 .setColor(15684432)
                 .setDescription(`Invalid member.\n\nProper useage is:\n\`tempban <@member|member_id> <time> [days_to_delete] [reason]\``)
             return message.channel.send({ embeds: [errorembed] })
+        }
+        if (!message.guild.members.cache.get(member.id)) {
+            let banned = await message.guild.bans.fetch().then(async bans => {
+                let member2 = bans.get(member.id);
+                if (member2) {
+                    const errorembed = new Discord.MessageEmbed()
+                        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                        .setColor(15684432)
+                        .setDescription(`This member is already banned.\n\nTemp-ban cannot be executed because a ban is already in place on this user.`)
+                    message.channel.send({ embeds: [errorembed] })
+                    return 1
+                } else {
+                    return 0
+                }
+            })
+            if (banned) return
         }
         if (member.id === message.author.id) {
             console.log('attempted self ban, canceling')

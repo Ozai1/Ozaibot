@@ -2,12 +2,11 @@ console.log('Stwarting Ozwaibot!!!');
 const { unix } = require('moment');
 const { Player } = require('discord-player');
 const Discord = require('discord.js');
-
-const { Main_INIT } = require('./INIT')
+const { Main_INIT } = require('./INIT');
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
-      host: 'vps01.tsict.com.au',
+      host: '112.213.34.137',
       port: '3306',
       user: 'root',
       password: process.env.DATABASE_PASSWORD,

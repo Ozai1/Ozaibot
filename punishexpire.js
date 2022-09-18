@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
+    host: '112.213.34.137',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
@@ -17,7 +17,7 @@ module.exports.PunishmentExpire = async (client, Discord) => {
 }
 
 async function THE_THING_THAT_DOES_EVERYTHING_YEET(client, Discord) {
-    setInterval(() => { // 2 second interval
+    setInterval( () => { // 2 second interval
         let query = `SELECT * FROM activebans WHERE timeunban < ?`;
         let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
         connection.query(query, data, async function (error, results, fields) {

@@ -2,7 +2,7 @@ const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
+    host: '112.213.34.137',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
@@ -18,7 +18,7 @@ module.exports = {
     description: 'ban a user from a guild',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (cmd === 'sban') return sban(message, args, userstatus, Discord)
+        if (cmd === 'sban') return sban(message, args, userstatus,client, Discord)
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
         if (!userstatus == 1) {
             if (!message.member.permissions.has('BAN_MEMBERS')) {
@@ -131,10 +131,10 @@ module.exports = {
         LogPunishment(message, client, member.id, 1, null, reason, Discord)
     }
 }
-async function sban(message, args, userstatus, Discord) {
+async function sban(message, args, userstatus,client, Discord) {
     if (userstatus == 1) {
         if (!args[0]) return message.member.send('You must add a member to kick.')
-        const member = await GetMember(message, client, args[0], Discord, true, false)
+        const member = await GetMember(message, client, args[0], Discord, true, true)
         if (member === 'cancelled') return
         let reason = args.slice(1).join(" ");
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server!')

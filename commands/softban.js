@@ -3,7 +3,7 @@ const unix = require('moment')
 require('dotenv').config();
 const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc");
 const connection = mysql.createPool({
-    host: 'vps01.tsict.com.au',
+    host: '112.213.34.137',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
@@ -62,7 +62,7 @@ module.exports = {
                 return message.channel.send({ embeds: [errorembed] })
             }
             message.guild.bans.fetch().then(async bans => {
-                let member2 = bans.get(args[0]);
+                let member2 = bans.get(member.id);
                 if (member2) {
                     const errorembed = new Discord.MessageEmbed()
                         .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
