@@ -14,6 +14,11 @@ module.exports = {
                     .setCustomId('HELP_TARGETING')
             ).addComponents(
                 new Discord.MessageButton()
+                    .setLabel('Permission Flags ->')
+                    .setStyle("PRIMARY")
+                    .setCustomId('HELP_PERMISSIONFLAGS')
+            ).addComponents(
+                new Discord.MessageButton()
                     .setLabel('Back to MISC')
                     .setStyle("PRIMARY")
                     .setCustomId('HELP_TIPS')

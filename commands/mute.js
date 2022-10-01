@@ -1,7 +1,7 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
+const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment, NotifyUser, HasPerms } = require("../moderationinc")
 
-const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment, NotifyUser } = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
       host: '112.213.34.137',
@@ -20,12 +20,16 @@ module.exports = {
       description: 'mutes a user in a guild',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (!message.guild) return message.channel.send('This command must be used in a server.')
-            if (!userstatus == 1) {
-                  if (!message.member.permissions.has("MANAGE_CHANNELS")) {
-                        console.log("You do not have access to this command.")
-                        return message.channel.send("You do not have access to this command.");
+            if (userstatus !== 1) {
+                  let perms = await HasPerms(message, message.member, client, 'c', 'l')
+                  if (!message.member.permissions.has("MANAGE_CHANNELS") && perms !== 1 || perms == 2) {
+                      const errorembed = new Discord.MessageEmbed()
+                          .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                          .setColor(15684432)
+                          .setDescription(`You do not have access to this command.`)
+                      return message.channel.send({ embeds: [errorembed] })
                   }
-            } if (!message.guild.me.permissions.has('MANAGE_ROLES')) {
+              } if (!message.guild.me.permissions.has('MANAGE_ROLES')) {
                   console.log('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.')
                   return message.channel.send('Ozaibot does not have Permissions to edit roles in this server! I cannot mute without this permission.');
             }

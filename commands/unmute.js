@@ -11,7 +11,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
+const { GetMember, LogPunishment, NotifyUser, HasPerms } = require("../moderationinc")
 module.exports = {
       name: 'unmute',
       aliases: ['muterole', 'unm', 'un-mute'],
@@ -19,6 +19,16 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (cmd === 'muterole') return mute_role(message, client, args, userstatus, Discord)
+            if (userstatus !== 1) {
+                  let perms = await HasPerms(message, message.member, client, 'd', 'l')
+                  if (!message.member.permissions.has("MANAGE_MESSAGES") && perms !== 1 || perms == 2) {
+                      const errorembed = new Discord.MessageEmbed()
+                          .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                          .setColor(15684432)
+                          .setDescription(`You do not have access to this command.`)
+                      return message.channel.send({ embeds: [errorembed] })
+                  }
+              }
             if (!args[0]) {
                   return message.channel.send('Please give a member.')
             }
@@ -33,7 +43,6 @@ module.exports = {
                         let muteroleid = row["details"];
                         const muterole = message.guild.roles.cache.get(muteroleid)
                         if (!userstatus == 1) {
-                              if (!message.member.permissions.has("MANAGE_MESSAGES")) return message.channel.send("You do not have access to this command.");
                               if (message.guild.ownerId !== message.author.id) {
                                     if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) return message.channel.send('You cannot unmute someone with the same or higher roles than your own.');
                               }

@@ -12,11 +12,8 @@ const connection = mysql.createPool({
 });
 
 module.exports = async (Discord, client, oldmessage, newmessage) => {
-    if (!newmessage)return
+    if (!newmessage || !newmessage.content) return
     let message = newmessage
-    if (!message.author.id == '940296225947799603') {
-        if (message.author.bot) return 
-     }
      if (message.channel.name === undefined) {
          if (message.author.id === client.user.id) return
          let dmlogs = client.channels.cache.get('986883430388207646');

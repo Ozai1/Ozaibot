@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const {HasPerms } = require("../moderationinc")
 
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -18,26 +19,29 @@ module.exports = {
     description: 'changes the @ everyone permission of SEND_MESSAGES to the opposet of what it was before',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (message.member.permissions.has('MANAGE_CHANNELS') || userstatus == 1) {
+        if (userstatus !== 1) {
+            let perms = await HasPerms(message, message.member, client, 'j', 'l')
+            if (!message.member.permissions.has("MANAGE_CHANNELS") && perms !== 1 || perms == 2) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`You do not have access to this command.`)
+                return message.channel.send({ embeds: [errorembed] })
+            }
+        }
             if (!message.channel.permissionsFor(message.guild.roles.everyone).has('SEND_MESSAGES')) {
                 await message.channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: true }).catch(err => { console.log(err) })
                 const msgEmbed = new Discord.MessageEmbed()
-                    .setDescription(`lockdown has ended.`)
+                    .setDescription(`Lockdown has ended.`)
                     .setColor('GREEN');
                     message.channel.send({ embeds: [msgEmbed] })
             } else {
                 await message.channel.permissionOverwrites.edit(message.channel.guild.roles.everyone, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
 
                 const msgEmbed = new Discord.MessageEmbed()
-                    .setDescription(`Lockdown has started!`)
-                    .setColor('RED');
+                    .setDescription(`Lockdown has started.`)
+                    .setColor('RED')
                 message.channel.send({ embeds: [msgEmbed] })
             }
-        } else {
-            const warningEmbed = new Discord.MessageEmbed()
-                .setDescription('You do not have access to this command.')
-                .setColor('YELLOW');
-            message.channel.send({ embeds: [warningEmbed] })
-        }
     }
 }

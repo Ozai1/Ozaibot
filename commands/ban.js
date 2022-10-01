@@ -1,4 +1,4 @@
-const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
+const { GetMember, LogPunishment, NotifyUser, HasPerms } = require("../moderationinc")
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -19,9 +19,9 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (cmd === 'sban') return sban(message, args, userstatus,client, Discord)
-        if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
-        if (!userstatus == 1) {
-            if (!message.member.permissions.has('BAN_MEMBERS')) {
+        if (userstatus !== 1) {
+            let perms = await HasPerms(message, message.member, client, 'a', 'l')
+            if (!message.member.permissions.has("BAN_MEMBERS") && perms !== 1 || perms == 2) {
                 const errorembed = new Discord.MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
@@ -29,6 +29,7 @@ module.exports = {
                 return message.channel.send({ embeds: [errorembed] })
             }
         }
+                if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('Ozaibot does not have ban permissions in this server.');
         if (!args[0]) {
             console.log('stopped, no member arg')
             const errorembed = new Discord.MessageEmbed()

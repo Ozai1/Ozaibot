@@ -11,7 +11,7 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-
+const { HasPerms } = require("../../moderationinc")
 module.exports = async (Discord, client, message) => {
     if (message.author.id !== '940296225947799603') {
         if (message.author.bot) return
@@ -28,20 +28,7 @@ module.exports = async (Discord, client, message) => {
         dmlogs.send({ embeds: [commandembed] });
     }
     let prefix = 'sm_';
-    if (message.guild) {
-        if (!message.guild.me.permissionsIn(message.channel).has("SEND_MESSAGES")) {
-            if (message.member.permissions.has('MANAGE_CHANNELS')) {
-                return message.author.send('I do not have permission to **send messages** in the channel you just sent a command in.\nThis means **i cannot respond to you**.\n\nPlease give me Send Messages permissions so I can work properly. You can do this by editing my role\'s permissions.').catch(err => { })
-            } else {
-                return message.author.send('I do not have permission to **send messages** in the channel you just sent a command in.\nThis means **i cannot respond to you**.\n\nPlease contact an administrator to give me permissions to send messages.').catch(err => { })
-            }
-        } if (!message.guild.me.permissionsIn(message.channel).has("EMBED_LINKS")) {
-            if (message.member.permissions.has('MANAGE_CHANNELS')) {
-                return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease give me Embed link permissions so I can work properly. You can do this by editing my role\'s permissions.').catch(err => { })
-            } else {
-                return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease contact an administrator to give me permissions to embed links.').catch(err => { })
-            }
-        }
+    if (message.guild && !message.channel.type == 15) {
         prefix = client.prefixes.get(message.guild.id)
         if (prefix === undefined) {
             prefix = 'sm_'
@@ -51,6 +38,22 @@ module.exports = async (Discord, client, message) => {
         }
     }
     if (message.content.toLowerCase().startsWith(prefix) || message.content.toLowerCase().startsWith(` ${prefix}`) || message.content.startsWith('<@862247858740789269>') || message.content.startsWith('<@!862247858740789269>')) {
+        if (message.guild) {
+            if (!message.guild.me.permissionsIn(message.channel).has("SEND_MESSAGES")) {
+                if (message.member.permissions.has('MANAGE_CHANNELS')) {
+                    return message.author.send('I do not have permission to **send messages** in the channel you just sent a command in.\nThis means **i cannot respond to you**.\n\nPlease give me Send Messages permissions so I can work properly. You can do this by editing my role\'s permissions.').catch(err => { })
+                } else {
+                    return message.author.send('I do not have permission to **send messages** in the channel you just sent a command in.\nThis means **i cannot respond to you**.\n\nPlease contact an administrator to give me permissions to send messages.').catch(err => { })
+                }
+            } if (!message.guild.me.permissionsIn(message.channel).has("EMBED_LINKS")) {
+                if (message.member.permissions.has('MANAGE_CHANNELS')) {
+                    return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease give me Embed link permissions so I can work properly. You can do this by editing my role\'s permissions.').catch(err => { })
+                } else {
+                    return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease contact an administrator to give me permissions to embed links.').catch(err => { })
+                }
+            }
+           
+        }
         let args = undefined
         let cmd = undefined
         let command = undefined
@@ -58,15 +61,16 @@ module.exports = async (Discord, client, message) => {
             console.log(`CHATCMD | ${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(21)}`)
             args = message.content.slice(21).split(" ");
         } else if (message.content.startsWith('<@!')) {
-            console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(22)}`)
+            console.log(`CHATCMD | ${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(22)}`)
             args = message.content.slice(22).split(" ");
         } else {
-            console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(prefix.length)}`)
+            console.log(`CHATCMD | ${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(prefix.length)}`)
             args = message.content.slice(prefix.length).split(" ");
         }
         if (args[0] === '') {
             args.shift()
         }
+        if (!args[0]) return
         cmd = args.shift().toLowerCase();
         command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
         userstatus = client.userstatus.get(message.author.id)
@@ -74,6 +78,9 @@ module.exports = async (Discord, client, message) => {
         if (userstatus === undefined) {
             userstatus = -1
         }
+         if (userstatus!==1){
+            let blocked = await HasPerms(message, message.member, client, 'z')
+            if (blocked == 2) return console.log('member has all perms denied, lel. no cmd executed')}
         if (userstatus == 1) {
             if (message.content.includes(';')) { // multi command using ;
                 let multicommands = message.content.split(";");

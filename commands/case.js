@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const { GetDisplay, GetPunishName, GetPunishColour} = require('../moderationinc')
+const { GetDisplay, GetPunishName, GetPunishColour, HasPerms} = require('../moderationinc')
 require('dotenv').config();
 const connection = mysql.createPool({
     host: '112.213.34.137',
@@ -17,12 +17,15 @@ module.exports = {
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (!message.member.permissions.has("MANAGE_MESSAGES")) {
-            const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`You do not have access to this command.`)
-            return message.channel.send({ embeds: [errorembed] })
+        if (userstatus !== 1) {
+            let perms = await HasPerms(message, message.member, client, 'h', 'l')
+            if (!message.member.permissions.has("KICK_MEMBERS") && perms !== 1 || perms == 2) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`You do not have access to this command.`)
+                return message.channel.send({ embeds: [errorembed] })
+            }
         }
         if (!args[0]) {
             const errorembed = new Discord.MessageEmbed()

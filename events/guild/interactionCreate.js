@@ -38,7 +38,7 @@ module.exports = async (Discord, client, interaction) => {
     }
     if (interaction.isButton()) {
         if (interaction.customId) {
-            console.log(interaction.customId ? `${interaction.user.tag} (${interaction.user.id}) pressed button with custom id ${interaction.customId} in ${interaction.guild}, ${interaction.message.channel.name}` : `A customId-less button was pushed in ${interaction.guild}, ${interaction.channel}`)
+            console.log(interaction.customId ? `BUTTON | ${interaction.user.tag} (${interaction.user.id}) pressed button with custom id ${interaction.customId} in ${interaction.guild}, ${interaction.message.channel.name}` : `BUTTON | A customId-less button was pushed in ${interaction.guild}, ${interaction.channel}`)
         }
         let userstatus = client.userstatus.get(interaction.user.id)
         if (userstatus == 0) {

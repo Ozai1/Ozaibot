@@ -200,9 +200,7 @@ const GetSecondDisplayUnit = (timelength) => {
     }
     if (display.includes('.')) {
         display = display.split('.')
-        console.log(display)
         display[1] = display[1].replace(/[1-9]/g, '')
-        console.log(display)
         display = display[0] + display[1]
     }
     return display
@@ -331,7 +329,8 @@ module.exports.GetMember = async (message, client, string, Discord, AllowMultipl
         }
         if (AllowMultipleResults === false) return undefined
         if (possibleusers.length > 9) {
-            return message.channel.send('To many users found. Please use a more definitive string.')
+            message.channel.send('To many users found. Please use a more definitive string.')
+            return undefined
         }
         let printmessage = possibleusers.filter((a) => a).toString()
         printmessage = printmessage.replace(/,/g, '\n')
@@ -454,7 +453,8 @@ module.exports.GetMemberOrChannel = async (message, client, string, Discord, All
         }
         if (AllowMultipleResults === false) return undefined
         if (possibleusers.length > 9) {
-            return message.channel.send('To many users found. Please use a more definitive string.')
+            message.channel.send('To many users found. Please use a more definitive string.')
+            return undefined
         }
         let printmessage = possibleusers.filter((a) => a).toString()
         printmessage = printmessage.replace(/,/g, '\n')
@@ -515,16 +515,25 @@ module.exports.GetMemberOrRole = async (message, client, string, Discord, AllowM
         let member = undefined;
         if (!isNaN(string) && string.length > 17 && string.length < 21) {
             member = message.guild.members.cache.get(string);
-            if (member) return member
+            if (member) {
+                member.type2 = 'user'
+                return member
+            }
             if (includeOffserver) {
                 member = client.users.cache.get(string)
                 if (member) {
+                    member.type2 = 'user'
                     return member
                 }
                 member = await client.users.fetch(string).catch(err => { })
-                if (member) return member
+                if (member) {
+                    member.type2 = 'user'
+                    return member
+                }
             }
             member = message.guild.roles.cache.get(string)
+            if (!member) return undefined
+            member.type2 = 'role'
             return member
         }
         if (string.startsWith('<@')) {
@@ -533,21 +542,30 @@ module.exports.GetMemberOrRole = async (message, client, string, Discord, AllowM
                 if (includeOffserver) {
                     member = client.users.cache.get(string.slice(3, -1)) || client.users.cache.get(string.slice(2, -1))
                     if (member) {
+                        member.type2 = 'user'
                         return member
                     }
                     if (string.includes('!')) {
                         member = await client.users.fetch(string.slice(3, -1)).catch(err => { })
+                        if (!member) return undefined
+                        member.type2 = 'user'
                         return member
                     } else {
                         member = await client.users.fetch(string.slice(2, -1)).catch(err => { })
+                        if (!member) return undefined
+                        member.type2 = 'user'
                         return member
                     }
                 }
             }
+            if (!member) return undefined
+            member.type2 = 'user'
             return member
         }
         if (string.startsWith('<@&')) {
             member = message.guild.roles.cache.get(string.slice(3, 1))
+            if (!member) return undefined
+            member.type2 = 'user'
             return member
         }
         let possibleusers = []
@@ -570,15 +588,20 @@ module.exports.GetMemberOrRole = async (message, client, string, Discord, AllowM
         if (!possibleusers[0]) {
             return undefined
         } else if (!possibleusers[1]) {
-            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1)) || message.guild.roles.cache.find(role => role.name === possibleusers[0].slice(6, -1))
-            if (!member) {
-                member = message.guild.roles.cache.get()
+            member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1))
+            if (member) {
+                member.type2 = 'user'
+                return member
             }
+            member = message.guild.roles.cache.find(role => role.name === possibleusers[0].slice(6, -1))
+            if (!member) return undefined
+            member.type2 = 'role'
             return member
         }
         if (AllowMultipleResults === false) return undefined
         if (possibleusers.length > 9) {
-            return message.channel.send('To many users found. Please use a more definitive string.')
+            message.channel.send('To many users found. Please use a more definitive string.')
+            return undefined
         }
         let printmessage = possibleusers.filter((a) => a).toString()
         printmessage = printmessage.replace(/,/g, '\n')
@@ -603,14 +626,19 @@ module.exports.GetMemberOrRole = async (message, client, string, Discord, AllowM
                     message2.channel.send('Failed, that number isnt on the list.')
                     return
                 }
-                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[message2.content - 1].slice(6, -1)) || message.guild.roles.cache.find(channel => channel.name === possibleusers[message2.content - 1].slice(6, -1))
+                member = message.guild.members.cache.find(member => member.user.tag === possibleusers[0].slice(6, -1))
+                if (member) {
+                    member.type2 = 'user'
+                    return member
+                }
+                member = message.guild.roles.cache.find(role => role.name === possibleusers[0].slice(6, -1))
                 if (!member) {
-                    member =
-                        message.channel.send('failed for whatever reason')
+                    message.channel.send('failed for whatever reason')
                     console.error('Was unable to grab member in GetMember after multiple user embed and proper response')
                     return
                 }
-                return member;
+                member.type2 = 'role'
+                return member
             }).catch(collected => {
                 console.log(collected);
                 message.channel.send('Timed out.').catch(err => { console.log(err) });
@@ -790,7 +818,7 @@ module.exports.NotifyUser = async (type, message, title, member, reason, length,
     } if (!reason && !length) {
         bannedembed.setDescription(`**Actioned by:** ${message.author} ${message.author.tag}`)
     }
-    await member.send({ embeds: [bannedembed] }).catch(err => { console.log('Conf message failed to send; users permissions do not allow') })
+    await member.send({ embeds: [bannedembed] }).catch(err => { return console.log('Conf message failed to send; users permissions do not allow') })
     console.log('Conf message sent')
 }
 
@@ -852,7 +880,67 @@ const FlagNames = new Map()
     .set('any', 'q')
     .set('all', 'z')
     .set('all-permissions', 'z')
-    
+
 module.exports.NameToFlag = (name) => {
     return FlagNames.get(name.toLowerCase())
+}
+/**
+ * checks if a user has permissions for an action
+ * @param {Object} message Message object
+ * @param {Object} member The target of the command's ID
+ * @param {Object} client
+ * @param {Letter} flag The permission you are validating | Ban A | Unban B | Mute C | Unmute D | Kick E | Softban F | Warn G | Edit-Case/reason H | Purge I | LockDown J | Search/Case K | 
+ * @param {Letter} module The module that the command comes from. Moderation L | Administration M | Fun N | Utility O | General P | any Q | All/Root Z
+ * @returns {Integer} 0 = null (neither Allowed or denied) | 1 = allowed | 2 = denied
+ */
+
+module.exports.HasPerms = async (message, member, client, flag, module) => {
+    if (member.id == member.guild.ownerId) return 1
+    let posuserperms = client.positiveuserpermissions.get(message.guild.id)
+    let neguserperms = client.negativeuserpermissions.get(message.guild.id)
+    let posperms = posuserperms.get(member.id)
+    let negperms = neguserperms.get(member.id)
+    if (posperms) {
+        if (posperms.includes('z')) return 1
+    }
+    if (negperms) {
+        if (negperms.includes('z')) return 2
+    }
+    if (posperms) {
+        if (posperms.includes(flag)) return 1
+    } if (negperms) {
+        if (negperms.includes(flag)) return 2
+    }
+    if (posperms) {
+        if (posperms.includes(module)) return 1
+    }
+    if (negperms) {
+        if (negperms.includes(module)) return 2
+    }
+    let negroleperms = client.negativerolepermissions.get(message.guild.id)
+    let posroleperms = client.positiverolepermissions.get(message.guild.id)
+    let hasfoundfalse = false
+    let hasfoundfalsemodule = false
+    let hasfoundtrue = false
+    let hasfoundtruemodule = false
+    let posperms2 = undefined
+    let negperms2 = undefined
+    await member.roles.cache.forEach(role => {
+        posperms2 = posroleperms.get(role.id)
+        negperms2 = negroleperms.get(role.id)
+        if (posperms2) {
+            if (posperms2.includes(flag)) hasfoundtrue = true
+            if (posperms2.includes(module)) hasfoundtruemodule = true
+            if (posperms2.includes('z')) hasfoundtrue = true
+        } if (negperms2) {
+            if (negperms2.includes(flag)) hasfoundfalse = true
+            if (negperms2.includes(module)) hasfoundfalsemodule = true
+            if (negperms2.includes('z')) hasfoundfalse = true
+        }
+    })
+    if (hasfoundtrue) return 1
+    if (hasfoundfalse) return 2
+    if (hasfoundtruemodule) return 1
+    if (hasfoundfalsemodule) return 2
+    return 0
 }

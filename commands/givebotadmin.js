@@ -60,7 +60,7 @@ module.exports = {
                     }
                 }
             })
-        }else {message.channel.send("<https://youtu.be/sSI0WSCVHnU?t=42>")}
+        }else {message.channel.send("https://tenor.com/view/fun-fact-no-gif-20678158")}
     }
 }
 

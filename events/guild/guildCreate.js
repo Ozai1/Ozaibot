@@ -1,7 +1,7 @@
 const mysql = require('mysql2')
 require('dotenv').config();
 const connection = mysql.createPool({
-    host: '112.213.34.137',
+    host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
@@ -29,9 +29,44 @@ module.exports = async (Discord, client, guildCreate) => {
             })
         })
     }
+    query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
+    data = [guild.id];
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            console.error(error)
+            client.currentcasenumber.set(guild.id, 0)
+            return
+        }
+        let casenumber = undefined
+        if (!results == ``) {
+            for (row of results) {
+                casenumber = row["MAX(casenumber)"]
+            }
+        }
+        if (casenumber == undefined || casenumber === null) {
+            casenumber = 0
+        }
+        client.currentcasenumber.set(guild.id, casenumber)
+    })
     console.log(`**Ozaibot has been added to a new server.** \nServer = **${guild.name}**\nID = ${guild.id}\nGuildOwner = <@${guildowner.id}> (${guildowner.id})\n\n`)
     const commandembed = new Discord.MessageEmbed()
         .setDescription(`Ozaibot has been added to a new server. \nServer = ${guild.name}\nID = ${guild.id}\nGuildOwner = <@${guildowner.id}> (${guildowner.id})\n Members: ${totalmembers}`)
         .setTimestamp()
     alllogs.send({ content: '<@508847949413875712>', embeds: [commandembed] })
+
+    query = `SELECT * FROM serverconfigs WHERE serverid = ? && type = ?`;
+    data = [guild.id, 'guildblacklisted'];
+    connection.query(query, data, function (error, results, fields) {
+        if (error) {
+            console.error(error)
+            return
+        }
+        if (!results == ``) {
+            for (row of results) {
+                guild.leave().catch(err => { console.log(err) })
+                console.log('Left The above guild due to the guild being blacklisted')
+                alllogs.send('Left The above guild due to the guild being blacklisted')
+            }
+        }
+    })
 }

@@ -23,6 +23,6 @@ module.exports = {
                     .setCustomId('HELP_MODULES')
             )
         object.buttons = [button];
-        return client.help.set('moderation', object).set('mod', object)
+        return client.help.set('utility', object).set('util', object)
     }
 }

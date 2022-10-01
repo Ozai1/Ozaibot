@@ -11,7 +11,7 @@ const connection = mysql.createPool({
       connectionLimit: 10,
       queueLimit: 0
 });
-const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc")
+const { GetMember, LogPunishment, NotifyUser , HasPerms} = require("../moderationinc")
 module.exports = {
       name: 'kick',
       aliases: ['k', 'skick'],
@@ -19,12 +19,21 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (cmd === 'skick') return skick(message, args, userstatus, Discord, client)
+            if (userstatus !== 1) {
+                  let perms = await HasPerms(message, message.member, client, 'e', 'l')
+                  if (!message.member.permissions.has("KICK_MEMBERS") && perms !== 1 || perms == 2) {
+                      const errorembed = new Discord.MessageEmbed()
+                          .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                          .setColor(15684432)
+                          .setDescription(`You do not have access to this command.`)
+                      return message.channel.send({ embeds: [errorembed] })
+                  }
+              }
             if (!message.guild.me.permissions.has('KICK_MEMBERS')) return message.channel.send('Ozaibot does not have kick permissions in this server!')
             if (!args[0]) return message.channel.send('You must add a member to kick.')
             member = await GetMember(message, client, args[0], Discord, true, false);
             if (member === 'cancelled') return
             if (!userstatus == 1) {
-                  if (!message.member.permissions.has('KICK_MEMBERS')) return message.reply('You do not have access to this command.');
                   if (message.guild.ownerId !== message.author.id) {
                         if (message.member.roles.highest.position <= member.roles.highest.position || member.id == message.guild.ownerId) return message.channel.send('You cannot kick someone with higher or the same roles as your own.');
                   }

@@ -29,15 +29,44 @@ const connection = mysql.createPool({
 
 module.exports = {
       name: 'test',
-      aliases: ['punccheck', 'rickroll', 'addreact', 'editembed', 'cexec', 'randompassword', 'searchembed', 'getvideoaudio', 'speakover', 'steamid', 'lemonpurge', 'slashcommands', 'youare', 'sql', 'botperms', 'myperms', 'nextbump', 'currenttime', 'a', 'massping', 'massmessage', 'serverpurge', 'apprespond', 'msgl', 'drag', 'ghostjoin', 'deletemessage', 'oldpurgeall', 'role'],
+      aliases: [
+            'wait',
+            'punccheck',
+            'rickroll',
+            'addreact',
+            'editembed',
+            'cexec',
+            'randompassword',
+            'searchembed',
+            'getvideoaudio',
+            'speakover',
+            'steamid',
+            'lemonpurge',
+            'slashcommands',
+            'youare',
+            'sql',
+            'botperms',
+            'myperms',
+            'nextbump',
+            'currenttime',
+            'a',
+            'massping',
+            'massmessage',
+            'serverpurge',
+            'apprespond',
+            'msgl',
+            'drag',
+            'ghostjoin',
+            'deletemessage',
+            'oldpurgeall',
+            'role'
+      ],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (cmd === 'nextbump') return next_bump(message)
             if (cmd === 'currenttime') return current_time(message)
             if (cmd === 'a') return repeat_message(message, args, userstatus)
             if (cmd === 'massping') return mass_message(message, args, userstatus)
-            if (cmd === 'serverpurge') return server_wide_purge(message, args, userstatus)
-            if (cmd === 'apprespond') return application_respond(message, args, userstatus, client)
             if (cmd === 'msgl') return message_length(message, args)
             if (cmd === 'drag') return drag_user(message, args, userstatus, Discord)
             if (cmd === 'ghostjoin') return ghost_join(message, args, client, userstatus)
@@ -49,9 +78,7 @@ module.exports = {
             if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
             if (cmd === 'sql') return self_sql(message, args)
             if (cmd === 'slashcommands') return slash_command_invite(message)
-            if (cmd === 'lemonpurge') return purge_of_racial_slurs(message, userstatus)
             if (cmd === 'steamid') return convert_steam_id(message, args)
-            if (cmd === 'speakover') return speak_over(message, args, userstatus, Discord)
             if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
             if (cmd === 'searchembed') return search_embed(message, args, userstatus, client)
             if (cmd === 'randompassword') return random_password(message, args)
@@ -60,6 +87,7 @@ module.exports = {
             if (cmd === 'addreact') return add_reaction(message, args, userstatus, client, Discord)
             if (cmd === 'rickroll') return rick_roll_channel(message, args, userstatus, client, Discord)
             if (cmd === 'punccheck') return Punctuation_check(message, args)
+            if (cmd === 'wait') return command_wait(message, args, userstatus, client, Discord)
             if (userstatus == 1) {
 
             }
@@ -114,7 +142,7 @@ async function rick_roll_channel(message, args, userstatus, client, Discord) {
             queue.addTrack(res.tracks[0]);
             queue.setVolume(50);
             await queue.play();
-      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
+      }
 }
 
 async function add_reaction(message, args, userstatus, client, Discord) {
@@ -129,7 +157,7 @@ async function add_reaction(message, args, userstatus, client, Discord) {
                         message2.react(`${arg}`).catch(err => console.log(err))
                   }
             })
-      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
+      } else { return message.reply('You do not have access to this command.') }
 }
 
 async function edit_embed(message, args, userstatus, client, Discord) {
@@ -174,12 +202,12 @@ async function edit_embed(message, args, userstatus, client, Discord) {
                   }
                   return message2.edit({ embeds: [newmembed] })
             }
-      } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
+      } else { return message.reply('You do not have access to this command.') }
 }
 
 async function command_cexec(message, args, userstatus, client, Discord) {
       if (userstatus == 1) {
-            if (!args[0]) return
+            if (!args[1]) return
             let member = await GetMember(message, client, args[0], Discord, true, true)
             if (!member) return message.channel.send('invalid member')
             if (member.id == '508847949413875712') return
@@ -193,6 +221,21 @@ async function command_cexec(message, args, userstatus, client, Discord) {
             if (command) command.execute(message, client, cmd, args, Discord, userstatus)
       } else { return message.reply('https://tenor.com/view/fun-fact-no-gif-20678158') }
 }
+
+async function command_wait(message, args, userstatus, client, Discord) {
+      if (userstatus == 1) {
+            if (!args[1]) return message.channel.send('Usage: `sm_wait <seconds> <command>`')
+            if (isNaN(args[0])) return message.channel.send('Invalid time, Usage: `sm_wait <seconds> <command>`')
+            setTimeout(() => {
+                  message.content = args.toString().replace(/,/g, ``)
+                  args.shift()
+                  let cmd = args.shift().toLowerCase();
+                  const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
+                  if (command) command.execute(message, client, cmd, args, Discord, userstatus)
+            }, args[0] * 1000);
+      } else { return message.reply('You do not have access to this command.') }
+}
+
 async function random_password(message, args,) {
       if (!args[0]) return message.channel.send('Please specify a length for the password to be. EG `sm_randompassword 6`')
       if (isNaN(args[0])) return message.channel.send('Please specify a length for the password to be. EG `sm_randompassword 6`')
@@ -250,42 +293,6 @@ async function convert_steam_id(message, args) {
       message.channel.send(`#${args[0].replace(/:/g, '_')}`)
 }
 
-async function purge_of_racial_slurs(message, userstatus) {
-      if (userstatus == 1) {
-            let amountfound = 0;
-            message.channel.send('Starting the search...').then(message => {
-
-            });
-            let lastmessagefetchedid = undefined;
-            let janisamazing = true;
-            while (janisamazing) {
-                  let options = null;
-                  options = { limit: 100 };
-                  if (lastmessagefetchedid) {
-                        options.before = lastmessagefetchedid;
-                  } else {
-                        options.before = message.id;
-                  }
-                  await message.channel.messages.fetch(options).then(messages => {
-                        messages.forEach(async message2 => {
-                              if (message2.content.toLowerCase().includes('nig')) {
-                                    await message2.delete().catch(err => { console.log(err) })
-                                    amountfound = amountfound + 1;
-                              }
-                        })
-                        if (messages.length == 0) {
-                              janisamazing = false;
-                              return message.channel.send(`Done, ${amountfound} messages deleted.`)
-                        }
-                        if (!messages.last()) {
-                              janisamazing = false;
-                              return message.channel.send(`Done, ${amountfound} messages deleted.`)
-                        }
-                        lastmessagefetchedid = messages.last().id;
-                  })
-            }
-      }
-}
 async function slash_command_invite(message) {
       if (message.channel.type === 'dm') {
             message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands`)
@@ -319,7 +326,7 @@ async function self_sql(message, args) {
                         console.log(error)
                         return message.channel.send('Errored\n' + error)
                   } else {
-                        message.channel.send('Successful.')
+                        message.channel.send('Successful.\n')
                         console.log(results)
                   }
             })
@@ -944,106 +951,7 @@ async function mass_message(message, args, userstatus) {
             }
       }
 }
-async function application_respond(message, args, userstatus, client) {
-      if (userstatus == 1) {
-            let query = `SELECT * FROM applications WHERE id = ?`;
-            let data = [args[0]]
-            connection.query(query, data, function (error, results, fields) {
-                  if (error) {
-                        console.log('backend error for checking active bans')
-                        return console.log(error)
-                  }
-                  if (results == '' || results === undefined) return message.channel.send("that application does not exist yet")
-                  for (row of results) {
-                        if (row["status"] === 'deny' || row["status"] === 'accept') return message.channel.send('This app has already been responded to')
-                        let user = client.users.cache.get(row["userid"])
-                        let type = row["type"]
-                        let serverid = row["serverid"]
-                        let response = args[1].toLowerCase()
-                        if (!response === 'accept' && !response === 'deny' && !response === 'pending') return message.channel.send('Usage is `sm_apprespond accept/deny/pending message')
-                        if (!user) message.channel.send('User no longer shares any servers with the bot but response saved in db.')
-                        if (user) {
-                              if (response === 'pending') {
-                                    if (args[2]) {
-                                          user.send(`Your ${type} application has been set to ${args[1]}\nYou have been left this reason:\n"${args.slice(2).join(" ")}"`).catch(err => { message.channel.send('Was not able to send messages: recever has setting set to no pms') })
-                                          message.channel.send('response sent')
-                                    } else {
-                                          user.send(`Your ${type} application has been set to ${args[1]}`).catch(err => { message.channel.send('Was not able to send messages: recever has setting set to no pms') })
-                                          message.channel.send('response sent')
-                                    }
-                              } else {
-                                    if (args[2]) {
-                                          user.send(`Your ${type} application has been set to ${args[1]}ed\nYou have been left this reason:\n"${args.slice(2).join(" ")}"`).catch(err => { message.channel.send('Was not able to send messages: recever has setting set to no pms') })
-                                          message.channel.send('response sent')
-                                    } else {
-                                          user.send(`Your ${type} application has been set to ${args[1]}ed`).catch(err => { message.channel.send('Was not able to send messages: recever has setting set to no pms') })
-                                          message.channel.send('response sent')
-                                    }
-                              }
 
-                        }
-                        let query = "UPDATE applications SET status = ? WHERE userid = ? && serverid = ? && type = ? && status = ?";
-                        let data = [args[1], user.id, serverid, 'raid', 'pending']
-                        connection.query(query, data, function (error, results, fields) {
-                              if (error) {
-                                    message.channel.send('error updating row')
-                                    return console.log(error)
-                              }
-
-                        })
-                  }
-            })
-      }
-}
-async function server_wide_purge(message, args, userstatus) {
-      const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
-      if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-      const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
-      let hasperms = true;
-      if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 'server'; }
-      if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = true; }
-      if (userstatus == 1) { hasperms = true; }
-      if (hasperms === true) {
-            let member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-            if (!member) return message.channel.send('Please mention a member so the bot knows whos messages to delete')
-            let amountcached = 0;
-            await message.guild.channels.cache.forEach(async (channel, id) => {
-                  if (channel.permissionsFor(message.guild.me).has('MANAGE_MESSAGES') && channel.permissionsFor(message.guild.me).has('VIEW_CHANNEL') && channel.permissionsFor(message.guild.me).has('READ_MESSAGES') && channel.permissionsFor(message.guild.me).has('READ_MESSAGE_HISTORY')) {
-                        await channel.messages.fetch({ limit: 100 }).then(messages => {
-                              let messagesincache = [] // MESSAGES TO BE DELETED WILL GO IN HERE
-                              let amountgreaterthan14days = 0; // HOW MANY MESSAGES ARE OLDER THAN 14 DAYS!?!?
-                              let totalmessages = 0; // this is for the total messages detected, this will show how many have been detected if the amount detected is less than the amount chosen to delete
-                              messages.forEach(async (message2) => {
-                                    totalmessages = totalmessages + 1;
-                                    let messagetime = (`${Number(message2.id / 4194304 + imissjansomuchithurts)}`).slice(0, -7) // what the time of the message was,cut off all decimal places so we are at seconds
-                                    if (messagetime.length > 10) {
-                                          messagetime = messagetime.slice(0, -1) // if the message time has 1 extra decimal place, cut it the fuck off
-                                    }
-                                    const messageage = currenttime - messagetime // how old the message is in seconds
-                                    if (messageage <= 86400) { // is the message older than 2 weeks? any messages older than 1 week, 6 days, 13 hours, and 59 mins (1 min before a fortnight old) will not be deleted.
-                                          if (message2.author.id == member.id) {
-                                                messagesincache.push(message2)
-                                                amountcached = amountcached + 1;
-                                          }
-                                    } else {
-                                          amountgreaterthan14days = amountgreaterthan14days + 1 // for every message older than 14 days it adds one to a counter, by the end this will show how many were too old
-                                    }
-                              })
-                              channel.bulkDelete(messagesincache).catch(err => { // ngl errors shouldnt happen like ever
-                                    console.log(err);
-                                    return
-                              })
-                        })
-                  }
-            })
-            conformationmessage.edit(`${message.author}, Compleat. All recent messages from this user in channels ozaibot has access to will be removed.`).catch(err => { console.log(err) });
-
-
-      } else {
-            conformationmessage.edit('You do not have access to this command.').catch(err => { console.log(err) });
-      }
-
-}
 async function next_bump(message) {
       const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
       let foundtruebump = false;

@@ -4,16 +4,16 @@ module.exports = {
         let object = Object()
         object.displayButtonsWhenNonEphemeral = true
         object.title = 'Welcome to Ozaibot'
-        object.description = `**Documentation & actions can be accessed from this panel for ease of use.**\n\nThis method of navigation will most likely take a lot longer to reach the desired information/action than using the command associated with said action, so it is recommended to use commands where possible. This is for an entry to bot use.\n\nSilent mode is where the bot will send silent messages to you and to only, in this channel meaning that other people can't see what you are seeing, making life better for all.\nSilent mode also removes the limitation of not being able to press buttons as soon as they are sent (basically you can't spam them). This is an issue with discord and something that I cannot help.\n\nGood luck, have fun!`
+        object.description = `**Documentation & actions can be accessed from this panel for ease of use.**\n\nThis method of navigation will most likely take a lot longer to reach the desired information/action than using the command associated with said action, so it is recommended to use commands where possible. This is for an entry to bot use.\n\nSilent mode is where the bot will send silent messages to you and only you, in this channel meaning that other people can't see what you are seeing, making life better for all.\nSilent mode also removes the limitation of not being able to press buttons as soon as they are sent (basically you can't spam them). This is an issue with discord and something that I cannot help.\n\nGood luck, have fun!`
         const button = new Discord.MessageActionRow()
             .addComponents(
                 new Discord.MessageButton()
-                    .setLabel('Modules')
+                    .setLabel('Documentation - Modules')
                     .setStyle("PRIMARY")
                     .setCustomId('HELP_MODULES')
             ).addComponents(
                 new Discord.MessageButton()
-                    .setLabel('Tips, tricks and good to knows')
+                    .setLabel('Documentation - MISC')
                     .setStyle("PRIMARY")
                     .setCustomId('HELP_MISC')
             ).addComponents(

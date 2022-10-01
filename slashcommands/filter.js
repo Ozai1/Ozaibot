@@ -1,3 +1,4 @@
+
 module.exports = {
     description: "Adds audio filter to ongoing music.",
     name: 'filter',

@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
-    host: '112.213.34.137',
+    host: 'vps01.tsict.com.au',
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,

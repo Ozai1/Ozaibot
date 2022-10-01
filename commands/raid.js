@@ -12,8 +12,6 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 
-
-
 const { unix } = require('moment');
 const { GetPunishmentDuration } = require('../moderationinc')
 module.exports = {
@@ -24,9 +22,8 @@ module.exports = {
         'whoinvited',//who inv a user
         'blacklistinvite',//blacklist
         'unblacklistinvite',//unblacklist
-        'raidapp',//getting access
-        'allowraidcmds',
-        'removeraidcmds'
+        'allowraidcmds', // duh
+        'removeraidcmds' // duh
     ],
     description: 'anti raid functionality for ozaibot',
     async execute(message, client, cmd, args, Discord, userstatus) {
@@ -48,6 +45,7 @@ module.exports = {
                 }
             }
             if (cmd === 'whojoined') {
+                if (userstatus == 1 || userstatus == 3) {
                 if (!args[0]) return message.channel.send('Please give an invite for the bot to use.')
                 let query = `SELECT * FROM usedinvites WHERE invitecode = ? && serverid = ?`;
                 let data = [args[0], message.guild.id]
@@ -102,7 +100,9 @@ module.exports = {
                         helpembed.setColor('BLUE')
                         message.channel.send({ embeds: [helpembed] })
                     }
+                    
                 })
+            } else return message.channel.send('You do not have access to anti raid commands. Use `sm_raid` for more info.')
             } else if (cmd === 'whoinvited') {
                 if (userstatus == 1 || userstatus == 3) {
                     if (!args[0]) return message.channel.send('Please give a user.')
@@ -155,7 +155,7 @@ module.exports = {
                     if (properinvite === true) {
                         const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
                         const mutetimeseconds = GetPunishmentDuration(args[2])
-                        if (!mutetimeseconds) {
+                        if (mutetimeseconds) {
                             const timeunban = mutetimeseconds + currenttime
                             if (mutetimeseconds > 604800) return message.channel.send('You may lockdown a link for a maximum of a week.')
                             query = `SELECT * FROM lockdownlinks WHERE invitecode = ? && serverid = ?`;
@@ -196,7 +196,7 @@ module.exports = {
             } else if (cmd === 'raid') {
                 const helpembed = new Discord.MessageEmbed()
                     .setTitle('Anti Raid')
-                    .setDescription(`This is a command set for ozaibot that is built to help with raids.\nIt has a variety of commands including commands that:\n\n\`sm_whoinvited <@user>\`\nShows you what link a user joined off.\n\n\`sm_whojoined <link_code>\`\nShow you all the users who have joined off a link.\n\n\`sm_blacklistinvite <invite_code> <mute/kick/ban> <time>\`\nLock down links so that if they are used to join your server it will automatically apply an action to them.\n\n\`sm_purgeinvite <link_code> <mute/kick/ban>\`\nApply an action to all users who have joined off a link.\nExample: kick everyone who joined off link ABC123 in the last 10 mins. would allow up to a day if needed.\n\nAnd more coming.\n\n\nEdit: I am now happy for people to start using these features if they wish, you may apply using \`sm_raidapp\`.\nAny time an invite link is required to be inputed you must remove the discord.gg/ at the start.\nIf the link is discord.gg/1qa2ws3ed then proper usage would be: \`sm_blacklistinvite 1qa2ws3ed\``)
+                    .setDescription(`This is a command set for ozaibot that is built to help with raids.\nIt has a variety of commands including commands that:\n\n\`sm_whoinvited <@user>\`\nShows you what link a user joined off.\n\n\`sm_whojoined <link_code>\`\nShow you all the users who have joined off a link.\n\n\`sm_blacklistinvite <invite_code> <mute/kick/ban> <time>\`\nLock down links so that if they are used to join your server it will automatically apply an action to them.\n\n\`sm_purgeinvite <link_code> <mute/kick/ban>\`\nApply an action to all users who have joined off a link.\nExample: kick everyone who joined off link ABC123 in the last 10 mins. would allow up to a day if needed.\n\nAnd more coming.\n\n\nEdit: I am now happy for people to be using these features if they wish, message me.\nAny time an invite link is required to be inputed you must remove the discord.gg/ at the start.\nIf the link is discord.gg/1qa2ws3ed then proper usage would be: \`sm_blacklistinvite 1qa2ws3ed\``)
                     .setTimestamp()
                     .setFooter({ text: 'Becuase of the powerful and abusable nature of these commands, You will have to get approval from me before the commands become available for use for you/your server.' })
                     .setColor('BLUE')
@@ -286,9 +286,9 @@ module.exports = {
                                 .setColor('ORANGE')
                             let filter = m => m.author.id === message.author.id;
                             message.channel.send({ embeds: [helpembed] }).then(() => {
-                                message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'], }).then(async message => {
-                                    message = message.first();
-                                    if (message.content.toUpperCase() == 'YES' || message.content.toUpperCase() == 'Y') {
+                                message.channel.awaitMessages({ filter: filter, max: 1, time: 30000, errors: ['time'], }).then(async message2 => {
+                                    message2 = message2.first();
+                                    if (message2.content.toUpperCase() == 'YES' || message2.content.toUpperCase() == 'Y') {
                                         const conformationmessage = await message.channel.send('Applying punishment to users, this may take a while.')
                                         if (action === 'ban') {
                                             let finalarr2 = []
@@ -320,7 +320,7 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.' })
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:', { embeds: [helpembed] })
+                                                conformationmessage.edit({content:'Done:', embeds: [helpembed] })
                                         } else if (action === 'kick') {
                                             let finalarr2 = []
                                             for (i = 0; i <= finalarr.length; i = i + 1) {
@@ -349,7 +349,7 @@ module.exports = {
                                                 .setDescription(printmessage)
                                                 .setFooter({ text: 'Any fails are most likely due to the bot not having high enough permissions.' })
                                                 .setColor('RED')
-                                            conformationmessage.edit('Done:', { embeds: [helpembed] })
+                                            conformationmessage.edit({content:'Done:', embeds: [helpembed] })
                                         } else if (action === 'mute') {
                                             let query = `SELECT * FROM serverconfigs WHERE type = ? && serverid = ?`;
                                             let data = ['muterole', message.guild.id]
@@ -392,7 +392,7 @@ module.exports = {
                                                 }
                                             })
                                         }
-                                    } else if (message.content.toUpperCase() == 'NO' || message.content.toUpperCase() == 'N') {
+                                    } else if (message2.content.toUpperCase() == 'NO' || message2.content.toUpperCase() == 'N') {
                                         return message.channel.send('Cancelled.').catch(err => { console.log(err) })
                                     } else {
                                         return message.channel.send(`Cancelled: Invalid Response`).catch(err => { console.log(err) })
@@ -406,50 +406,6 @@ module.exports = {
                         }
                     })
                 } else return message.channel.send('You do not have access to anti raid commands. Use `sm_raid` for more info.')
-            } else if (cmd === 'raidapp') {
-                let query = `SELECT * FROM applications WHERE userid = ? && serverid = ? && type = ? && status = ?`;
-                let data = [message.author.id, message.guild.id, 'raid', 'pending']
-                connection.query(query, data, function (error, results, fields) {
-                    if (error) {
-                        console.log('backend error for checking active bans')
-                        return console.log(error)
-                    }
-                    if (results == '' || results === undefined) {
-                        if (!args[1]) return message.channel.send('Usage is: `sm_raidapp <reason why you should have raid commands>`')
-                        let appchannel = client.channels.cache.get('931071249478742036')
-                        const currenttime = Number(Date.now(unix).toString().slice(0, -3).valueOf())
-                        query = "INSERT INTO applications (userid, serverid, time, type, status, reason) VALUES (?, ?, ?, ?, ?, ?)";
-                        data = [message.author.id, message.guild.id, currenttime, 'raid', 'pending', args.slice(0).join(" ")]
-                        connection.query(query, data, function (error, results, fields) {
-                            if (error) {
-                                console.log('backend error for checking active bans')
-                                return console.log(error)
-                            }
-                            message.channel.send('Thank you for applying, your response will be returned to you in a private message from the bot as soon as I see the application.')
-                        })
-                        query = `SELECT * FROM applications WHERE userid = ? && serverid = ? && type = ? && status = ?`;
-                        data = [message.author.id, message.guild.id, 'raid', 'pending']
-                        connection.query(query, data, function (error, results, fields) {
-                            if (error) {
-                                console.log('backend error for checking active bans')
-                                return console.log(error)
-                            }
-                            for (row of results) {
-                                let id = row["id"]
-                                const helpembed = new Discord.MessageEmbed()
-                                    .setTitle('New raid application.')
-                                    .addField('Author:', `<@${message.author.id}> | ${message.author.tag} (${message.author.id})`)
-                                    .addField('Guild', `${message.guild} (${message.guild.id})`)
-                                    .addField('time', `<t:${currenttime}> (<t:${currenttime}:R>)`)
-                                    .setDescription(`**Message**:\n${args.slice(0).join(" ")}`)
-                                    .setFooter({ text: `application #${id}, sm_apprespond ${id} <accept/deny/pending> <message>` })
-                                    .setColor('BLUE')
-                                appchannel.send({ embeds: [helpembed] }).catch(err => { console.log(err) })
-                            }
-                        })
-                    } else return message.channel.send('You already have a raid app in.')
-
-                })
             } else if (cmd === 'allowraidcmds') {
                 if (userstatus == 1) {
                     if (!args[1]) return message.channel.send('Usage is: `sm_allowraidcmds <user> <serverid>`')

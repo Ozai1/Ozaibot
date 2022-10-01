@@ -1,7 +1,7 @@
 const { unix } = require('moment');
 const mysql = require('mysql2');
 
-const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment, NotifyUser } = require("../moderationinc")
+const { GetMember, GetDisplay, GetPunishmentDuration, LogPunishment, NotifyUser, HasPerms } = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
     host: '112.213.34.137',
@@ -21,10 +21,14 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
-        if (!userstatus == 1) {
-            if (!message.member.permissions.has("BAN_MEMBERS")) {
-                console.log("You do not have access to this command.")
-                return message.channel.send("You do not have access to this command.");
+        if (userstatus !== 1) {
+            let perms = await HasPerms(message, message.member, client, 'a', 'l')
+            if (!message.member.permissions.has("BAN_MEMBERS") && perms !== 1 || perms == 2) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`You do not have access to this command.`)
+                return message.channel.send({ embeds: [errorembed] })
             }
         } if (!message.guild.me.permissions.has('BAN_MEMBERS')) {
             console.log('Ozaibot does not have Permissions to ban in this server.')

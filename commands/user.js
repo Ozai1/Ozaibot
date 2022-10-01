@@ -32,7 +32,7 @@ module.exports = {
                     uiembed.setDescription('Is a bot')
                 }
                 uiembed.addField('ID', user.id)
-                    .addField('Highest rank', member.roles.highest)
+                    .addField('Highest rank', `${member.roles.highest}`)
                     .addField('Joined server at', `\`${moment(member.joinedAt).format('DD MMM YYYY, H:MM')}\`, <t:${joinedatunix}:R>`)
                     .addField('Created account at', `\`${moment(member.user.createdAt).format('DD MMM YYYY, H:MM')}\`, <t:${createdatunix}:R>`)
                     .setFooter({ text: `requested by ${message.author.tag}` })
@@ -62,13 +62,14 @@ module.exports = {
             if (!member) {
                 membertype = 0
                 member = await GetMember(message, client, args[0], Discord, false, true)
-                if (!member) {
-                    const errorembed = new Discord.MessageEmbed()
-                        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                        .setColor(15684432)
-                        .setDescription(`Invalid member.`)
-                    return message.channel.send({ embeds: [errorembed] })
-                }
+                if (member === 'cancelled') return
+            }
+            if (!member) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`Invalid member.`)
+                return message.channel.send({ embeds: [errorembed] })
             }
             if (membertype == 1) {
                 const joinedatunix = Number(moment(member.joinedAt).unix())

@@ -16,6 +16,7 @@ module.exports = {
     name: 'fuck',
     description: '',
     async execute(message, client, cmd, args, Discord, userstatus) {
+        return
         if (!args[0]) return message.channel.send('You must ping someone to, yk, yeah')
         let member = client.users.cache.get(args[0].slice(3, -1)) || client.users.cache.get(args[0].slice(2, -1)) || client.users.cache.get(args[0]);
         if (!member) return message.channel.send('So youre just gonna fuck the air?')

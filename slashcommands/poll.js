@@ -150,8 +150,7 @@ module.exports = {
         const filter = (reaction, user) => user.id !== client.user.id;
         const collector = replymessage.createReactionCollector({ filter, time: choices.length * 1000 });
         collector.on('collect', (react, user) => {
-            react.remove()
-            user.send("Please dont react to this poll until im done reacting.")
+            replymessage.reactions.resolve(react.emoji.name).users.remove(user.id);
         });
         reacts.forEach(react => {
             replymessage.react(react).catch(err => {

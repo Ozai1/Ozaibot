@@ -1,6 +1,7 @@
 const { unix } = require("moment");
 const imissjansomuchithurts = 1420070400000
 const mysql = require('mysql2');
+const {HasPerms} = require("../moderationinc")
 
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -26,21 +27,15 @@ module.exports = {
         if (message.member.permissions.has('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 2; }
         if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 3; }
         //if (message.member.permissions.has('ADMINISTRATOR')) { hasperms = 3; }
-        if (userstatus == 1) { hasperms = 3; }
-        if (hasperms == 1) {
-            console.log('You do not have permissions to use this command')
-            const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`You do not have access to this command.`)
-            return conformationmessage.edit({ embeds: [errorembed], content: null })
-        } else if (hasperms == 2) {
-            console.log('You do not have permissions to use this command')
-            const errorembed = new Discord.MessageEmbed()
-                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                .setColor(15684432)
-                .setDescription(`You do not have access to this command in this channel.`)
-            return conformationmessage.edit({ embeds: [errorembed], content: null })
+        if (userstatus !== 1) {
+            let perms = await HasPerms(message, message.member, client, 'i', 'l')
+            if (!message.member.permissions.has("MANAGE_MESSAGES") && perms !== 1 || perms == 2 || hasperms == 1 || hasperms == 2) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`You do not have access to this command.`)
+                return message.channel.send({ embeds: [errorembed] })
+            }
         }
         if (!message.guild.me.permissionsIn(message.channel).has("MANAGE_MESSAGES")) {
             if (!message.guild.me.permissions.has('MANAGE_MESSAGES')) { hasperms = 1; }

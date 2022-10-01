@@ -1,5 +1,5 @@
 const mysql = require('mysql2');
-const { LogPunishment } = require("../moderationinc")
+const { LogPunishment ,HasPerms} = require("../moderationinc")
 require('dotenv').config();
 const connection = mysql.createPool({
       host: '112.213.34.137',
@@ -25,16 +25,16 @@ module.exports = {
                         .setDescription(`Ozaibot Does not have permissions to unban in this server.`)
                   return message.channel.send({ embeds: [errorembed] })
             }
-            if (!userstatus == 1) {
-                  if (!message.member.permissions.has('BAN_MEMBERS')) {
-                        console.log('attempted to unban while not having enough permissions')
-                        const errorembed = new Discord.MessageEmbed()
-                              .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                              .setColor(15684432)
-                              .setDescription(`You do not have access to this command.`)
-                        return message.channel.send({ embeds: [errorembed] })
+            if (userstatus !== 1) {
+                  let perms = await HasPerms(message, message.member, client, 'b', 'l')
+                  if (!message.member.permissions.has("BAN_MEMBERS") && perms !== 1 || perms == 2) {
+                      const errorembed = new Discord.MessageEmbed()
+                          .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                          .setColor(15684432)
+                          .setDescription(`You do not have access to this command.`)
+                      return message.channel.send({ embeds: [errorembed] })
                   }
-            }
+              }
             if (!args[0]) {
                   console.log('stopped, no member arg')
                   const errorembed = new Discord.MessageEmbed()

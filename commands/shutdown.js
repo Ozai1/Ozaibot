@@ -20,13 +20,22 @@ module.exports = {
             if (cmd === 'shutdown') {
                 await message.react('☑️')
                 console.log('Shut down by command')
-                exec(`forever stopall`)
+                exec('forever stop 1')
+                exec('forever stop 2')
+                exec('forever stop 3')
+                exec('forever stop 4')
+                exec('forever stop 5')
+                exec('forever stop 6')
+                exec('forever stop 7')
+                exec('forever stop 8')
+                exec('forever stop 9')
+                exec('forever stop 10')
                 justincasethatdoesntworkthisisafunctionthatwillmakethebotcrash
             } else if (cmd === 'restart') {
                 message.delete()
-                exec('forever restart 0')
+                exec('forever restart 1')
             } else if (cmd === 'logs') {
-                exec('forever logs 0', (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {
+                exec('forever logs 1', (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {
                     if (error) {
                         console.log(`exec error: ${error}`);
                         return message.channel.send('Errored; Failed')
@@ -41,7 +50,7 @@ module.exports = {
                     message.channel.send({ embeds: [logsembed] }).catch(err => { console.log(err) })
                 });
             } else if (cmd === 'errors') {
-                exec('forever logs 0', (error, stdlogs /*this is everything */, logs /*this will be only errors in the logs*/) => {
+                exec('forever logs 1 --plain', (error, stdlogs /*this is everything */, logs /*this will be only errors in the logs*/) => {
                     if (error) {
                         console.log(`exec error: ${error}`);
                         return message.channel.send('Errored; Failed')

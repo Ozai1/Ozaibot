@@ -53,6 +53,6 @@ module.exports = {
                               })
                         }
                   }
-            }
+            }else return message.channel.send('Error 418.')
       }
 }

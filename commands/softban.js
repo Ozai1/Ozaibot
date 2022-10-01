@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 const unix = require('moment')
 require('dotenv').config();
-const { GetMember, LogPunishment, NotifyUser } = require("../moderationinc");
+const { GetMember, LogPunishment, NotifyUser, HasPerms } = require("../moderationinc");
 const connection = mysql.createPool({
     host: '112.213.34.137',
     port: '3306',
@@ -19,7 +19,16 @@ module.exports = {
     description: 'gets and displays a users past punishments',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send('You do not have access to this command.')
+        if (userstatus !== 1) {
+            let perms = await HasPerms(message, message.member, client, 'f', 'l')
+            if (!message.member.permissions.has("KICK_MEMBERS") && perms !== 1 || perms == 2) {
+                const errorembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                    .setColor(15684432)
+                    .setDescription(`You do not have access to this command.`)
+                return message.channel.send({ embeds: [errorembed] })
+            }
+        }
         if (!message.guild.me.permissions.has('BAN_MEMBERS')) return message.channel.send('I do not have ban permissions in this server.')
         if (!args[0]) {
             const errorembed = new Discord.MessageEmbed()
@@ -71,7 +80,7 @@ module.exports = {
                     return message.channel.send({ embeds: [errorembed] })
                 }
                 else {
-                    ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
+                    ExecuteBanAndUnBan(message, client, member, daystodelete, Discord, reason)
                 }
             })
         } else {
@@ -110,12 +119,12 @@ module.exports = {
                 return message.channel.send({ embeds: [errorembed] })
             }
             await NotifyUser(6, message, `You have been soft-banned from ${message.guild}`, member, reason, 0, client, Discord)
-            ExecuteBanAndUnBan(message, client, member, daystodelete, Discord)
+            ExecuteBanAndUnBan(message, client, member, daystodelete, Discord, reason)
             
         }
     }
 }
-async function ExecuteBanAndUnBan(message, client, member, daystodelete, Discord) {
+async function ExecuteBanAndUnBan(message, client, member, daystodelete, Discord, reason) {
     let casenumber = client.currentcasenumber.get(message.guild.id) + 1
     const returnembed = new Discord.MessageEmbed()
         .setTitle(`Case #${casenumber}`)
