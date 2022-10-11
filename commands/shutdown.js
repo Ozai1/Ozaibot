@@ -19,7 +19,7 @@ module.exports = {
         if (userstatus == 1 || message.author.id == '508847949413875712' || message.author.id == '174095706653458432') {
             if (cmd === 'shutdown') {
                 await message.react('☑️')
-                console.log('Shut down by command')
+                console.log('\n\n\n\nShut down by command || SHUTDOWN')
                 exec('forever stop 1')
                 exec('forever stop 2')
                 exec('forever stop 3')
@@ -33,6 +33,7 @@ module.exports = {
                 justincasethatdoesntworkthisisafunctionthatwillmakethebotcrash
             } else if (cmd === 'restart') {
                 message.delete()
+                console.log('\nRestarted by command | RESTART')
                 exec('forever restart 1')
             } else if (cmd === 'logs') {
                 exec('forever logs 1', (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {

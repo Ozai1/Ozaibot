@@ -78,7 +78,7 @@ module.exports = async (Discord, client, message) => {
         if (userstatus === undefined) {
             userstatus = -1
         }
-         if (userstatus!==1){
+        if (userstatus == 1) {
             let blocked = await HasPerms(message, message.member, client, 'z')
             if (blocked == 2) return console.log('member has all perms denied, lel. no cmd executed')}
         if (userstatus == 1) {

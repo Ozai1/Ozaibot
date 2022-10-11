@@ -70,6 +70,10 @@ module.exports = {
                 } else {
                     reason = 'No reason given.'
                 }
+                if (reason.length > 512) {
+                    let slicelength = reason.length - 512
+                    reason = reason.slice(0, -slicelength) + '... (continued)'
+                }
                 entries.push(`**Case #${row["casenumber"]}: ${GetPunishName(row["type"])}**\n${reason}\n`)
                 type = row['type']
                 if (type == 1 || type == 8) { // regular & temp ban

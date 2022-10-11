@@ -72,9 +72,8 @@ module.exports = {
                               message.channel.send({embeds: [statusembed]});
                               return;
                         } else if (method === 'clear') {
-                              client.user.setActivity().then(() => {
-                                    client.user.setPresence({ status: 'online' });
-                              })
+                              client.user.setActivity()
+                              client.user.setPresence({ status: 'online' });
                               const statusembed = new Discord.MessageEmbed()
                                     .setDescription(`Cleared all statuses!`)
                                     .setColor('GREEN')
