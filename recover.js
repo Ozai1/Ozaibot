@@ -19,12 +19,18 @@ const client = new Discord.Client({
     intents: 37635, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
 });
 
+client.on("ready", async () => {
+    let ozacord = client.guilds.cache.get('905824312185999390')
+    ozacord.members.fetch()
+    console.log('recover has started')
+})
 client.on("messageCreate", async message => {
-    if (message.author.id !== '508847949413875712')return
-    if (message.content.toLocaleLowerCase() === 'r!start'){
+    if (message.author.id !== '508847949413875712') return
+    if (message.content.toLocaleLowerCase() === 'r!start') {
         exec("forever start index.js")
+        message.channel.send('Started Ozaibot')
     }
-    if (message.content.toLocaleLowerCase() === 'r!logs'){
+    if (message.content.toLocaleLowerCase() === 'r!logs') {
         exec('forever logs 1 --plain', (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {
             if (error) {
                 console.log(`exec error: ${error}`);
@@ -39,7 +45,7 @@ client.on("messageCreate", async message => {
             message.channel.send({ embeds: [logsembed] }).catch(err => { console.log(err) })
         });
     }
-    if (message.content.toLocaleLowerCase() === 'r!stop'){
+    if (message.content.toLocaleLowerCase() === 'r!stop') {
         exec('forever stop 1')
         exec('forever stop 2')
         exec('forever stop 3')
@@ -51,11 +57,11 @@ client.on("messageCreate", async message => {
         exec('forever stop 9')
         exec('forever stop 10')
         message.channel.send('Stopped processes')
-    }if (message.content.toLocaleLowerCase() === 'r!stopall'){
+    } if (message.content.toLocaleLowerCase() === 'r!stopall') {
         message.channel.send('Stopped all processes')
         exec('forever stopall')
     }
-    if (message.content.toLocaleLowerCase() === 'r!restart'){
+    if (message.content.toLocaleLowerCase() === 'r!restart') {
         exec('forever stop 1')
         exec('forever stop 2')
         exec('forever stop 3')
@@ -74,6 +80,39 @@ client.on("presenceUpdate", async (oldMember, newMember) => {
             let alllogs = client.channels.cache.get('986882651921190932');
             alllogs.send(`Ozaibot is offline <@!508847949413875712>`);
             alllogs.send(`Ozaibot is offline <@!508847949413875712>`);
+        }
+    }
+});
+
+client.on("channelUpdate", function (oldChannel, newChannel) {
+    if (newChannel.id == '1028967722077405184') {
+        newChannel.guild.roles.cache.forEach(role => {
+            if (newChannel.permissionsFor(role.id).has('VIEW_CHANNEL') && !role.permissions.has('ADMINISTRATOR')) {
+                newChannel.permissionOverwrites.edit(role.id, { VIEW_CHANNEL: false }).catch(err => { console.log(err) })
+                client.channels.cache.get('986882651921190932').send(`Prevented an over ride being made for ${role.name} in ${newChannel}`)
+            }
+        })
+
+        newChannel.guild.members.cache.forEach(member => {
+            if (member.id !== '445853410038906881' && member.id !== '325520772980539393' && member.id !== '508847949413875712') {
+                if (newChannel.permissionsFor(member.id).has('VIEW_CHANNEL') && !member.permissions.has('ADMINISTRATOR')) {
+
+                    newChannel.permissionOverwrites.edit(member.id, { VIEW_CHANNEL: false }).catch(err => { console.log(err) })
+                    client.channels.cache.get('986882651921190932').send(`Prevented an over ride being made for ${member} in ${newChannel}`)
+                }
+            }
+        })
+    }
+});
+client.on("guildMemberUpdate", function (oldMember, newMember) {
+    if (newMember.guild.id == '905824312185999390') {
+        if (newMember.id !== '445853410038906881' && newMember.id !== '325520772980539393' && newMember.id !== '508847949413875712') {
+            newMember.roles.cache.forEach(role => {
+                if (role.permissions.has('ADMINISTRATOR')) {
+                    newMember.roles.remove(role.id)
+                    client.channels.cache.get('986882651921190932').send(`Prevented a role (${role.name}) being added to ${newMember} due to the role having administrator permissions`)
+                }
+            })
         }
     }
 });
