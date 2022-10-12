@@ -25,10 +25,23 @@ client.on("ready", async () => {
     console.log('recover has started')
 })
 client.on("messageCreate", async message => {
-    if (message.author.id !== '508847949413875712') return
+    if (message.author.id !== '508847949413875712' && message.author.id !== '325520772980539393') return
+    if (message.content.toLocaleLowerCase() === 'r!help') {
+        message.channel.send('`r!start`\nTurn Ozaibot on\n\n`r!logs`\nOzaibot logs\n\n`r!stop`\nStop Ozaibot\n\n`r!stopall`\nTurn off all running processes (Including me)\n\n`r!restart`\nRestart Ozaibot\n\n`r!restartrecover`\nRestarts me')
+    }
+    if (message.content.toLocaleLowerCase() === 'r!restartrecover') {
+        await message.channel.send('Done')
+        exec("forever restart 0")
+    }
     if (message.content.toLocaleLowerCase() === 'r!start') {
-        exec("forever start index.js")
-        message.channel.send('Started Ozaibot')
+        exec('forever list --plain', (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {
+            if (!logs.includes('index.js')) {
+                exec("forever start index.js")
+                message.channel.send('Started Ozaibot')
+            }else{
+                message.channel.send('Ozaibot is already online')
+            }
+        });
     }
     if (message.content.toLocaleLowerCase() === 'r!logs') {
         exec('forever logs 1 --plain', (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {
@@ -78,7 +91,6 @@ client.on("presenceUpdate", async (oldMember, newMember) => {
     if (newMember.userId == '862247858740789269') {
         if (newMember.status === 'offline') {
             let alllogs = client.channels.cache.get('986882651921190932');
-            alllogs.send(`Ozaibot is offline <@!508847949413875712>`);
             alllogs.send(`Ozaibot is offline <@!508847949413875712>`);
         }
     }
