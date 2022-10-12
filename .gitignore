@@ -3,7 +3,7 @@ node_modules
 audio
 package.json
 package-lock.json
-intsall_tools.bat
+install_tools.bat
 node_etw_provider.man
 node.exe
 nodevars.bat
