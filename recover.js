@@ -104,13 +104,14 @@ client.on("channelUpdate", function (oldChannel, newChannel) {
         })
     }
 });
+
 client.on("guildMemberUpdate", function (oldMember, newMember) {
     if (newMember.guild.id == '905824312185999390') {
         if (newMember.id !== '445853410038906881' && newMember.id !== '325520772980539393' && newMember.id !== '508847949413875712') {
             newMember.roles.cache.forEach(role => {
-                if (role.permissions.has('ADMINISTRATOR')) {
+                if (role.permissions.has('ADMINISTRATOR') || role.permissions.has('MANAGE_CHANNELS') || role.permissions.has('MANAGE_ROLES')|| role.permissions.has('MANAGE_GUILD')|| role.permissions.has('KICK_MEMBERS') || role.permissions.has('BAN_MEMBERS')) {
                     newMember.roles.remove(role.id)
-                    client.channels.cache.get('986882651921190932').send(`Prevented a role (${role.name}) being added to ${newMember} due to the role having administrator permissions`)
+                    client.channels.cache.get('986882651921190932').send(`Prevented a role (${role.name}) being added to ${newMember} due to the role having manage permissions`)
                 }
             })
         }
