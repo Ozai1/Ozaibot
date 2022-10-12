@@ -14,7 +14,7 @@ const connection = mysql.createPool({
 
 module.exports = {
     name: 'binary',
-    description: 'gets and displays a users past punishments',
+    description: 'Translates to and from binary',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!args[0]) return message.channel.send('add arg')
         if (isNaN(args[0])) {
