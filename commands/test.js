@@ -59,7 +59,9 @@ module.exports = {
             'ghostjoin',
             'deletemessage',
             'oldpurgeall',
-            'role'
+            'role',
+            'givegf',
+            'givebf'
       ],
       description: 'whatever the fuck i am testing at the time',
       async execute(message, client, cmd, args, Discord, userstatus) {
@@ -68,7 +70,7 @@ module.exports = {
             if (cmd === 'a') return repeat_message(message, args, userstatus)
             if (cmd === 'massping') return mass_message(message, args, userstatus)
             if (cmd === 'msgl') return message_length(message, args)
-            if (cmd === 'drag') return drag_user(message, args, userstatus, Discord)
+            if (cmd === 'drag') return drag_user(message, args, userstatus, Discord, client)
             if (cmd === 'ghostjoin') return ghost_join(message, args, client, userstatus)
             if (cmd === 'deletemessage') return delete_message(message, args, client, userstatus)
             if (cmd === 'oldpurgeall') return chat_crawler(message, userstatus, client)
@@ -88,11 +90,19 @@ module.exports = {
             if (cmd === 'rickroll') return rick_roll_channel(message, args, userstatus, client, Discord)
             if (cmd === 'punccheck') return Punctuation_check(message, args)
             if (cmd === 'wait') return command_wait(message, args, userstatus, client, Discord)
+            if (cmd === 'givegf') return Comamnd_givegf(message, args, client, Discord)
+            if (cmd === 'givebf') return Comamnd_givegf(message, args, client, Discord)
             if (userstatus == 1) {
 
             }
       }
 }
+async function Comamnd_givegf(message, args, client, Discord) {
+      cats = ["Not possible", "Done", "Done, ETA four years, seven months, ten days", "No lol", "L DESPERATE", "Negative"];
+        var random = cats[Math.floor(Math.random() * cats.length)];
+      message.channel.send(random)
+}
+
 let uppercase = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 async function Punctuation_check(message, args) {
       let text = args.slice(0).join(" ");
@@ -819,10 +829,10 @@ async function ghost_join(message, args, client, userstatus) {
             connection.destroy();
       }
 }
-async function drag_user(message, args, userstatus, Discord) {
+async function drag_user(message, args, userstatus, Discord, client) {
       if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
             if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.author.send('I dont have admin perms in that server');
-            if (!args[0]) return message.author.send('Usage: sm_drag <channel> <user | vc>');
+            if (!args[1]) return message.channel.send('Usage: sm_drag <channel> <user | vc>');
             let channel = message.guild.channels.cache.get(args[0].slice(2, -1)) || message.guild.channels.cache.get(args[0]);
             let possiblechannels = [];
             if (!channel) {
@@ -849,8 +859,8 @@ async function drag_user(message, args, userstatus, Discord) {
                               })
                               return
                         } else {
-                              args.forEach(singlearg => {
-                                    let member = message.guild.members.cache.get(singlearg.slice(3, -1)) || message.guild.members.cache.get(singlearg) || message.guild.members.cache.get(singlearg.slice(2, -1));
+                              args.forEach(async singlearg => {
+                                    let member = await GetMember(message, client, singlearg, Discord, false, false)
                                     if (member) {
                                           member.voice.setChannel(channel2).catch(err => { console.log(err) });
                                     }
@@ -883,8 +893,8 @@ async function drag_user(message, args, userstatus, Discord) {
                                     })
                                     return
                               } else {
-                                    args.forEach(singlearg => {
-                                          let member = message2.guild.members.cache.get(singlearg.slice(3, -1)) || message.guild.members.cache.get(singlearg) || message.guild.members.cache.get(singlearg.slice(2, -1));
+                                    args.forEach(async singlearg => {
+                                          let member = await GetMember(message, client, singlearg, Discord, false, false)
                                           if (member) {
                                                 member.voice.setChannel(channel2).catch(err => { console.log(err) });
                                           }

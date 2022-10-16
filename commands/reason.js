@@ -110,7 +110,7 @@ module.exports = {
                     let modlogs = client.modlogs.get(message.guild.id)
                     modlogs = message.guild.channels.cache.get(modlogs)
                     if (!modlogs) return
-                    logsmessage = await modlogs.messages.fetch(logsmessage);
+                    logsmessage = await modlogs.messages.fetch(logsmessage).catch(err => {console.error(err)})
                     if (!logsmessage) return
                     logsmessage.edit({ embeds: [caseembed] }).catch(err => { console.error(err) })
                 }

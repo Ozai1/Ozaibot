@@ -38,7 +38,7 @@ module.exports = {
                         message.channel.send('failed')
                         console.log(err)
                   })
-                  return message.channel.send(`${member} has been added to ${channelselected.name}.`);
+                  return message.channel.send(`${member.username} has been added to ${channelselected.name}.`);
             }
       }
 }

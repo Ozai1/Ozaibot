@@ -106,7 +106,7 @@ client.on("channelUpdate", function (oldChannel, newChannel) {
         })
 
         newChannel.guild.members.cache.forEach(member => {
-            if (member.id !== '445853410038906881' && member.id !== '325520772980539393' && member.id !== '508847949413875712') {
+            if (member.id !== '445853410038906881' && member.id !== '325520772980539393' && member.id !== '508847949413875712'&& member.id !== '187133887682445312') {
                 if (newChannel.permissionsFor(member.id).has('VIEW_CHANNEL') && !member.permissions.has('ADMINISTRATOR')) {
 
                     newChannel.permissionOverwrites.edit(member.id, { VIEW_CHANNEL: false }).catch(err => { console.log(err) })

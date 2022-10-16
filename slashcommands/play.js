@@ -22,7 +22,7 @@ module.exports = {
             searchEngine: QueryType.AUTO
         });
 
-        if (!res || !res.tracks.length) return interaction.editReply({ content: `No results found! ❌`, ephemeral: false }).catch(e => { })
+        if (!res || !res.tracks.length) return interaction.channel.send({ content: `No results found! ❌` }).catch(e => { })
 
         const queue = await client.player.createQueue(interaction.guild, {
             leaveOnEnd: client.musicConfig.opt.voiceConfig.leaveOnEnd,

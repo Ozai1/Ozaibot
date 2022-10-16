@@ -30,7 +30,7 @@ module.exports = async (Discord, client, oldmessage, newmessage) => {
          }
      }
      if (message.content.toLowerCase().startsWith(prefix)) {
-         console.log(`${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(prefix.length)}`)
+         console.log(`CHATCMD UPDATE | ${message.author.tag} in ${message.guild}, ${message.channel.name}: ${message.content.slice(prefix.length)}`)
          let args = message.content.slice(prefix.length).split(" ");
          const cmd = args.shift().toLowerCase();
          const command = client.commands.get(cmd) || client.commands.find(a => a.aliases && a.aliases.includes(cmd));
