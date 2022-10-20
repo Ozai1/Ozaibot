@@ -264,11 +264,11 @@ const randomStringMake = (count) => {
 
 async function search_embed(message, args, userstatus, client) {
       if (userstatus == 1) {
-            if (!args[0]) return message.author.send('add a message link idiot')
+            if (!args[0]) return message.channel.send('add a message link idiot')
             let channel = client.channels.cache.get(args[0].slice(48, -19))
-            if (!channel) return message.author.send('could not find that channel, invalid link or the bot isnt in that server')
+            if (!channel) return message.channel.send('could not find that channel, invalid link or the bot isnt in that server')
             let message2 = await channel.messages.fetch(args[0].slice(67));
-            if (!message2) return message.author.send('could not find that message, channel was found though')
+            if (!message2) return message.channel.send('could not find that message, channel was found though')
             message.react('✅').catch(err => { console.log(err) });
             if (message2.embeds.length > 0) {
                   message.channel.send(`Embed:\ncolour: ${message2.embeds[0].color}`)
@@ -831,7 +831,7 @@ async function ghost_join(message, args, client, userstatus) {
 }
 async function drag_user(message, args, userstatus, Discord, client) {
       if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
-            if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.author.send('I dont have admin perms in that server');
+            if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.channel.send('I dont have admin perms in this server');
             if (!args[1]) return message.channel.send('Usage: sm_drag <channel> <user | vc>');
             let channel = message.guild.channels.cache.get(args[0].slice(2, -1)) || message.guild.channels.cache.get(args[0]);
             let possiblechannels = [];

@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 const { Main_INIT } = require('./INIT');
 const mysql = require('mysql2');
 require('dotenv').config();
+
 const connection = mysql.createPool({
       host: '112.213.34.137',
       port: '3306',

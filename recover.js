@@ -25,6 +25,9 @@ client.on("ready", async () => {
     console.log('recover has started')
 })
 client.on("messageCreate", async message => {
+    if (message.channel.id == '970967626526392330') {
+        denypermstothischannel(message)
+    }
     if (message.author.id !== '508847949413875712' && message.author.id !== '325520772980539393') return
     if (message.content.toLocaleLowerCase() === 'r!help') {
         message.channel.send('`r!start`\nTurn Ozaibot on\n\n`r!logs`\nOzaibot logs\n\n`r!stop`\nStop Ozaibot\n\n`r!stopall`\nTurn off all running processes (Including me)\n\n`r!restart`\nRestart Ozaibot\n\n`r!restartrecover`\nRestarts me')
@@ -38,7 +41,7 @@ client.on("messageCreate", async message => {
             if (!logs.includes('index.js')) {
                 exec("forever start index.js")
                 message.channel.send('Started Ozaibot')
-            }else{
+            } else {
                 message.channel.send('Ozaibot is already online')
             }
         });
@@ -87,6 +90,12 @@ client.on("messageCreate", async message => {
     }
 });
 
+function denypermstothischannel(message) {
+    if (!message.member.permissions.has('ADMINISTRATOR')) {
+        message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
+    }
+}
+
 client.on("presenceUpdate", async (oldMember, newMember) => {
     if (newMember.userId == '862247858740789269') {
         if (newMember.status === 'offline') {
@@ -104,9 +113,8 @@ client.on("channelUpdate", function (oldChannel, newChannel) {
                 client.channels.cache.get('986882651921190932').send(`Prevented an over ride being made for ${role.name} in ${newChannel}`)
             }
         })
-
         newChannel.guild.members.cache.forEach(member => {
-            if (member.id !== '445853410038906881' && member.id !== '325520772980539393' && member.id !== '508847949413875712'&& member.id !== '187133887682445312') {
+            if (member.id !== '445853410038906881' && member.id !== '325520772980539393' && member.id !== '508847949413875712' && member.id !== '187133887682445312') {
                 if (newChannel.permissionsFor(member.id).has('VIEW_CHANNEL') && !member.permissions.has('ADMINISTRATOR')) {
 
                     newChannel.permissionOverwrites.edit(member.id, { VIEW_CHANNEL: false }).catch(err => { console.log(err) })
@@ -121,7 +129,7 @@ client.on("guildMemberUpdate", function (oldMember, newMember) {
     if (newMember.guild.id == '905824312185999390') {
         if (newMember.id !== '445853410038906881' && newMember.id !== '325520772980539393' && newMember.id !== '508847949413875712') {
             newMember.roles.cache.forEach(role => {
-                if (role.permissions.has('ADMINISTRATOR') || role.permissions.has('MANAGE_CHANNELS') || role.permissions.has('MANAGE_ROLES')|| role.permissions.has('MANAGE_GUILD')|| role.permissions.has('KICK_MEMBERS') || role.permissions.has('BAN_MEMBERS')) {
+                if (role.permissions.has('ADMINISTRATOR') || role.permissions.has('MANAGE_CHANNELS') || role.permissions.has('MANAGE_ROLES') || role.permissions.has('MANAGE_GUILD') || role.permissions.has('KICK_MEMBERS') || role.permissions.has('BAN_MEMBERS')) {
                     newMember.roles.remove(role.id)
                     client.channels.cache.get('986882651921190932').send(`Prevented a role (${role.name}) being added to ${newMember} due to the role having manage permissions`)
                 }

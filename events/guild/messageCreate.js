@@ -28,7 +28,8 @@ module.exports = async (Discord, client, message) => {
         dmlogs.send({ embeds: [commandembed] });
     }
     let prefix = 'sm_';
-    if (message.guild && !message.channel.type == 15) {
+    if (!message.channel.type == 15) return
+    if (message.guild) {
         prefix = client.prefixes.get(message.guild.id)
         if (prefix === undefined) {
             prefix = 'sm_'
@@ -52,7 +53,7 @@ module.exports = async (Discord, client, message) => {
                     return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease contact an administrator to give me permissions to embed links.').catch(err => { })
                 }
             }
-           
+
         }
         let args = undefined
         let cmd = undefined
@@ -80,7 +81,8 @@ module.exports = async (Discord, client, message) => {
         }
         if (userstatus == 1) {
             let blocked = await HasPerms(message, message.member, client, 'z')
-            if (blocked == 2) return console.log('member has all perms denied, lel. no cmd executed')}
+            if (blocked == 2) return console.log('member has all perms denied, lel. no cmd executed')
+        }
         if (userstatus == 1) {
             if (message.content.includes(';')) { // multi command using ;
                 let multicommands = message.content.split(";");
