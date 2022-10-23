@@ -264,6 +264,7 @@ const UpdateDatabase = (client) => {
 }
 
 module.exports.UpdateDatabase = UpdateDatabase
+
 /**
  * Retreves a member from the guild of command origin
  * @param {Object} message Message object
