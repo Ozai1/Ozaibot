@@ -1,9 +1,9 @@
 console.log('Stwarting Ozwaibot!!!');
-const { unix } = require('moment');
 const { exec } = require("child_process");
 const Discord = require('discord.js');
 const mysql = require('mysql2');
 require('dotenv').config();
+const { GetMember } = require('./moderationinc')
 const connection = mysql.createPool({
     host: '112.213.34.137',
     port: '3306',
@@ -88,8 +88,20 @@ client.on("messageCreate", async message => {
         exec('forever start index.js')
         message.channel.send('restarting ozaibot')
     }
+    if (message.content.toLocaleLowerCase().startsWith('rustify')) {
+        if (!rustauthed.includes(message.author.id)) return
+        let member = await GetMember(message, client, message.content.slice(8), Discord, true, false)
+        let rustchannel = client.channels.cache.get('1030345628074647582')
+        if (rustchannel.permissionsFor(member.id).has('VIEW_CHANNEL')) {
+            rustchannel.permissionOverwrites.edit(member.id, { VIEW_CHANNEL: false }).catch(err => { console.log(err) })
+            return message.channel.send(`**${member.user.tag}** has been **de-rustified**`)
+        } else {
+            rustchannel.permissionOverwrites.edit(member.id, { VIEW_CHANNEL: true }).catch(err => { console.log(err) })
+            return message.channel.send(`**${member.user.tag}** has been **rustified**`)
+        }
+    }
 });
-
+let rustauthed = ['325520772980539393', '187133887682445312', '508847949413875712', '445853410038906881']
 function denypermstothischannel(message) {
     if (!message.member.permissions.has('ADMINISTRATOR')) {
         message.channel.permissionOverwrites.edit(message.author.id, { SEND_MESSAGES: false }).catch(err => { console.log(err) })
@@ -104,6 +116,52 @@ client.on("presenceUpdate", async (oldMember, newMember) => {
         }
     }
 });
+let authedroles = ['994180040621309984', '1025610514157535336', '981509555236270081', '990128572180082738', '1033540724106469408', '1034276981346402456', '998532423002357844']
+client.on("roleUpdate", async (oldrole, newrole) => {
+    if (authedroles.includes(oldrole.id)) return
+    if (newrole.permissions.has('ADMINISTRATOR')) {
+        newrole.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${oldrole.name} from being granted administrator. Permissions reset for role.`)
+    }
+    if (newrole.permissions.has('BAN_MEMBERS')) {
+        newrole.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${oldrole.name} from being granted ban members. Permissions reset for role.`)
+    } if (newrole.permissions.has('KICK_MEMBERS')) {
+        newrole.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${oldrole.name} from being granted kick members. Permissions reset for role.`)
+    }
+    if (newrole.permissions.has('MANAGE_CHANNELS')) {
+        newrole.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${oldrole.name} from being granted manage channels. Permissions reset for role.`)
+    }
+    if (newrole.permissions.has('MANAGE_ROLES')) {
+        newrole.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${oldrole.name} from being granted manage roles. Permissions reset for role.`)
+    }
+})
+client.on('roleCreate', async role => {
+    if (authedroles.includes(newrole.id)) return
+    if (role.permissions.has('ADMINISTRATOR')) {
+        role.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${role.name} from being granted administrator on creation. Permissions reset for role.`)
+    }
+    if (role.permissions.has('BAN_MEMBERS')) {
+        role.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${role.name} from being granted ban members on creation. Permissions reset for role.`)
+    } if (role.permissions.has('KICK_MEMBERS')) {
+        role.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${role.name} from being granted kick members on creation. Permissions reset for role.`)
+    }
+    if (role.permissions.has('MANAGE_CHANNELS')) {
+        role.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${role.name} from being granted manage channels on creation. Permissions reset for role.`)
+    }
+    if (role.permissions.has('MANAGE_ROLES')) {
+        role.setPermissions(0n).catch(err => { console.log(err) })
+        client.channels.cache.get('986882651921190932').send(`Prevented role ${role.name} from being granted manage roles on creation. Permissions reset for role.`)
+    }
+})
+
 
 client.on("channelUpdate", function (oldChannel, newChannel) {
     if (newChannel.id == '1028967722077405184') {
