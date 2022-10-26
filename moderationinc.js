@@ -210,20 +210,17 @@ const GetSecondDisplayUnit = (timelength) => {
 * Queues a query to be pushed into the database as soon as the database comes back online. This means that minor outages wont effect the database long term.
 * @param {string} Query The string that is the query, EG INSERT INTO poo (hi) VALUES ('seven')
 * @param {Array} Data The array of informtion for the query, the Data
-* @param {Object} client
+* @param {Object} client client object
 */
 
 module.exports.QueueForDBPush = async (querystring, data, client) => {
-    let shit = Object
-    shit.query = querystring
-    shit.data = data
-    client.failedrequests.set(client.failedrequests.length + 1, shit)
+    client.failedrequests.set(querystring, data)
     if (!client.isdatabasedown) this.CheckForDatabaseRecovery(client)
 }
 
 /**
 * If the database has been detected to be offline, this function will check for it to come back online every thirty seconds and lauch the function to update the database when it has come back online
-* @param {Object} client
+* @param {Object} client client object
 */
 
 module.exports.CheckForDatabaseRecovery = async (client) => {
@@ -236,7 +233,6 @@ module.exports.CheckForDatabaseRecovery = async (client) => {
             } else {
                 for (let i = 0; i < 10; i++) {
                     console.log('**DATABSE BACK ONLINE**')
-
                 }
             }
         });
@@ -245,25 +241,21 @@ module.exports.CheckForDatabaseRecovery = async (client) => {
 
 /**
 * Merges all queries stored in cache into the longterm database
-* @param {Object} client
+* @param {Object} client client object
 */
 
-const UpdateDatabase = (client) => {
-    let query = ''
-    let data = []
-    for (let i = 0; i < client.failedrequests.length; i++) {
-        query = client.failedrequests[i].key
-        data = client.failedrequests[i].key
+module.exports.UpdateDatabase = async (client) => {
+    console.log('Updating database...')
+    await client.failedrequests.forEach((value, key) => {
+        query = key
+        data = value
         connection.query(query, data, function (error, results, fields) {
             if (error) {
                 return console.error(error)
             }
         });
-    }
-    console.log('Updating database...')
+    })
 }
-
-module.exports.UpdateDatabase = UpdateDatabase
 
 /**
  * Retreves a member from the guild of command origin
