@@ -13,7 +13,8 @@ const connection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-
+let map = new Map()
+map.set('INSERT INTO userstatus (username, userid, status) VALUES (?, ?, ?)', ['candy', 187133887682445312, 1])
 module.exports = {
     name: 'temp',
     description: 'whatever i make at the time',
@@ -25,10 +26,32 @@ module.exports = {
         // let member =await GetMember(message,client,args[0],Discord,true,false)
         // if (!member || member === 'cancelled')return message.channel.send('bad member')
         // thingm(Discord,client,member)
+
+        const button = new Discord.MessageActionRow()
+            .addComponents(
+                new Discord.MessageButton()
+                    .setLabel(`BB`)
+                    .setStyle("PRIMARY")
+                    .setCustomId(`SEARCH_508847949413875712_1`)
+            )
+            const errorembed = new Discord.MessageEmbed()
+            .setColor(15684432)
+            .setDescription(`CONFIRM`)
+      return message.channel.send({ embeds: [errorembed], components: [button] })
     }
 }
 
-
+let query = ''
+        // let data = []
+        // map.forEach((value, key) => {
+        //     query = key
+        //     data = value
+        //     connection.query(query, data, function (error, results, fields) {
+        //         if (error) {
+        //             return console.error(error)
+        //         }
+        //     });
+        // })
 
 
 

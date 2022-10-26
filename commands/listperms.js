@@ -15,13 +15,13 @@ const connection = mysql.createPool({
 });
 
 module.exports = {
-    name: 'search',
-    description: 'gets and displays a users past punishments',
+    name: 'listperms',
+    description: 'Shows all users/roles that have permissions set.',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (userstatus !== 1) {
             let perms = await HasPerms(message, message.member, client, 'k', 'l')
-            if (!message.member.permissions.has("MANAGE_MESSAGES") && perms !== 1 || perms == 2) {
+            if (!message.member.permissions.has("ADMINISTRATOR") && perms !== 1 || perms == 2) {
                 const errorembed = new Discord.MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
@@ -35,8 +35,8 @@ module.exports = {
         const member = await GetMember(message, client, args[0], Discord, true, true)
         if (!member) return message.channel.send('Invalid member.')
         if (member === 'cancelled') return
-        let query = `SELECT * FROM serverpunishments WHERE userid = ? && serverid = ?`;
-        let data = [member.id, message.guild.id];
+        let query = `SELECT * FROM serverpunishments WHERE serverid = ?`;
+        let data = [message.guild.id];
         connection.query(query, data, async function (error, results, fields) {
             if (error) {
                 message.channel.send('Error fetching user\'s data, please try again later');
