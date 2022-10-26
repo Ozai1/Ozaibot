@@ -69,26 +69,26 @@ async function list_perms(message, client, args, Discord, member, invalidusage) 
             theperms = theperms.split("")
             theperms.forEach(perm => {
                 perm = GetFlagName(perm)
-                if (!positiveperms.includes(perm)) positiveperms.push(perm)
+                if (!positiveperms.includes(perm)) positiveperms.push(`${perm}`)
             })
         } if (theperms2) {
             theperms2 = theperms2.split("")
             theperms2.forEach(perm => {
                 perm = GetFlagName(perm)
-                if (!negativeperms.includes(perm)) negativeperms.push(perm)
+                if (!negativeperms.includes(perm)) negativeperms.push(`${perm}`)
             })
         }
         if (!positiveperms[0]) {
             positiveperms = 'None.'
         } else {
             positiveperms = positiveperms.filter((a) => a).toString()
-            positiveperms = positiveperms.replace(/,/g, '`\n`')
+            positiveperms = positiveperms.replace(/,/g, '\n')
         }
         if (!negativeperms[0]) {
             negativeperms = 'None.'
         } else {
             negativeperms = negativeperms.filter((a) => a).toString()
-            negativeperms = negativeperms.replace(/,/g, '`\n`')
+            negativeperms = negativeperms.replace(/,/g, '\n')
         }
         const permsembed = new Discord.MessageEmbed()
             .setAuthor({ name: `${usertag} (${member.id})`, iconURL: avURL })
@@ -109,26 +109,26 @@ async function list_perms(message, client, args, Discord, member, invalidusage) 
             theperms = theperms.split("")
             theperms.forEach(perm => {
                 perm = GetFlagName(perm)
-                if (!positiveperms.includes(perm)) positiveperms.push(perm)
+                if (!positiveperms.includes(perm)) positiveperms.push(`${perm}`)
             })
         } if (theperms2) {
             theperms2 = theperms2.split("")
             theperms2.forEach(perm => {
                 perm = GetFlagName(perm)
-                if (!negativeperms.includes(perm)) negativeperms.push(perm)
+                if (!negativeperms.includes(perm)) negativeperms.push(`${perm}`)
             })
         }
         if (!positiveperms[0]) {
             positiveperms = 'None.'
         } else {
             positiveperms = positiveperms.filter((a) => a).toString()
-            positiveperms = positiveperms.replace(/,/g, '`\n`')
+            positiveperms = positiveperms.replace(/,/g, '\n')
         }
         if (!negativeperms[0]) {
             negativeperms = 'None.'
         } else {
             negativeperms = negativeperms.filter((a) => a).toString()
-            negativeperms = negativeperms.replace(/,/g, '`\n`')
+            negativeperms = negativeperms.replace(/,/g, '\n')
         }
         const permsembed = new Discord.MessageEmbed()
             .setDescription(`${member} (${member.name})\n\n**Allowed:**\n${positiveperms}\n\n**Denied:**\n${negativeperms}`)
