@@ -43,8 +43,6 @@ module.exports = {
                 }
             }
         });
-
-
     },
 };
 async function justfuckingrunit(client, interaction) {
