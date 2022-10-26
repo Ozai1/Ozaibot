@@ -2,7 +2,7 @@ const { isInteger } = require('mathjs');
 const mysql = require('mysql2');
 
 require('dotenv').config();
-const { GetMember, GetPunishName , HasPerms} = require("../moderationinc")
+const { GetMember, GetPunishName, HasPerms } = require("../moderationinc")
 const connection = mysql.createPool({
     host: '112.213.34.137',
     port: '3306',
@@ -42,7 +42,6 @@ module.exports = {
                 message.channel.send('Error fetching user\'s data, please try again later');
                 return console.log(error);
             }
-            if (!results) return message.channel.send('This user has no punishments.')
             let pages = []
             let entries = []
             let entriesoncurrentpage = 0
@@ -61,6 +60,13 @@ module.exports = {
             } else {
                 usertag = member.tag
                 avURL = member.avatarURL()
+            }
+            if (results == '') {
+                const caseembed = new Discord.MessageEmbed()
+                    .setAuthor({ name: `${usertag}`, iconURL: avURL })
+                    .setColor('BLUE')
+                    .setDescription('This user has no punishments.')
+                return message.channel.send({ embeds: [caseembed] })
             }
             pages.push('')
             for (row of results) {
@@ -127,7 +133,31 @@ module.exports = {
                 .setColor('BLUE')
                 .setDescription(printthing)
                 .setFooter({ text: `${footerstring}` })
-            return message.channel.send({ embeds: [caseembed] })
+            const button = new Discord.MessageActionRow()
+            if (!args[1]) {
+                args[1] = 1
+            }
+            if (pages[args[1] - 2]) {
+                button.addComponents(
+                    new Discord.MessageButton()
+                        .setLabel(`Previous Page`)
+                        .setStyle("PRIMARY")
+                        .setCustomId(`SEARCH_${member.id}_${Number(args[1]) - 1}`)
+                )
+            }
+            if (pages[args[1]]) {
+                button.addComponents(
+                    new Discord.MessageButton()
+                        .setLabel(`Next Page`)
+                        .setStyle("PRIMARY")
+                        .setCustomId(`SEARCH_${member.id}_${Number(args[1]) + 1}`)
+                )
+            }
+            if (button.components[0]) {
+                return message.channel.send({ embeds: [caseembed], components: [button] })
+            } else {
+                return message.channel.send({ embeds: [caseembed] })
+            }
         });
     }
 }

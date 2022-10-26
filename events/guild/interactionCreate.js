@@ -1,4 +1,5 @@
 const { GetModerationModuleText, GetAdministrationModuleText } = require('../../commands/help');
+const {SearchButton} = require('../../searchbuttons')
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -118,6 +119,9 @@ module.exports = async (Discord, client, interaction) => {
                 })
             }, 2000);
             interaction.message.edit({ components: [] })
+        }
+        if (interaction.customId.startsWith("SEARCH_")) {
+            SearchButton(interaction, client, Discord)
         }
     }
 };
