@@ -62,7 +62,7 @@ module.exports = {
                         message.channel.send({ embeds: [returnembed] })
                   }).catch(err => { console.log(err) });
                   let reason = args.slice(1).join(" ");
-                  LogPunishment(message, client, args[0], 2,null, reason, Discord)
+                  LogPunishment(message, client, args[0], 2,null, reason, Discord,undefined, true)
             })
       }
 }

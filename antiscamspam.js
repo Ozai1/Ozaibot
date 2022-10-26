@@ -66,7 +66,7 @@ const LinkSpamDetected = async (message, client, Discord, type, length) => {
                     return
                 })
                 message.author = client.user
-                LogPunishment(message, client, message.member.id, 1, null, `AUTOBAN: Link Spam detected.`, Discord)
+                LogPunishment(message, client, message.member.id, 1, null, `AUTOBAN: Link Spam detected.`, Discord, undefined, true)
                 console.log(`User banned for link spam.`)
             }
         } else if (type == 3) {
@@ -100,7 +100,7 @@ const LinkSpamDetected = async (message, client, Discord, type, length) => {
             message2.author = client.user
             message2.guild = message.member.guild;
             message2.channel = undefined;
-            LogPunishment(message2, client, message.member.id, 3, length, 'AUTO-MUTE: Link Spam detected.', Discord)
+            LogPunishment(message2, client, message.member.id, 3, length, 'AUTO-MUTE: Link Spam detected.', Discord,undefined, true)
             NotifyUser(3, message2, `You have been auto-muted in ${message.member.guild}`, message.member, 'AUTO-MUTE: Link Spam detected.', length, client, Discord)
             console.log(`User mute for link spam.`)
         } else if (type == 5) {
@@ -111,7 +111,7 @@ const LinkSpamDetected = async (message, client, Discord, type, length) => {
                 return
             })
             message.author = client.user
-            LogPunishment(message, client, message.member.id, 5, null, `AUTOKICK: Link Spam detected.`, Discord)
+            LogPunishment(message, client, message.member.id, 5, null, `AUTOKICK: Link Spam detected.`, Discord,undefined, true)
             console.log(`User kicked for link spam.`)
         } else if (type == 6) {
             await NotifyUser(6, message, `You have been soft-banned from ${message.guild}`, message.member, 'AUTO-SOFTBAN: Link Spam detected.', 0, client, Discord)
@@ -126,10 +126,10 @@ const LinkSpamDetected = async (message, client, Discord, type, length) => {
                 return
             })
             message.author = client.user
-            LogPunishment(message, client, message.member.id, 6, null, `AUTO-SOFTBAN: Link Spam detected.`, Discord)
+            LogPunishment(message, client, message.member.id, 6, null, `AUTO-SOFTBAN: Link Spam detected.`, Discord,undefined, true)
             console.log(`User soft-banned for link spam.`)
         } else if (type == 7) {
-            LogPunishment(message, client, member.id, 7, null, 'AUTO-WARN: Link Spam detected.', Discord)
+            LogPunishment(message, client, member.id, 7, null, 'AUTO-WARN: Link Spam detected.', Discord, true)
             NotifyUser(7, message, `You have been warned in ${message.guild}`, member, 'AUTO-WARN: Link Spam detected.', 0, client, Discord)
             console.log(`User warned for link spam.`)
         }
@@ -148,7 +148,7 @@ const MassLinkSpamDetected = async (message, client, Discord, type, length) => {
                     return
                 })
                 message.author = client.user
-                LogPunishment(message, client, message.member.id, 1, null, `AUTOBAN: Mass Link Spam detected.`, Discord)
+                LogPunishment(message, client, message.member.id, 1, null, `AUTOBAN: Mass Link Spam detected.`, Discord,undefined, true)
                 console.log(`User banned for link spam.`)
             }
         } else if (type == 3) {
@@ -183,7 +183,7 @@ const MassLinkSpamDetected = async (message, client, Discord, type, length) => {
             message2.author = client.user
             message2.guild = message.member.guild;
             message2.channel = undefined;
-            LogPunishment(message2, client, message.member.id, 3, length, 'AUTO-MUTE: Mass Link Spam detected.', Discord)
+            LogPunishment(message2, client, message.member.id, 3, length, 'AUTO-MUTE: Mass Link Spam detected.', Discord,undefined, true)
             NotifyUser(3, message2, `You have been auto-muted in ${message.member.guild}`, message.member, 'AUTO-MUTE: Mass Link Spam detected.', length, client, Discord)
             console.log(`User mute for link spam.`)
         } else if (type == 5) {
@@ -194,7 +194,7 @@ const MassLinkSpamDetected = async (message, client, Discord, type, length) => {
                 return
             })
             message.author = client.user
-            LogPunishment(message, client, message.member.id, 5, null, `AUTOKICK: Mass Link Spam detected.`, Discord)
+            LogPunishment(message, client, message.member.id, 5, null, `AUTOKICK: Mass Link Spam detected.`, Discord,undefined, true)
             console.log(`User kicked for link spam.`)
         } else if (type == 6) {
             await NotifyUser(6, message, `You have been soft-banned from ${message.guild}`, message.member, 'AUTO-SOFTBAN: Mass Link Spam detected.', 0, client, Discord)
@@ -209,10 +209,10 @@ const MassLinkSpamDetected = async (message, client, Discord, type, length) => {
                 return
             })
             message.author = client.user;
-            LogPunishment(message, client, message.member.id, 6, null, `AUTO-SOFTBAN: Mass Link Spam detected.`, Discord)
+            LogPunishment(message, client, message.member.id, 6, null, `AUTO-SOFTBAN: Mass Link Spam detected.`, Discord,undefined, true)
             console.log(`User soft-banned for link spam.`)
         } else if (type == 7) {
-            LogPunishment(message, client, member.id, 7, null, 'AUTO-WARN: Mass Link Spam detected.', Discord)
+            LogPunishment(message, client, member.id, 7, null, 'AUTO-WARN: Mass Link Spam detected.', Discord, undefined,true)
             NotifyUser(7, message, `You have been warned in ${message.guild}`, member, 'AUTO-WARN: Mass Link Spam detected.', 0, client, Discord)
             console.log(`User warned for link spam.`)
         }

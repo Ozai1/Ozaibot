@@ -36,7 +36,13 @@ module.exports.SearchButton = async (interaction, client, Discord) => {
             interaction.reply('Error fetching user\'s data, please try again later');
             return console.log(error);
         }
-        if (results) return message.channel.send('This user has no punishments.')
+        if (results == '') {
+            const caseembed = new Discord.MessageEmbed()
+            .setAuthor({ name: `${usertag}`, iconURL: avURL })
+            .setColor('BLUE')
+            .setDescription('This user has no punishments.')
+            interaction.message.edit({ embeds: [caseembed], components: null })
+        }
         let pages = []
         let entries = []
         let entriesoncurrentpage = 0

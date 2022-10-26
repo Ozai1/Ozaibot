@@ -104,7 +104,7 @@ module.exports = {
                 message.channel.send('Failed to ban.')
                 return
             })
-            LogPunishment(message, client, member.id, 1, null, reason, Discord)
+            LogPunishment(message, client, member.id, 1, null, reason, Discord,undefined, true)
             return
         }
         let reason = args.slice(1).join(" ");
@@ -129,7 +129,7 @@ module.exports = {
             message.channel.send('Failed to ban.')
             return
         })
-        LogPunishment(message, client, member.id, 1, null, reason, Discord)
+        LogPunishment(message, client, member.id, 1, null, reason, Discord,undefined, true)
     }
 }
 async function sban(message, args, userstatus,client, Discord) {

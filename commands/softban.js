@@ -131,7 +131,7 @@ async function ExecuteBanAndUnBan(message, client, member, daystodelete, Discord
         .setDescription(`<:check:988867881200652348> ${member} has been **soft-banned**.`)
         .setColor("GREEN")
     message.channel.send({ embeds: [returnembed] })
-    LogPunishment(message, client, member.id, 6, null, reason, Discord)
+    LogPunishment(message, client, member.id, 6, null, reason, Discord,undefined, true)
     await message.guild.members.ban(member, { days: daystodelete, reason: `soft-ban insigated by ${message.author.tag} (${message.author.id}), please check ozaibot logs for more info`, }).catch(err => {
         console.log(err)
         message.channel.send('Failed to ban.')

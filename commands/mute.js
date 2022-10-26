@@ -154,7 +154,7 @@ module.exports = {
                   }
                   return
             })
-            LogPunishment(message, client, member.id, 3, muteduration, reason, Discord, casenumber)
+            LogPunishment(message, client, member.id, 3, muteduration, reason, Discord, casenumber, true)
             console.log(`user has been muted${display}.`)
       }
 }

@@ -56,7 +56,7 @@ module.exports = async (Discord, client, oldmember, newmember) => {
                 message.author = client.user
                 message.guild = oldmember.guild;
                 message.channel = modlog;
-                LogPunishment(message, client, oldmember.id, 4, 0, 'Role manually removed by administrator.', Discord);
+                LogPunishment(message, client, oldmember.id, 4, 0, 'Role manually removed by administrator.', Discord,undefined, true);
             }
         });
     }

@@ -54,7 +54,7 @@ module.exports = {
                   message.channel.send('Failed to kick')
                   return
             });
-            LogPunishment(message, client, member.id, 5, null, reason, Discord)
+            LogPunishment(message, client, member.id, 5, null, reason, Discord,undefined, true)
       }
 }
 async function skick(message, args, userstatus, Discord, client) {

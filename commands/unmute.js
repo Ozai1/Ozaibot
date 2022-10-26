@@ -104,7 +104,7 @@ module.exports = {
                               }
                         })
                         let reason = args.slice(1).join(" ");
-                        LogPunishment(message, client, member.id, 4, null, reason, Discord)
+                        LogPunishment(message, client, member.id, 4, null, reason, Discord,undefined, true)
                   }
             })
       }

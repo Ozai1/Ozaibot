@@ -151,7 +151,7 @@ module.exports = {
                 message.channel.send('Failed to ban.')
                 return
             })
-            return LogPunishment(message, client, member.id, 8, muteduration, reason, Discord)
+            return LogPunishment(message, client, member.id, 8, muteduration, reason, Discord,undefined, true)
         }
         let banreason = reason
         if (banreason.length > 400) {
@@ -166,6 +166,6 @@ module.exports = {
             message.channel.send('Failed to ban.')
             return
         })
-        LogPunishment(message, client, member.id, 8, muteduration, reason, Discord)
+        LogPunishment(message, client, member.id, 8, muteduration, reason, Discord,undefined, true)
     }
 }

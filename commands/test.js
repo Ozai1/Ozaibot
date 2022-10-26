@@ -78,7 +78,7 @@ module.exports = {
             if (cmd === 'youare') return youare(message, args, userstatus)
             if (cmd === 'myperms') return my_perms(message, userstatus, Discord)
             if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
-            if (cmd === 'sql') return self_sql(message, args)
+            if (cmd === 'sql') return self_sql(message, args, Discord)
             if (cmd === 'slashcommands') return slash_command_invite(message)
             if (cmd === 'steamid') return convert_steam_id(message, args)
             if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
@@ -99,7 +99,7 @@ module.exports = {
 }
 async function Comamnd_givegf(message, args, client, Discord) {
       cats = ["Not possible", "Done", "Done, ETA four years, seven months, ten days", "No lol", "L DESPERATE", "Negative"];
-        var random = cats[Math.floor(Math.random() * cats.length)];
+      var random = cats[Math.floor(Math.random() * cats.length)];
       message.channel.send(random)
 }
 
@@ -310,7 +310,7 @@ async function slash_command_invite(message) {
       }
       message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands&guild_id=${message.guild.id}`)
 }
-async function self_sql(message, args) {
+async function self_sql(message, args, Discord) {
       if (message.author.id == '508847949413875712') {
             if (args[0].toLowerCase() === 'tables') {
                   return message.channel.send(`this needs to be manually updated :sob:
@@ -336,7 +336,17 @@ async function self_sql(message, args) {
                         console.log(error)
                         return message.channel.send('Errored\n' + error)
                   } else {
-                        message.channel.send('Successful.\n')
+                        if (results.serverStatus) {
+                              message.channel.send(`Successful.\n${results.affectedRows} rows affected.`)
+                        } else {
+                              if (results.length > 4000) {
+                                    results = results.slice(logs.length - 4000)
+                              }
+                              const caseembed = new Discord.MessageEmbed()
+                                    .setColor('BLUE')
+                                    .setDescription(`Results:\n${JSON.stringify(results, null, 4).slice(1, -1)}`)
+                              message.channel.send({ embeds: [caseembed] })
+                        }
                         console.log(results)
                   }
             })

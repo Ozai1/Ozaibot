@@ -657,7 +657,7 @@ module.exports.GetMemberOrRole = async (message, client, string, Discord, AllowM
  * @param {boolean} pushToDB whether to log it to the database
  */
 
-module.exports.LogPunishment = async (message, client, memberid, type, length, reason, Discord, casenumber, pushtodb = true) => {
+module.exports.LogPunishment = async (message, client, memberid, type, length, reason, Discord, casenumber, pushtodb) => {
     if (!casenumber) {
         casenumber = client.currentcasenumber.get(message.guild.id) + 1
         client.currentcasenumber.set(message.guild.id, casenumber);

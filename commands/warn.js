@@ -62,7 +62,7 @@ module.exports = {
         }
         let reason = args.slice(1).join(" ");
         let casenumber = client.currentcasenumber.get(message.guild.id) + 1
-        LogPunishment(message, client, member.id, 7, null, reason, Discord)
+        LogPunishment(message, client, member.id, 7, null, reason, Discord, undefined,true)
         NotifyUser(7, message, `You have been warned in ${message.guild}`, member, reason, 0, client, Discord)
         const returnembed = new Discord.MessageEmbed()
             .setTitle(`Case #${casenumber}`)
