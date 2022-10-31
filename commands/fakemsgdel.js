@@ -16,7 +16,7 @@ module.exports = {
     name: 'fakemsgdel',
     description: 'pretends to catch someone deleting a message',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (userstatus == 1) {
+        if (userstatus == 1 || userstatus == 2) {
             if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
             if (message.deletable) message.delete().catch(err => { console.log(err) })
