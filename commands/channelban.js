@@ -26,7 +26,7 @@ module.exports = {
                     message.channel.send('failed')
                     console.log(err)
                 })
-                message.channel.send(`${pinguser.username} has been banned from this channel.`)
+                message.channel.send(`${pinguser.user.tag} has been banned from this channel.`)
             } else {
                 message.channel.send('Selected user cannot see this this channel already!');
             }
