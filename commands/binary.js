@@ -16,11 +16,13 @@ module.exports = {
     name: 'binary',
     description: 'Translates to and from binary',
     async execute(message, client, cmd, args, Discord, userstatus) {
-        if (!args[0]) return message.channel.send('add arg')
-        if (isNaN(args[0])) {
-            return message.channel.send(text2Binary(args.slice(0).join(" ")) ? text2Binary(args.slice(0).join(" ")) : 'Output was undefined')
-        } else {
-            return message.channel.send(binaryAgent(args.slice(0).join(" ")) ? binaryAgent(args.slice(0).join(" ")) : 'Output was undefined')
+        if (userstatus == 2 || userstatus == 1) {
+            if (!args[0]) return message.channel.send('add arg')
+            if (isNaN(args[0])) {
+                return message.channel.send(text2Binary(args.slice(0).join(" ")) ? text2Binary(args.slice(0).join(" ")) : 'Output was undefined')
+            } else {
+                return message.channel.send(binaryAgent(args.slice(0).join(" ")) ? binaryAgent(args.slice(0).join(" ")) : 'Output was undefined')
+            }
         }
     }
 }

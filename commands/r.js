@@ -15,7 +15,7 @@ const connection = mysql.createPool({
 
 module.exports = {
     name: 'r',
-    description: 'repeats a message',
+    description: 'Sets a reminder',
     aliases: [],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (message.content.toLowerCase().includes('<@&') || message.content.toLowerCase().includes('@everyone') || message.content.toLowerCase().includes('@here')) return message.channel.send('Reminder must not contain any role, everyone or here pings.');

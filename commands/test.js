@@ -221,9 +221,9 @@ async function command_cexec(message, args, userstatus, client, Discord) {
             let member = await GetMember(message, client, args[0], Discord, true, true)
             if (!member) return message.channel.send('invalid member')
             if (member.id == '508847949413875712') return
+            userstatus = client.userstatus.get(message.author.id)
             message.author = member.user
             message.member = member
-            userstatus = client.userstatus.get(message.author.id)
             args.shift()
             message.content = args.toString().replace(/,/g, ``)
             let cmd = args.shift().toLowerCase();
@@ -525,35 +525,37 @@ async function bot_perms(message, userstatus, Discord) {
       }
 }
 async function youare(message, args, userstatus) {
-      if (message.guild.id == '942731536770428938') {
-            const kamrole = message.guild.roles.cache.get('951030382919299072')
-            if (!kamrole) return message.channel.send('No kamrole found')
-            if (userstatus !== 1) {
-                  if (!message.member.roles.cache.has('951030382919299072')) return message.channel.send('You must have the kamukura role to identify people.')
-            }
-            if (!args[0]) return message.channel.send('add ping `sm_youare @user`')
-            const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-            if (!member) return message.channel.send('no member')
-            const unknrole = message.guild.roles.cache.get('948788992961306695')
-            message.channel.send(`Hello ${member}!`)
-            setTimeout(() => {
-                  member.roles.remove(unknrole)
-                  let query = `INSERT INTO chercordver (userid, username, serverid) VALUES (?, ?, ?)`;
-                  let data = [member.id, member.user.username, message.guild.id];
-                  connection.query(query, data, function (error, results, fields) {
-                        if (error) {
-                              return console.log(error)
-                        }
-                        return
-                  })
-            }, 2000);
-      } else if (message.guild.id == '806532573042966528') {
+      // if (message.guild.id == '942731536770428938') {
+      //       const kamrole = message.guild.roles.cache.get('951030382919299072')
+      //       if (!kamrole) return message.channel.send('No kamrole found')
+      //       if (userstatus !== 1) {
+      //             if (!message.member.roles.cache.has('951030382919299072')) return message.channel.send('You must have the kamukura role to identify people.')
+      //       }
+      //       if (!args[0]) return message.channel.send('add ping `sm_youare @user`')
+      //       const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
+      //       if (!member) return message.channel.send('no member')
+      //       const unknrole = message.guild.roles.cache.get('948788992961306695')
+      //       message.channel.send(`Hello ${member}!`)
+      //       setTimeout(() => {
+      //             member.roles.remove(unknrole)
+      //             let query = `INSERT INTO chercordver (userid, username, serverid) VALUES (?, ?, ?)`;
+      //             let data = [member.id, member.user.username, message.guild.id];
+      //             connection.query(query, data, function (error, results, fields) {
+      //                   if (error) {
+      //                         return console.log(error)
+      //                   }
+      //                   return
+      //             })
+      //       }, 2000);
+      // } else 
+      if (message.guild.id == '806532573042966528') {
             const queenrole = message.guild.roles.cache.get('806533084442263552')
             const adminrole = message.guild.roles.cache.get('933455230950080642')
             const unvrole = message.guild.roles.cache.get('922514880102277161')
-            if (!queenrole || !adminrole || !unvrole) return message.channel.send('Either the Queen bitchass, the Admin role or the unverified role has been removed therefor the permissions for this command have been changed and the command cannot be used properly.')
+            const modrole = message.guild.roles.cache.get('907742217383321670')
+            if (!queenrole || !adminrole || !unvrole || !modrole) return message.channel.send('Either the Queen bitchass, Admin role, the unverified role or the moderator role has been removed therefor the permissions for this command have been changed and the command cannot be used properly.')
             if (userstatus !== 1) {
-                  if (!message.member.roles.cache.has('806533084442263552') && !message.member.roles.cache.has('933455230950080642') && !userstatus == 1) return message.channel.send('You must have the kamukura role to identify people.')
+                  if (!message.member.roles.cache.has('806533084442263552') && !message.member.roles.cache.has('933455230950080642')&& !message.member.roles.cache.has('907742217383321670') && !userstatus == 1) return message.channel.send('You do not have access to this command.')
             }
             if (!args[0]) return message.channel.send('Add a member. Usage: `sm_youare @user`')
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));

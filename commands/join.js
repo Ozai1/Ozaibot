@@ -16,7 +16,7 @@ module.exports = {
       name: 'join',
       description: 'makes the bot join a channel',
       async execute(message, client, cmd, args, Discord, userstatus) {
-            if (userstatus == 1) {
+            if (userstatus == 1 || userstatus == 2) {
                   if (message.channel.type === 'dm') return message.channel.send('You cannot use this command in DMs')
                   if (args[0]) {
                         let channeljoin = client.channels.cache.get(args[0]);

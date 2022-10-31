@@ -18,7 +18,7 @@ module.exports = {
     aliases: ['embedsay'],
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
+        if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR') || userstatus == 2) {
             if (cmd === 'embedsay') {
                 if (message.deletable) message.delete().catch(err => { console.log(err) });
                 if (!args[0]) return;

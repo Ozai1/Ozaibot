@@ -18,7 +18,7 @@ module.exports = {
     description: 'Shows/sets a user\'s/role\'s permissions within the bot to allow/deny commands',
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
-        if (!message.member.permissions.has('ADMINISTRATOR')) return message.channel.send('You do not have access to this command.')
+        if (!message.member.permissions.has('ADMINISTRATOR') && !userstatus == 1) return message.channel.send('You do not have access to this command.')
         if (!args[0]){
             const errorembed = new Discord.MessageEmbed()
                         .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })

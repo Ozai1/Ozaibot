@@ -1,5 +1,6 @@
 const { GetModerationModuleText, GetAdministrationModuleText } = require('../../commands/help');
-const {SearchButton} = require('../../searchbuttons')
+const { SearchButton } = require('../../searchbuttons')
+const {HasPerms} = require('../../moderationinc')
 const mysql = require('mysql2');
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -84,6 +85,16 @@ module.exports = async (Discord, client, interaction) => {
             interaction.message.delete().catch(err => { console.error(err) })
         }
         if (interaction.customId.startsWith('katban')) {
+            let userstatus = client.userstatus.get(interaction.user.id)
+            if (userstatus !== 1) {
+                let perms = await HasPerms(interaction.message, interaction.member, client, 'a', 'l')
+                if (!interaction.member.permissions.has("BAN_MEMBERS") && perms !== 1 || perms == 2) {
+                    const errorembed = new Discord.MessageEmbed()
+                        .setColor(15684432)
+                        .setDescription(`You do not have access to this button.`)
+                    return interaction.reply({ embeds: [errorembed], ephemeral: true })
+                }
+            }
             let member = interaction.message.guild.members.cache.get(interaction.customId.slice(6))
             if (!member) {
                 return interaction.reply({ content: `User is no longer in this server.`, ephemeral: true })
