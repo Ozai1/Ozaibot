@@ -2,22 +2,22 @@ module.exports = {
     opt: {
 
         voiceConfig: {
-            leaveOnEnd: false, //If this variable is "true", the bot will leave the channel the music ends.
-            autoSelfDeaf: false, //IF YOU WANT TO DEAF THE BOT, set false to true.
+            leaveOnEnd: false, 
+            autoSelfDeaf: false, 
 
-            leaveOnTimer: { //The leaveOnEnd variable must be "false" to use this system.
-                status: false, //If this variable is "true", the bot will leave the channel when the bot is offline.
+            leaveOnTimer: { 
+                status: false, 
                 time: 480 * 1000, // 8 mins 
             }
         },
 
-        maxVol: 200, //You can specify the maximum volume level.
+        maxVol: 200, //maximum volume level
         loopMessage: false,
 
         discordPlayer: {
             ytdlOptions: {
-                quality: 'highestaudio', //Please don't touch
-                highWaterMark: 1 << 25 //Please don't touch
+                quality: 'highestaudio', 
+                highWaterMark: 1 << 25 
             }
         }
     }
