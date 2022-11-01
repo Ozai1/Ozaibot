@@ -12,7 +12,7 @@ module.exports = {
         if (!queue || !queue.playing) return interaction.reply({ content: `There is no music currently playing!. ❌`, ephemeral: true }).catch(e => { })
 
         let button = new MessageActionRow().addComponents(
-            new ButtonBuilder()
+            new Discord.MessageButton()
                 .setLabel("Loop")
                 .setStyle("SUCCESS")
                 .setCustomId("loop"))
@@ -42,7 +42,7 @@ module.exports = {
             })
             col.on('end', async (button) => {
                 button = new MessageActionRow().addComponents(
-                    new ButtonBuilder()
+                    new Discord.MessageButton()
                         .setStyle("SUCCESS")
                         .setLabel("Loop It")
                         .setCustomId("loop")

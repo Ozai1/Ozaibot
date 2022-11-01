@@ -1,5 +1,8 @@
 const { PunishmentExpire } = require('./punishexpire')
+const { Music_Bot_INIT } = require('./music_bot_listeners')
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
+const { unix } = require('moment');
+const { Player } = require('discord-player');
 const fs = require('fs');
 const mysql = require('mysql2');
 const connection = mysql.createPool({
@@ -13,6 +16,8 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 let failed = '';
+//!this whole file is bascially what ready used to be
+
 
 module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before client fires ready, allows for updating before the bot has authed to discord
     client.userstatus = new Map();
@@ -45,6 +50,15 @@ module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before cli
     PunishNotif_INIT(client)
 
     ModLogs_INIT(client)
+
+    // music bot shit
+    client.musicConfig = require('./musicconfig');
+    client.player = new Player(client, client.musicConfig.opt.discordPlayer);
+    client.commands = new Discord.Collection();
+    client.slashcommands = new Discord.Collection();
+    client.events = new Discord.Collection();
+
+    Music_Bot_INIT(client)
     console.log('Pre Login Init Done')
 }
 
@@ -54,6 +68,7 @@ module.exports.Main_INIT = async (client, Discord) => {
     PunishmentExpire(client, Discord)
     AntiScamSpam_INIT(client)
     Permissions_INIT(client)
+    CurrentCaseNumber_INIT(client)
     fs.readdir("./slashcommands/", (_err, files) => {
         synchronizeSlashCommands(client, client.slashcommands.map((command) => ({
             name: command.name,
@@ -76,64 +91,64 @@ module.exports.Main_INIT = async (client, Discord) => {
             alllogs.send({ content: `INIT FAILLED <@!508847949413875712>, FAILED MODULES:`, embeds: [cmdembed] });
         }
     }, 40000);
-
+    // from here was ripped straight from index
     let query = "SET GLOBAL max_connections = 512";
-      let data = [];
-      connection.query(query, data, function (error, results, fields) {
-            if (error) return console.log(error);
-      });
-      query = "DELETE FROM activeinvites";
-      data = [];
-      connection.query(query, data, function (error, results, fields) {
-            if (error) return console.log(error);
-      });
-      setInterval(() => { // 1 min interval, being used for blacklisted invites checking
-            let query = `SELECT * FROM lockdownlinks WHERE timeremove < ?`;
-            let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
-            connection.query(query, data, function (error, results, fields) {
-                  if (error) {
-                        console.log('backend error for checking active bans')
-                        return console.log(error)
-                  }
-                  if (results !== ``) {
-                        for (row of results) {
-                              query = "DELETE FROM lockdownlinks WHERE id = ?";
-                              data = [row["id"]]
-                              connection.query(query, data, function (error, results, fields) {
-                                    if (error) return console.log(error)
-                              })
-                              var serverid = row["serverid"];
-                              var invitecode = row["invitecode"];
-                              let guild = client.guilds.cache.get(serverid);
-                              if (!guild) { guild = 'unknownguild' }
-                              return console.log(`Blacklist on invite ${invitecode} has expired for guild ${guild}(${serverid})`)
-                        }
-                  }
-            })
-      }, 60000);
-      let alllogs = client.channels.cache.get('986882651921190932');
-      alllogs.send(`Bot started up <@!508847949413875712>`);
-      let rating = Math.floor(Math.random() * 2) + 1;
-      if (rating == 1) {
-            client.user.setPresence({ status: 'dnd' });
-      }
-      await client.guilds.cache.forEach(async guild => {
-            await guild.members.fetch();
-            if (guild.me.permissions.has('MANAGE_GUILD')) {
-                  const newinvites = await guild.invites.fetch();
-                  newinvites.forEach(async invite => {
-                        if (invite.inviter) {
-                              query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
-                              data = [guild.id, invite.inviter.id, invite.code, invite.uses];
-                              connection.query(query, data, function (error, results, fields) {
-                                    if (error) return console.log(error);
-                              })
-                        } else {
-                              console.log(invite)
-                        }
-                  })
+    let data = [];
+    connection.query(query, data, function (error, results, fields) {
+        if (error) return console.log(error);
+    });
+    query = "DELETE FROM activeinvites";
+    data = [];
+    connection.query(query, data, function (error, results, fields) {
+        if (error) return console.log(error);
+    });
+    setInterval(() => { // 1 min interval, being used for blacklisted invites checking
+        let query = `SELECT * FROM lockdownlinks WHERE timeremove < ?`;
+        let data = [Number(Date.now(unix).toString().slice(0, -3).valueOf())]
+        connection.query(query, data, function (error, results, fields) {
+            if (error) {
+                console.log('backend error for checking active bans')
+                return console.log(error)
             }
-      })
+            if (results !== ``) {
+                for (row of results) {
+                    query = "DELETE FROM lockdownlinks WHERE id = ?";
+                    data = [row["id"]]
+                    connection.query(query, data, function (error, results, fields) {
+                        if (error) return console.log(error)
+                    })
+                    var serverid = row["serverid"];
+                    var invitecode = row["invitecode"];
+                    let guild = client.guilds.cache.get(serverid);
+                    if (!guild) { guild = 'unknownguild' }
+                    return console.log(`Blacklist on invite ${invitecode} has expired for guild ${guild}(${serverid})`)
+                }
+            }
+        })
+    }, 60000);
+    let alllogs = client.channels.cache.get('986882651921190932');
+    alllogs.send(`Bot started up <@!508847949413875712>`);
+    let rating = Math.floor(Math.random() * 2) + 1;
+    if (rating == 1) {
+        client.user.setPresence({ status: 'dnd' });
+    }
+    await client.guilds.cache.forEach(async guild => {
+        await guild.members.fetch();
+        if (guild.me.permissions.has('MANAGE_GUILD')) {
+            const newinvites = await guild.invites.fetch();
+            newinvites.forEach(async invite => {
+                if (invite.inviter) {
+                    query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
+                    data = [guild.id, invite.inviter.id, invite.code, invite.uses];
+                    connection.query(query, data, function (error, results, fields) {
+                        if (error) return console.log(error);
+                    })
+                } else {
+                    console.log(invite)
+                }
+            })
+        }
+    })
 }
 
 async function Help_INIT(client, Discord) {

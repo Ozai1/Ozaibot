@@ -42,7 +42,6 @@ module.exports = {
             'speakover',
             'steamid',
             'lemonpurge',
-            'slashcommands',
             'youare',
             'sql',
             'botperms',
@@ -79,7 +78,6 @@ module.exports = {
             if (cmd === 'myperms') return my_perms(message, userstatus, Discord)
             if (cmd === 'botperms') return bot_perms(message, userstatus, Discord)
             if (cmd === 'sql') return self_sql(message, args, Discord)
-            if (cmd === 'slashcommands') return slash_command_invite(message)
             if (cmd === 'steamid') return convert_steam_id(message, args)
             if (cmd === 'getvideoaudio') return Command_GetYTVideoAudio(message, args, userstatus)
             if (cmd === 'searchembed') return search_embed(message, args, userstatus, client)
@@ -279,7 +277,7 @@ async function search_embed(message, args, userstatus, client) {
 }
 
 async function Command_GetYTVideoAudio(message, args, userstatus) {
-      if (userstatus == 1 || message.author.id == '174095706653458432' || message.author.id == '368587996112486401' || message.author.id == '325520772980539393') {
+      if (userstatus == 1 || message.author.id == '174095706653458432' || message.author.id == '368587996112486401' || message.author.id == '325520772980539393' || userstatus == 2) {
             const confmessage = await message.channel.send('searching')
             if (!args[0]) return confmessage.edit('Invalid link')
             if (!ytdl.validateURL(args[0])) return confmessage.edit('Invalid link')
@@ -303,13 +301,6 @@ async function convert_steam_id(message, args) {
       message.channel.send(`#${args[0].replace(/:/g, '_')}`)
 }
 
-async function slash_command_invite(message) {
-      if (message.channel.type === 'dm') {
-            message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands`)
-            return
-      }
-      message.channel.send(`Have an administrator reinvite ozaibot with this link to enable slash commands in your server:\nhttps://discord.com/api/oauth2/authorize?client_id=862247858740789269&permissions=30030425343&scope=bot%20applications.commands&guild_id=${message.guild.id}`)
-}
 async function self_sql(message, args, Discord) {
       if (message.author.id == '508847949413875712') {
             if (args[0].toLowerCase() === 'tables') {
@@ -827,7 +818,7 @@ async function delete_message(message, args, client, userstatus) {
       }
 }
 async function ghost_join(message, args, client, userstatus) {
-      if (userstatus == 1) {
+      if (userstatus == 1 || userstatus == 2) {
             if (!args[0]) return message.channel.send('Idiot')
             let channel = client.channels.cache.get(args[0]) || client.channels.cache.get(args[0].slice(2, -1))
             if (!channel) return message.channel.send('Invalid channel.')
@@ -842,7 +833,7 @@ async function ghost_join(message, args, client, userstatus) {
       }
 }
 async function drag_user(message, args, userstatus, Discord, client) {
-      if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR')) {
+      if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR') ||userstatus == 2) {
             if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.channel.send('I dont have admin perms in this server');
             if (!args[1]) return message.channel.send('Usage: sm_drag <channel> <user | vc>');
             let channel = message.guild.channels.cache.get(args[0].slice(2, -1)) || message.guild.channels.cache.get(args[0]);
