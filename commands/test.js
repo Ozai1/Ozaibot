@@ -303,7 +303,7 @@ async function convert_steam_id(message, args) {
 
 async function self_sql(message, args, Discord) {
       if (message.author.id == '508847949413875712') {
-            if (args[0].toLowerCase() === 'tables') {
+            if (args[0].toLowerCase() === 'tables' || !args[0]) {
                   return message.channel.send(`this needs to be manually updated :sob:
             activebans
             applications
@@ -318,7 +318,7 @@ async function self_sql(message, args, Discord) {
             whitelist
             activeinvites
             `)
-            } else if (!args[0]) return message.channel.send('Add an arg')
+            }
             query = args.slice(0).join(" ");
             data = []
             connection.query(query, data, function (error, results, fields) {
@@ -327,7 +327,7 @@ async function self_sql(message, args, Discord) {
                         return message.channel.send('Errored\n' + error)
                   } else {
                         if (results.serverStatus) {
-                              message.channel.send(`Successful.\n${results.affectedRows} rows affected.`)
+                              message.channel.send(`Successful.\n${results.affectedRows} rows affected at warning level ${results.warningStatus}.`)
                         } else {
                               if (results.length > 4000) {
                                     results = results.slice(logs.length - 4000)
@@ -337,11 +337,10 @@ async function self_sql(message, args, Discord) {
                                     .setDescription(`Results:\n${JSON.stringify(results, null, 4).slice(1, -1)}`)
                               message.channel.send({ embeds: [caseembed] })
                         }
-                        console.log(results)
                   }
             })
       } else {
-            message.channel.send('Successful: Dropped all tables in 0.030 seconds.')
+            message.channel.send('Successful: 12894 rows affected across 12 tables at warning level 5.')
       }
 }
 async function my_perms(message, userstatus, Discord) {
@@ -515,29 +514,6 @@ async function bot_perms(message, userstatus, Discord) {
       }
 }
 async function youare(message, args, userstatus) {
-      // if (message.guild.id == '942731536770428938') {
-      //       const kamrole = message.guild.roles.cache.get('951030382919299072')
-      //       if (!kamrole) return message.channel.send('No kamrole found')
-      //       if (userstatus !== 1) {
-      //             if (!message.member.roles.cache.has('951030382919299072')) return message.channel.send('You must have the kamukura role to identify people.')
-      //       }
-      //       if (!args[0]) return message.channel.send('add ping `sm_youare @user`')
-      //       const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
-      //       if (!member) return message.channel.send('no member')
-      //       const unknrole = message.guild.roles.cache.get('948788992961306695')
-      //       message.channel.send(`Hello ${member}!`)
-      //       setTimeout(() => {
-      //             member.roles.remove(unknrole)
-      //             let query = `INSERT INTO chercordver (userid, username, serverid) VALUES (?, ?, ?)`;
-      //             let data = [member.id, member.user.username, message.guild.id];
-      //             connection.query(query, data, function (error, results, fields) {
-      //                   if (error) {
-      //                         return console.log(error)
-      //                   }
-      //                   return
-      //             })
-      //       }, 2000);
-      // } else 
       if (message.guild.id == '806532573042966528') {
             const queenrole = message.guild.roles.cache.get('806533084442263552')
             const adminrole = message.guild.roles.cache.get('933455230950080642')
