@@ -1,19 +1,8 @@
 console.log('Stwarting Ozwaibot!!!');
 const { exec } = require("child_process");
 const Discord = require('discord.js');
-const mysql = require('mysql2');
 require('dotenv').config();
 const { GetMember } = require('./moderationinc')
-const connection = mysql.createPool({
-    host: '112.213.34.137',
-    port: '3306',
-    user: 'root',
-    password: process.env.DATABASE_PASSWORD,
-    database: 'ozaibot',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
 
 const client = new Discord.Client({
     intents: 37635, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
