@@ -16,7 +16,7 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 let failed = '';
-//!this whole file is bascially what ready used to be
+//!this whole file is bascially what client.ready used to be
 
 
 module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before client fires ready, allows for updating before the bot has authed to discord
@@ -35,7 +35,7 @@ module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before cli
     client.help = new Map();
     client.modlogs = new Map();
     client.invites = new Map(); // once up in the hundreds of servers this could overload because of size
-    client.lockedvoicechannels = [];
+    client.lockedvoicechannels = ['1037315858206314576'];
     client.antiscamspam = new Map();
     client.failedrequests = new Map();
     client.isdatabasedown = false;
@@ -170,7 +170,6 @@ async function UserStatus_INIT(client) {
             if (!failed.includes('Userstatus')) {
                 failed += '<:cross:990176341708124160> Userstatus\n'
             }
-
             console.error(error)
             return
         }

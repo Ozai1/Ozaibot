@@ -15,7 +15,7 @@ Pre_Login_INIT(client, Discord);
 
 client.on('ready', async () => {
       console.log(`Signed into ${client.user.tag}`);
-      Main_INIT(client, Discord)
+      Main_INIT(client, Discord);
 });
 
 client.login(process.env.DISCORD_TOKEN);
