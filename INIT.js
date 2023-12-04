@@ -1,5 +1,6 @@
 const { PunishmentExpire } = require('./punishexpire')
 const { Music_Bot_INIT } = require('./music_bot_listeners')
+const {check_for_warning_level_decrease} = require('./bannedwords')
 const synchronizeSlashCommands = require('discord-sync-commands-v14');
 const { unix } = require('moment');
 const { Player } = require('discord-player');
@@ -40,6 +41,9 @@ module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before cli
     client.failedrequests = new Map();
     client.isdatabasedown = false;
     client.helpmessageownership = new Map();
+    client.bannedwords = new Map();
+    client.bannedwordspunishments = new Map();
+    client.bannedwordswarninglevels = new Map();
 
     Help_INIT(client, Discord)
     UserStatus_INIT(client)
@@ -48,7 +52,6 @@ module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before cli
     MuteRole_INIT(client)
     WelcomeChannels_INIT(client)
     PunishNotif_INIT(client)
-
     ModLogs_INIT(client)
 
     // music bot shit
@@ -59,16 +62,21 @@ module.exports.Pre_Login_INIT = async (client, Discord) => { // fires before cli
     client.events = new Discord.Collection();
 
     Music_Bot_INIT(client)
+    // end music bot shit
+
+    check_for_warning_level_decrease(client)
+
     console.log('Pre Login Init Done')
 }
 
 module.exports.Main_INIT = async (client, Discord) => {
 
-    Invites_INIT(client)
-    PunishmentExpire(client, Discord)
-    AntiScamSpam_INIT(client)
-    Permissions_INIT(client)
-    CurrentCaseNumber_INIT(client)
+    Invites_INIT(client);
+    PunishmentExpire(client, Discord);
+    AntiScamSpam_INIT(client);
+    Permissions_INIT(client);
+    CurrentCaseNumber_INIT(client);
+    BannedWords_INIT(client)
     fs.readdir("./slashcommands/", (_err, files) => {
         synchronizeSlashCommands(client, client.slashcommands.map((command) => ({
             name: command.name,
@@ -335,6 +343,13 @@ async function Permissions_INIT(client) {
             if (row["type"] === 'r') {
                 if (!row["positive"] == '') {
                     let posmap = client.positiverolepermissions.get(serverid)
+                    if (!posmap) {
+                        client.positiverolepermissions.set(serverid, new Map())
+                        client.negativerolepermissions.set(serverid, new Map())
+                        client.positiveuserpermissions.set(serverid, new Map())
+                        client.negativeuserpermissions.set(serverid, new Map())
+                        posmap = client.positiverolepermissions.get(serverid)
+                    }
                     posmap.set(whateverid, row["positive"])
                 }
                 if (!row["negative"] == '') {
@@ -345,6 +360,13 @@ async function Permissions_INIT(client) {
             } else {
                 if (!row["positive"] == '') {
                     let posmap = client.positiveuserpermissions.get(serverid)
+                    if (!posmap) {
+                        client.positiverolepermissions.set(serverid, new Map())
+                        client.negativerolepermissions.set(serverid, new Map())
+                        client.positiveuserpermissions.set(serverid, new Map())
+                        client.negativeuserpermissions.set(serverid, new Map())
+                        posmap = client.positiveuserpermissions.get(serverid)
+                    }
                     posmap.set(whateverid, row["positive"])
                 }
                 if (!row["negative"] == '') {
@@ -382,7 +404,7 @@ async function AntiScamSpam_INIT(client) {
     })
     let query = "SELECT * FROM serverconfigs WHERE type = ?";
     let data = ['linkspam']
-    connection.query(query, data, function (error, results, fields) {
+    connection.query(query, data, async function (error, results, fields) {
         if (error) {
             for (let i = 0; i < 10; i++) {
                 console.error('**** SCAMSPAM FAILED TO INIT **** ABORTING BOT START ****')
@@ -394,9 +416,15 @@ async function AntiScamSpam_INIT(client) {
             return
         }
         for (row of results) {
-            let current = client.antiscamspam.get(row["serverid"])
+            if (!client.antiscamspam.get(row["serverid"])) {
+                client.antiscamspam.set(row["serverid"], new Map())
+            }
+            if (!client.antiscamspam.get(row["serverid"])) {
+                client.antiscamspam.set(row["serverid"], new Map())
+            }
+            let current = await client.antiscamspam.get(row["serverid"])
             if (row["details"]) {
-                current.set('punishtype', row["details"])
+                current.set('punishtype', row["serverid"])
             }
             if (row["details2"]) {
                 current.set('punishtypemass', row["details2"])
@@ -404,9 +432,75 @@ async function AntiScamSpam_INIT(client) {
             if (row["details3"]) {
                 current.set('punishlength', row["details3"])
             }
-            if (row["details3"]) {
+            if (row["details4"]) {
                 current.set('punishlengthmass', row["details4"])
             }
         }
     })
+}
+
+async function BannedWords_INIT(client) {
+    client.guilds.cache.forEach(guild => {
+        client.bannedwords.set(guild.id, [])
+        client.bannedwordspunishments.set(guild.id, new Map())
+        client.bannedwordswarninglevels.set(guild.id, new Map())
+    })
+    let query = "SELECT * FROM serverconfigs WHERE type = ?";
+    let data = ['bannedwords']
+    connection.query(query, data, async function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.log('**** BANNEDWORDS FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            if (!failed.includes('Userstatus')) {
+                failed += '<:cross:990176341708124160> Userstatus\n'
+            }
+            console.error(error)
+            return
+        }
+        for (row of results) {
+            if (!client.bannedwords.get(row["serverid"])) {
+                client.bannedwords.set(row["serverid"], new Map())
+            } if (!client.bannedwordspunishments.get(row["serverid"])) {
+                client.bannedwordspunishments.set(guild.id, new Map())
+            } if (!client.bannedwordswarninglevels.get(row["serverid"])) {
+                client.bannedwordswarninglevels.set(guild.id, new Map())
+            }
+            let current = await client.bannedwords.get(row["serverid"]).push(row["details"])
+
+            current = client.bannedwordspunishments.get(row["serverid"])
+
+            let object2 = Object()
+            object2.punishwarninglevel = row["details2"]
+            if (row["details3"]) {
+                object2.punishtype = row["details3"]
+            }
+            if (row["details4"]) {
+                object2.punishlength = row["details4"]
+            }
+            current.set(row["details"], object2)
+        }
+    })
+    query = "SELECT * FROM serverconfigs WHERE type = ?";
+    data = ['bannedwordswarninglevelmax']
+    connection.query(query, data, async function (error, results, fields) {
+        if (error) {
+            for (let i = 0; i < 10; i++) {
+                console.log('**** BANNEDWORDS FAILED TO INIT **** ABORTING BOT START ****')
+            }
+            if (!failed.includes('Userstatus')) {
+                failed += '<:cross:990176341708124160> Userstatus\n'
+            }
+            console.error(error)
+            return
+        }
+        for (row of results) {
+            if (!client.bannedwordswarninglevels.get(row["serverid"])) {
+                client.bannedwordswarninglevels.set(row["serverid"], new Map())
+            }
+            client.bannedwordswarninglevels.get(row["serverid"])
+                .set(0, row["details"])
+        }
+    })
+
 }

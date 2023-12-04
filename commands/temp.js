@@ -26,22 +26,28 @@ module.exports = {
         // let member =await GetMember(message,client,args[0],Discord,true,false)
         // if (!member || member === 'cancelled')return message.channel.send('bad member')
         // thingm(Discord,client,member)
+        // let pattern = new RegExp('rude', 'g')
+        // if (message.content.match(pattern))return message.channel.send('flag true')
+        // message.channel.send('flag false')
+        const returnembed = new Discord.MessageEmbed()
+            .setTitle(`Toggle Soundboards Off`)
+            .setColor("GREEN")
 
         const button = new Discord.MessageActionRow()
             .addComponents(
                 new Discord.MessageButton()
-                    .setLabel(`BB`)
+                    .setLabel(`Toggle SoundBoards Off`)
                     .setStyle("PRIMARY")
-                    .setCustomId(`SEARCH_508847949413875712_1`)
+                    .setCustomId(`CUSTOM_TOGGLE_SOUNDBOARD`)
             )
-            const errorembed = new Discord.MessageEmbed()
-            .setColor(15684432)
-            .setDescription(`CONFIRM`)
-      return message.channel.send({ embeds: [errorembed], components: [button] })
+
+        let message2 = await message.channel.messages.fetch('1102205364625219684')
+        message2.edit({content: null, embeds: [returnembed], components: [button]})
+
     }
 }
 
-let query = ''
+        // let query = ''
         // let data = []
         // map.forEach((value, key) => {
         //     query = key

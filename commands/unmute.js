@@ -111,7 +111,7 @@ module.exports = {
 }
 async function mute_role(message, client, args, userstatus, Discord) {
       if (!userstatus == 1) {
-            if (!message.member.permissions.has("MANAGE_GUILD")) return message.channel.send("You do not have enough permissions to use this command.");
+            if (!message.member.permissions.has("MANAGE_GUILD")) return message.channel.send("You do not have access to this command.");
       }
       if (!args[0]) {
             const muteroleid = client.muteroles.get(message.guild.id)

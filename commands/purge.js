@@ -1,7 +1,8 @@
+const { isInteger } = require("mathjs");
 const { unix } = require("moment");
 const imissjansomuchithurts = 1420070400000
 const mysql = require('mysql2');
-const {HasPerms} = require("../moderationinc")
+const { HasPerms } = require("../moderationinc")
 
 require('dotenv').config();
 const connection = mysql.createPool({
@@ -23,18 +24,14 @@ module.exports = {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
         const conformationmessage = await message.channel.send('Deleting messages...').catch(err => { return console.log(err) })
         let hasperms = false
-        if (!message.member.permissions.has('MANAGE_CHANNELS')) { hasperms = 1; }
-        if (message.member.permissions.has('MANAGE_CHANNELS') && !message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 2; }
-        if (message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS')) { hasperms = 3; }
-        //if (message.member.permissions.has('ADMINISTRATOR')) { hasperms = 3; }
         if (userstatus !== 1) {
             let perms = await HasPerms(message, message.member, client, 'i', 'l')
-            if (!message.member.permissions.has("MANAGE_MESSAGES") && perms !== 1 || perms == 2 || hasperms == 1 || hasperms == 2) {
+            if (!message.channel.permissionsFor(message.member).has('MANAGE_CHANNELS') && perms !== 1 || perms == 2 || hasperms == 1 || hasperms == 2) {
                 const errorembed = new Discord.MessageEmbed()
                     .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
                     .setColor(15684432)
                     .setDescription(`You do not have access to this command.`)
-                return message.channel.send({ embeds: [errorembed] })
+                return conformationmessage.edit({ embeds: [errorembed], content: null })
             }
         }
         if (!message.guild.me.permissionsIn(message.channel).has("MANAGE_MESSAGES")) {
@@ -57,11 +54,12 @@ module.exports = {
             }
         }
         let amount = args[0]
-        if (!amount) return conformationmessage.edit('Usage: `sm_purge <amount> [<options]`').catch(err => { console.log(err) });
-        if (isNaN(amount)) return conformationmessage.edit('Usage: `sm_purge <amount> [<options]`').catch(err => { console.log(err) });
+        if (!amount) return conformationmessage.edit('Usage: `sm_purge <amount> [options]`').catch(err => { console.log(err) });
+        if (isNaN(amount)) return conformationmessage.edit('Usage: `sm_purge <amount> [options]`').catch(err => { console.log(err) });
         if (amount <= 0) return conformationmessage.edit(`${message.author}, You cannot delete less than 1 message.`).catch(err => { console.log(err) });
         if (amount > 1000) return conformationmessage.edit(`${message.author}, You cannot delete more than 1000 messages.`).catch(err => { console.log(err) });
-        if (isNaN(args[0]) || !args[0]) return conformationmessage.edit('Usage: `sm_purge <amount> [<options]`')
+        if (isNaN(args[0]) || !args[0]) return conformationmessage.edit('Usage: `sm_purge <amount> [options]`')
+        if (!isInteger(amount)) return conformationmessage.edit(`${message.author}, The amount must be a whole number.`).catch(err => { console.log(err) });
         let members = [];
         let silent = false;
         let haslinks = false;

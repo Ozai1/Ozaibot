@@ -84,52 +84,45 @@ module.exports = async (Discord, client, interaction) => {
 
             interaction.message.delete().catch(err => { console.error(err) })
         }
-        if (interaction.customId.startsWith('katban')) {
-            let userstatus = client.userstatus.get(interaction.user.id)
-            if (userstatus !== 1) {
-                let perms = await HasPerms(interaction.message, interaction.member, client, 'a', 'l')
-                if (!interaction.member.permissions.has("BAN_MEMBERS") && perms !== 1 || perms == 2) {
-                    const errorembed = new Discord.MessageEmbed()
-                        .setColor(15684432)
-                        .setDescription(`You do not have access to this button.`)
-                    return interaction.reply({ embeds: [errorembed], ephemeral: true })
+        if (interaction.customId.startsWith('CUSTOM_')) {
+            if (interaction.customId === 'CUSTOM_TOGGLE_SOUNDBOARD') {
+                if (interaction.guild.roles.everyone.permissions.has('USE_SOUNDBOARD')) { // 0x40000000000
+                    interaction.guild.roles.everyone.setPermissions(968644480577).catch(err => { console.log(err) }) //allow standard perms minus soundboard
+                    interaction.channel.send(({ content: 'Disabled soundboard perms' })).then(message => message.delete({ timeout: 2000 })).catch(err => { console.log(err) });
+                    const returnembed = new Discord.MessageEmbed()
+                        .setTitle(`Toggle Soundboards On`)
+                        .setColor("GREEN")
+
+                    const button = new Discord.MessageActionRow()
+                        .addComponents(
+                            new Discord.MessageButton()
+                                .setLabel(`Toggle SoundBoards On`)
+                                .setStyle("PRIMARY")
+                                .setCustomId(`CUSTOM_TOGGLE_SOUNDBOARD`)
+                        )
+
+                    let message2 = await interaction.channel.messages.fetch('1102205364625219684')
+                    message2.edit({ embeds: [returnembed], components: [button] })
+                    
+                } else {
+                    interaction.guild.roles.everyone.setPermissions(5366690991681).catch(err => { console.log(err) }) // allow standard perms including soundboard
+                    interaction.channel.send(({ content: 'Enabled soundboard perms' })).then(message => message.delete({ timeout: 2000 })).catch(err => { console.log(err) });
+                    const returnembed = new Discord.MessageEmbed()
+                        .setTitle(`Toggle Soundboards Off`)
+                        .setColor("RED")
+
+                    const button = new Discord.MessageActionRow()
+                        .addComponents(
+                            new Discord.MessageButton()
+                                .setLabel(`Toggle SoundBoards Off`)
+                                .setStyle("PRIMARY")
+                                .setCustomId(`CUSTOM_TOGGLE_SOUNDBOARD`)
+                        )
+
+                    let message2 = await interaction.channel.messages.fetch('1102205364625219684')
+                    message2.edit({ embeds: [returnembed], components: [button] })
                 }
             }
-            let member = interaction.message.guild.members.cache.get(interaction.customId.slice(6))
-            if (!member) {
-                return interaction.reply({ content: `User is no longer in this server.`, ephemeral: true })
-            }
-            if (!member.bannable) {
-                return interaction.reply({ content: `I no longer have high enough perms to ban this member.`, ephemeral: true })
-            }
-            await interaction.reply(`<@${interaction.user.id}>, Banning...`)
-            const returnembed = new Discord.MessageEmbed()
-                .setDescription(`<:check:988867881200652348> ${member} has been **banned**.`)
-                .setColor("GREEN")
-            interaction.message.channel.send({ embeds: [returnembed] })
-            await interaction.message.guild.members.ban(member, { reason: `Banned by admin (${interaction.user.username}) pressing the ban button in the verification channel` }).catch(err => {
-                console.log(err)
-                interaction.message.channel.send('Failed to ban.')
-                return
-            })
-            interaction.message.edit({ components: [] })
-        }
-        if (interaction.customId.startsWith('katver')) {
-            let member = interaction.message.guild.members.cache.get(interaction.customId.slice(6))
-            if (!member) return interaction.reply({ content: `User is no longer in this server.`, ephemeral: true })
-            const unknrole = interaction.guild.roles.cache.get('922514880102277161')
-            interaction.reply(`<@${interaction.user.id}> verified ${member}`)
-            setTimeout(() => {
-                member.roles.remove(unknrole)
-                let query = `INSERT INTO chercordver (userid, username, serverid) VALUES (?, ?, ?)`;
-                let data = [member.id, member.user.username, interaction.message.guild.id];
-                connection.query(query, data, function (error, results, fields) {
-                    if (error) {
-                        return console.log(error)
-                    }
-                })
-            }, 2000);
-            interaction.message.edit({ components: [] })
         }
         if (interaction.customId.startsWith("SEARCH_")) {
             SearchButton(interaction, client, Discord)

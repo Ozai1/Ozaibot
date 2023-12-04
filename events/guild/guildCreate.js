@@ -20,14 +20,16 @@ module.exports = async (Discord, client, guildCreate) => {
         totalmembers = totalmembers + 1;
     })
     if (guild.me.permissions.has('MANAGE_GUILD')) {
-        const newinvites = await guild.invites.fetch();
-        newinvites.forEach(async invite => {
-            let query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
-            let data = [guild.id, invite.inviter.id, invite.code, invite.uses];
-            connection.query(query, data, function (error, results, fields) {
-                if (error) return console.log(error);
+        const newinvites = await guild.invites.fetch().catch(err => { console.error(err) });
+        if (newinvites) {
+            newinvites.forEach(async invite => {
+                let query = `INSERT INTO activeinvites (serverid, inviterid, invitecode, uses) VALUES (?, ?, ?, ?)`;
+                let data = [guild.id, invite.inviter.id, invite.code, invite.uses];
+                connection.query(query, data, function (error, results, fields) {
+                    if (error) return console.log(error);
+                })
             })
-        })
+        }
     }
     query = `SELECT MAX(casenumber) FROM serverpunishments WHERE serverid = ?`;
     data = [guild.id];
@@ -53,7 +55,6 @@ module.exports = async (Discord, client, guildCreate) => {
         .setDescription(`Ozaibot has been added to a new server. \nServer = ${guild.name}\nID = ${guild.id}\nGuildOwner = <@${guildowner.id}> (${guildowner.id})\n Members: ${totalmembers}`)
         .setTimestamp()
     alllogs.send({ content: '<@508847949413875712>', embeds: [commandembed] })
-
     query = `SELECT * FROM serverconfigs WHERE serverid = ? && type = ?`;
     data = [guild.id, 'guildblacklisted'];
     connection.query(query, data, function (error, results, fields) {

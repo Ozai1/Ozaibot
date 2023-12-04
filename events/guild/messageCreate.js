@@ -1,6 +1,8 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 const { LinkDetected } = require('../../antiscamspam')
+const { Rcon } = require('rcon-client')
+const { exec } = require("child_process");
 const connection = mysql.createPool({
     host: '112.213.34.137',
     port: '3306',
@@ -12,13 +14,22 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 const { HasPerms } = require("../../moderationinc")
+const { check_for_banned_words } = require("../../bannedwords")
+
+allowedrcon = [
+
+    '174095706653458432',// dad
+    '757921502820696144',// huntress
+    '508847949413875712',// ozai
+    '146797644939788288', // rocky
+    '378460598696148993', // 8ball
+    '736045395221676082', // ghosty
+    '957225129400737842', // redeem
+    '386516963318562816' // kinkdaddy
+]
+
 module.exports = async (Discord, client, message) => {
-    if (message.author.id !== '940296225947799603') {
-        if (message.author.bot) return
-    }
-    // if (message.content.toLowerCase().startsWith('who is ')){
-    //     return message.channel.send('A sick cunt obviously.')
-    // }
+    if (message.author.bot) return
     if (message.channel.name === undefined) {
         if (message.author.id === client.user.id) return
         let dmlogs = client.channels.cache.get('986883430388207646');
@@ -37,6 +48,50 @@ module.exports = async (Discord, client, message) => {
         if (message.content.toLowerCase().includes('https://') || message.content.toLowerCase().includes('http://') || message.content.toLowerCase().includes('www.') || message.content.toLowerCase().includes('discord.gg/')) {
             LinkDetected(message, client, Discord)
         }
+        check_for_banned_words(message, client, Discord)
+        if (message.channel.id == '1082526894869729370' || message.channel.id == '1084069271778377828' || message.channel.id == '1165861892233887785') {
+            if (message.content.startsWith("!")) return
+            if (message.author.id !== '508847949413875712') {
+                if (message.content.toLowerCase().startsWith('op') || message.content.toLowerCase().startsWith('deop') || message.content.toLowerCase().startsWith('fill')) {
+                    message.channel.permissionOverwrites.edit(message.author.id, { VIEW_CHANNEL: false }).catch(err => { console.log(err) })
+                    return message.channel.send('retard')
+                }
+            }
+            if (message.channel.id == '1165861892233887785') {
+                if (message.author.id !== "332182924528975872") return message.reply("u not tavis")
+            }
+            const rcon = await Rcon.connect({
+                host: "112.213.34.137", port: 25575, password: `dLp3v34Y`
+            })
+            let response = await rcon.send(message.content)
+            if (!response) { response = "Successful" }
+            message.reply(`**${message.author.tag}** executed **${message.content}\n\nResponse:** ${response}`)
+            rcon.end()
+        }
+        if (message.channel.id == "987189986732412979" || message.channel.id =="1181037684517511239") {
+            if (message.content.toLowerCase().startsWith("rcon ")) {
+                if (!allowedrcon.includes(message.author.id)) return message.reply("Missing Permissions.")
+                if (message.content.includes(`"`)) return message.reply("sorry, commands can't contain any \"s")
+                let commandrun = message.content.slice(5)
+                exec(`/home/Ozaibot/events/guild/rcon/rcon -a 175.45.181.7:27015 -p awLOgErmAL "${commandrun}"`, (error, logs /*this is everything */, stderrors /*this will be only errors in the logs*/) => {
+                    if (error) {
+                        console.log(`exec error: ${error}`);
+                        return message.channel.send(`Errored; ${stderrors}`)
+                    }
+                    if (logs.length > 1028) {
+                        logs = logs.slice(logs.length - 1028)
+                    }
+                    if (!logs) {logs = "No response given."}
+                    console.log(`**${message.author.username}** executed \`${commandrun}\`\nResponse:\n\`\`\`${logs}\`\`\``)
+                    return message.reply(`**${message.author.username}** executed \`${commandrun}\`\nResponse:\n\`\`\`${logs}\`\`\``)
+                });
+            }
+        }
+        if (message.guild.id == '1097198237062025349') {
+            if (message.mentions.members.first()) {
+                message.guild.channels.cache.get('1106026288763912323').send(`${message.author.tag} pinged ${message.mentions.members.first().user.tag} in ${message.channel.name}`)
+            }
+        }
     }
     if (message.content.toLowerCase().startsWith(prefix) || message.content.toLowerCase().startsWith(` ${prefix}`) || message.content.startsWith('<@862247858740789269>') || message.content.startsWith('<@!862247858740789269>')) {
         if (message.guild) {
@@ -53,8 +108,8 @@ module.exports = async (Discord, client, message) => {
                     return message.author.send('I do not have permission to **embed links** in the channel you just sent a command in.\nThis means **i cannot respond to you properly**.\n\nPlease contact an administrator to give me permissions to embed links.').catch(err => { })
                 }
             }
-
         }
+
         let args = undefined
         let cmd = undefined
         let command = undefined
@@ -115,7 +170,9 @@ module.exports = async (Discord, client, message) => {
     }
 }
 
+
 async function logcommand(message) {
+
     query = "SELECT * FROM totalcmds WHERE userid = ?";
     data = [message.author.id]
     connection.query(query, data, function (error, results, fields) {

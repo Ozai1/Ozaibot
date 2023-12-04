@@ -11,7 +11,10 @@ module.exports = async (Discord, client, oldstate, newstate) => {
         if (client.lockedvoicechannels.includes(newstate.channelId)) {
             newstate.member.voice.setChannel(null, 'Channel has been locked by command, Kicking from VC. To unlock channel, use `lockvc [channel]`').catch(err => { console.log(err) })
         }
-        return //console.log(`${oldstate.member.user.tag} moved channels`)
+        if (newstate.member.id == '753454519937007696' || newstate.member.id == '949162832396693514') {
+            client.users.cache.get('508847949413875712').send(`${member.user.tag} has joined <#${newstate.channelId}>`);
+        }
+        //console.log(`${oldstate.member.user.tag} moved channels`)
     }
     if (oldstate.selfDeaf && !newstate.selfDeaf) return //console.log(`${oldstate.member.user.tag} un-deafened`)
     if (oldstate.selfMute && !newstate.selfMute && !newstate.selfDeaf) return //console.log(`${oldstate.member.user.tag} un-muted`)
@@ -22,7 +25,15 @@ module.exports = async (Discord, client, oldstate, newstate) => {
     if (oldstate.streaming && !newstate.streaming) return //console.log(`${oldstate.member.user.tag} stopped streaming`)
     if (!oldstate.streaming && newstate.streaming) return //console.log(`${oldstate.member.user.tag} started streaming`)
     if (oldstate.serverDeaf && !newstate.serverDeaf) return// console.log(`${oldstate.member.user.tag} was un-force-deafened`)
-    if (!oldstate.serverDeaf && newstate.serverDeaf) return //console.log(`${oldstate.member.user.tag} was force-deafened`)
+    if (!oldstate.serverDeaf && newstate.serverDeaf)/* {
+        if (newstate.member.id == '508847949413875712') {
+            newstate.member.voice.setDeaf(false)
+        }
+    } */return //console.log(`${oldstate.member.user.tag} was force-deafened`)
     if (oldstate.serverMute && !newstate.serverMute) return //console.log(`${oldstate.member.user.tag} was un-force-muted`)
-    if (!oldstate.serverMute && newstate.serverMute) return //console.log(`${oldstate.member.user.tag} was force-muted`)
+    if (!oldstate.serverMute && newstate.serverMute) /* {
+        if (newstate.member.id == '508847949413875712') {
+            newstate.member.voice.setMute(false)
+        }
+    } */ return //console.log(`${oldstate.member.user.tag} was force-muted`)
 }

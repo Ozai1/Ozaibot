@@ -108,7 +108,8 @@ module.exports = {
                         .setDescription(`This member is already muted.`)
                   return message.channel.send({ embeds: [errorembed] })
             }
-            member.roles.add(muterole).catch(err => {
+            let casenumber = client.currentcasenumber.get(message.guild.id) + 1
+            member.roles.add(muterole, `User muted by ${message.author.tag} (${message.author.id}) - Case #${casenumber}`).catch(err => {
                   console.log(err)
                   console.log('Failed; unable to add muterole to member')
                   return message.channel.send('Failed; unable to add muterole to member')
@@ -138,7 +139,6 @@ module.exports = {
             } else {
                   muteduration = 0
             }
-            let casenumber = client.currentcasenumber.get(message.guild.id) + 1
             const returnembed = new Discord.MessageEmbed()
                   .setTitle(`Case #${casenumber}`)
                   .setDescription(`<:check:988867881200652348> ${member} has been **muted**${display}.`)

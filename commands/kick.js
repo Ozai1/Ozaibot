@@ -49,7 +49,7 @@ module.exports = {
                   .setColor("GREEN")
             message.channel.send({ embeds: [returnembed] })
             await NotifyUser(5, message, `You have been kicked from ${message.guild}`, member, reason, 0, client, Discord)
-            await member.kick({ reason: `${reason} - ${message.author.tag}` }).catch(err => {
+            await message.guild.members.kick(member,  `${reason} - ${message.author.tag} (${message.author.id})`).catch(err => {
                   console.log(err)
                   message.channel.send('Failed to kick')
                   return

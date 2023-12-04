@@ -1,4 +1,4 @@
-const maxVol = 200
+const maxVol = 150
 
 module.exports = {
     description: "Allows you to adjust the music volume.",
@@ -17,7 +17,7 @@ module.exports = {
 
         const vol = parseInt(interaction.options.getInteger('volume'));
 
-        if (!vol) return interaction.reply({ content: `Current volume: **${queue.volume}** 🔊\n**To change the volume, choose a number between \`1\` and \`${maxVol}\` and use /volume.**\nVolume defaults to **50**.`, ephemeral: true }).catch(e => { })
+        if (!vol) return interaction.reply({ content: `Current volume: **${queue.volume}** 🔊\n**To change the volume, choose a number between \`1\` and \`${maxVol}\` and use /volume.**\nVolume defaults to **50**.` }).catch(e => { })
 
         if (queue.volume === vol) return interaction.reply({ content: `The volume you want to change is already the current volume ❌`, ephemeral: true }).catch(e => { })
 

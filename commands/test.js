@@ -88,17 +88,7 @@ module.exports = {
             if (cmd === 'rickroll') return rick_roll_channel(message, args, userstatus, client, Discord)
             if (cmd === 'punccheck') return Punctuation_check(message, args)
             if (cmd === 'wait') return command_wait(message, args, userstatus, client, Discord)
-            if (cmd === 'givegf') return Comamnd_givegf(message, args, client, Discord)
-            if (cmd === 'givebf') return Comamnd_givegf(message, args, client, Discord)
-            if (userstatus == 1) {
-
-            }
       }
-}
-async function Comamnd_givegf(message, args, client, Discord) {
-      cats = ["Not possible", "Done", "Done, ETA four years, seven months, ten days", "No lol", "L DESPERATE", "Negative"];
-      var random = cats[Math.floor(Math.random() * cats.length)];
-      message.channel.send(random)
 }
 
 let uppercase = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
@@ -276,23 +266,20 @@ async function search_embed(message, args, userstatus, client) {
       }
 }
 
+
 async function Command_GetYTVideoAudio(message, args, userstatus) {
       if (userstatus == 1 || message.author.id == '174095706653458432' || message.author.id == '368587996112486401' || message.author.id == '325520772980539393' || userstatus == 2) {
             const confmessage = await message.channel.send('searching')
             if (!args[0]) return confmessage.edit('Invalid link')
             if (!ytdl.validateURL(args[0])) return confmessage.edit('Invalid link')
-            try {
-                  const stream = ytdl(args[0], { filter: 'audioonly', highWaterMark: 1024 * 1024 * 1 })
-                  confmessage.edit('Video found; fetching audio now...')
-                  stream.pipe(fs.createWriteStream('audio.mp3')).on('finish', async finish => {
-                        await confmessage.edit({ files: ["./audio.mp3"], content: 'Finished:' })
-                        fs.unlinkSync('./audio.mp3')
-                        stream.destroy()
-                  })
-            } catch (err) {
-                  confmessage.edit(err)
-            }
 
+            const stream = ytdl(args[0], { filter: 'audioonly', highWaterMark: 1024 * 1024 * 1 })
+            confmessage.edit('Video found; fetching audio now...')
+            stream.pipe(fs.createWriteStream('audio.mp3')).on('finish', async finish => {
+                  await confmessage.edit({ files: ["./audio.mp3"], content: 'Finished:' })
+                  fs.unlinkSync('./audio.mp3')
+                  stream.destroy()
+            })
       }
 }
 
@@ -521,7 +508,7 @@ async function youare(message, args, userstatus) {
             const modrole = message.guild.roles.cache.get('907742217383321670')
             if (!queenrole || !adminrole || !unvrole || !modrole) return message.channel.send('Either the Queen bitchass, Admin role, the unverified role or the moderator role has been removed therefor the permissions for this command have been changed and the command cannot be used properly.')
             if (userstatus !== 1) {
-                  if (!message.member.roles.cache.has('806533084442263552') && !message.member.roles.cache.has('933455230950080642')&& !message.member.roles.cache.has('907742217383321670') && !userstatus == 1) return message.channel.send('You do not have access to this command.')
+                  if (!message.member.roles.cache.has('806533084442263552') && !message.member.roles.cache.has('933455230950080642') && !message.member.roles.cache.has('907742217383321670') && !userstatus == 1) return message.channel.send('You do not have access to this command.')
             }
             if (!args[0]) return message.channel.send('Add a member. Usage: `sm_youare @user`')
             const member = message.guild.members.cache.get(args[0].slice(3, -1)) || message.guild.members.cache.get(args[0]) || message.guild.members.cache.get(args[0].slice(2, -1));
@@ -598,7 +585,7 @@ async function ghost_join(message, args, client, userstatus) {
       }
 }
 async function drag_user(message, args, userstatus, Discord, client) {
-      if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR') ||userstatus == 2) {
+      if (userstatus == 1 || message.member.permissions.has('ADMINISTRATOR') || userstatus == 2) {
             if (!message.guild.me.permissions.has('ADMINISTRATOR')) return message.channel.send('I dont have admin perms in this server');
             if (!args[1]) return message.channel.send('Usage: sm_drag <channel> <user | vc>');
             let channel = message.guild.channels.cache.get(args[0].slice(2, -1)) || message.guild.channels.cache.get(args[0]);

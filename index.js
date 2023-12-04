@@ -6,7 +6,6 @@ require('dotenv').config();
 const client = new Discord.Client({
       intents: 3276799/* All intents because I have come to use them all :)*/, partials: ['MESSAGE', 'CHANNEL', 'REACTION'], disableMentions: 'everyone',
 });
-
 Pre_Login_INIT(client, Discord);
 
 ['command_handler', 'event_handler', 'slashcommand_handler'].forEach(handler => {

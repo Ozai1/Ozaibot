@@ -6,7 +6,7 @@ const connection = mysql.createPool({
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
-    database: 'ozaibot',
+    database: 'fearbot',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -48,7 +48,6 @@ module.exports.LinkDetected = async (message, client, Discord) => {
             let length = spammap.get('punishlength')
             return LinkSpamDetected(message, client, Discord, type, length)
         }
-
         spam.expiretime = Number(Date.now(unix).toString().slice(0, -3)) + 5
         spammap.set(message.author.id, spam)
     }

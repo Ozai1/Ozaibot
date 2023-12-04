@@ -20,7 +20,8 @@ module.exports = {
       async execute(message, client, cmd, args, Discord, userstatus) {
             if (!message.guild) return message.channel.send('This command must be used in a server.')
             if (!userstatus == 1) {
-                  if (!message.member.permissions.has('MANAGE_NICKNAMES')) return message.reply('You do not have access to this command.');
+                  //if (!message.member.permissions.has('MANAGE_NICKNAMES')) return message.reply('You do not have access to this command.');
+                  return
             } if (!message.guild.me.permissions.has('MANAGE_NICKNAMES')) return message.channel.send('Ozaibot does not have permissions to change nicknames in this server.');
             if (!args[1]) return message.channel.send('Usage is `sm_rename <@user> <new_name>`');
             let member = await GetMember(message, client, args[0], Discord, true, false)

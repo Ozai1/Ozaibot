@@ -15,6 +15,14 @@ module.exports = async (Discord, client, channel) => {
     let muteroleid = client.muteroles.get(channel.guild.id)
     if (!muteroleid) return
     const muterole = channel.guild.roles.cache.get(muteroleid)
+    
+    if (channel.permissionsFor(channel.guild.me).has('MANAGE_CHANNELS')) { //Shadowban Stuff for shh plz
+        if (channel) {
+            if (channel.permissionOverwrites) {
+                await channel.permissionOverwrites.edit('1090446141260316752', { VIEW_CHANNEL: false}).catch(err => { console.log(err) })
+            }
+        }
+    }
     if (!muterole) return
     if (channel.permissionsFor(channel.guild.me).has('MANAGE_CHANNELS')) {
         if (channel) {

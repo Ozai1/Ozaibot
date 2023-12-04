@@ -4,7 +4,7 @@ module.exports = {
         let object = Object()
         object.displayButtonsWhenNonEphemeral = true
         object.title = 'Welcome to Ozaibot'
-        object.description = `Checkout our website for more information.\nAlternatively use \`help modules\` for a list of modules.\n\nHelp command usage:\n\`help [command_name|module_name]\``
+        object.description = `Use \`help modules\` for a list of modules.\n\nHelp command usage:\n\`help [command_name|module_name]\``
         const button = new Discord.MessageActionRow()
             // .addComponents(
             //     new Discord.MessageButton()

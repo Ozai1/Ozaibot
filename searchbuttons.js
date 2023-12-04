@@ -7,7 +7,7 @@ const connection = mysql.createPool({
     port: '3306',
     user: 'root',
     password: process.env.DATABASE_PASSWORD,
-    database: 'ozaibot',
+    database: 'fearbot',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0

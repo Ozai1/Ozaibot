@@ -19,12 +19,12 @@ module.exports = {
     async execute(message, client, cmd, args, Discord, userstatus) {
         if (!message.guild) return message.channel.send('This command must be used in a server.')
         if (!message.member.permissions.has('ADMINISTRATOR') && !userstatus == 1) return message.channel.send('You do not have access to this command.')
-        if (!args[0]){
+        if (!args[0]) {
             const errorembed = new Discord.MessageEmbed()
-                        .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
-                        .setColor(15684432)
-                        .setDescription(`Invalid usage.\n\nProper useage:\n\`perms <member|role> [list|allow|deny|clear] [permission]\``)
-                  return message.channel.send({ embeds: [errorembed] })
+                .setAuthor({ name: `${message.author.tag}`, iconURL: message.author.avatarURL() })
+                .setColor(15684432)
+                .setDescription(`Invalid usage.\n\nProper useage:\n\`perms <member|role> [list|allow|deny|clear] [permission]\``)
+            return message.channel.send({ embeds: [errorembed] })
         }
         if (!args[1]) {
             const member = await GetMemberOrRole(message, client, args[0], Discord, true, true)
@@ -42,7 +42,7 @@ module.exports = {
             deny_perms(message, client, args, Discord, member)
         } else if (argument69420 === 'clear') {
             clear_perms(message, client, args, Discord, member)
-        }else if (argument69420 === 'search') {
+        } else if (argument69420 === 'search') {
             search_perms(message, client, args, DIscord, member)
         } else {
             return message.channel.send('Invalid usage.')

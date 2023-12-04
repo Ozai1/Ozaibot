@@ -36,11 +36,12 @@ module.exports.GetPunishmentDuration = async (string) => {
 * Generates a response messages for returning the amount of time a punishment was executed for
 * @param {integer} timeinseconds the length of the punish, in seconds 
 * @param {boolean} includeFor to include it saying for or just output the units
+* @param {null} selfcalled No touchie, this is param for the function to use internally
 * @returns {string} what actual length of time the user has selected. formated like: "for [amount] [unit]", space before "for" and no full stop at the end
-* @error if some dumb shit is inputed
+* @error returns undefined if some dumb shit is inputed
 */
 
-const GetDisplay = (timelength, includeFor = false) => {
+const GetDisplay = (timelength, includeFor = false, selfcalled) => {
     if (isNaN(timelength)) return
     if (timelength < 0) return
     let display = ''
@@ -52,7 +53,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         if (timelength == 60) {
             display = ` for **1 minute**`
         } else {
-            if (timelength > 60 * 2) { postfix = 's' }
+            if (timelength >= 60 * 2) { postfix = 's' }
             let stillreducing = true
             let howmany = 0
             while (stillreducing) {
@@ -71,7 +72,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         if (timelength == 3600) {
             display = ` for **1 hour**`
         } else {
-            if (timelength > 3600 * 2) { postfix = 's' }
+            if (timelength >= 3600 * 2) { postfix = 's' }
             let stillreducing = true
             let howmany = 0
             while (stillreducing) {
@@ -90,7 +91,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         if (timelength == 86400) {
             display = ` for **1 day**`
         } else {
-            if (timelength > 86400 * 2) { postfix = 's' }
+            if (timelength >= 86400 * 2) { postfix = 's' }
             let stillreducing = true
             let howmany = 0
             while (stillreducing) {
@@ -109,7 +110,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         if (timelength == 604800) {
             display = ` for **1 week**`
         } else {
-            if (timelength > 604800 * 2) { postfix = 's' }
+            if (timelength >= 604800 * 2) { postfix = 's' }
             let stillreducing = true
             let howmany = 0
             while (stillreducing) {
@@ -128,7 +129,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         if (timelength == 2592000) {
             display = ` for **1 month**`
         } else {
-            if (timelength > 2592000 * 2) { postfix = 's' }
+            if (timelength >= 2592000 * 2) { postfix = 's' }
             let stillreducing = true
             let howmany = 0
             while (stillreducing) {
@@ -147,7 +148,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         if (timelength == 31536000) {
             display = ` for **1 year**`
         } else {
-            if (timelength > 31536000 * 2) { postfix = 's' }
+            if (timelength >= 31536000 * 2) { postfix = 's' }
             let stillreducing = true
             let howmany = 0
             while (stillreducing) {
@@ -168,7 +169,7 @@ const GetDisplay = (timelength, includeFor = false) => {
         display = display.replace(/\*/g, '')
     }
     return display
-}
+} // make self calling for second (and maybe third/forth) unit of time
 
 module.exports.GetDisplay = GetDisplay
 
@@ -196,10 +197,11 @@ const GetSecondDisplayUnit = (timelength) => {
     } if (timelength >= 31536000) {
         if (timelength == 2592000) { postfix = '' }
         display = `${timelength / 2592000} year${postfix}`
-
     }
+
     if (display.includes('.')) {
         display = display.split('.')
+        display[0] = display[0] + display[1].slice(0, -display[1].length - 2)
         display[1] = display[1].replace(/[1-9]/g, '')
         display = display[0] + display[1]
     }

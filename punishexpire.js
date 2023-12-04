@@ -115,10 +115,9 @@ async function THE_THING_THAT_DOES_EVERYTHING_YEET(client, Discord) {
                         if (error) return console.log(error)
                     })
                     var channelid = row["channelid"];
-                    var userid = row["userid"];
                     let text = row["text"];
                     const channel = client.channels.cache.get(channelid);
-                    let member = channel.guild.members.cache.get(userid);
+                    if (!channel)return console.log('Reminder fail: Channel was not found')
                     channel.send(text).catch(err => console.log(err));
                 }
             }
